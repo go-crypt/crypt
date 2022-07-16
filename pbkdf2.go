@@ -16,6 +16,7 @@ const (
 	hashPBKDF2DefaultDigest           = DigestSHA256
 )
 
+// PBKDF2Hash is a Hash for PBKDF2 which provides a builder design pattern.
 type PBKDF2Hash struct {
 	digest     string
 	iterations int

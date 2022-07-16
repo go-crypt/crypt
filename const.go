@@ -6,6 +6,8 @@ import (
 )
 
 const (
+	AlgorithmPrefixPlainText    = "plaintext"
+	AlgorithmPrefixBase64       = "base64"
 	AlgorithmPrefixArgon2i      = "argon2i"
 	AlgorithmPrefixArgon2d      = "argon2d"
 	AlgorithmPrefixArgon2id     = "argon2id"
@@ -48,6 +50,17 @@ const (
 	StorageFormatScrypt   = "$%s$ln=%d,r=%d,p=%d,k=%d$%s$%s"
 	StorageFormatBcrypt   = "$%s$%d$%s%s"
 	StorageFormatPBKDF2   = "$%s$%d$%s$%s"
+	StorageFormatSimple   = "$%s$%s"
+)
+
+const (
+	oV  = "v"
+	oK  = "k"
+	oM  = "m"
+	oT  = "t"
+	oP  = "p"
+	oR  = "r"
+	oLN = "ln"
 )
 
 const (

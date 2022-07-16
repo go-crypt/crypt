@@ -17,6 +17,7 @@ func NewArgon2Hash() *Argon2Hash {
 	return &Argon2Hash{}
 }
 
+// Argon2Hash is a Hash for Argon2 which provides a builder design pattern.
 type Argon2Hash struct {
 	variant Argon2Variant
 

@@ -2,7 +2,6 @@ package crypt
 
 import (
 	"crypto/subtle"
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -10,6 +9,7 @@ import (
 	"github.com/go-crypt/x/argon2"
 )
 
+// Argon2Digest is a digest which handles Argon2 hashes like Argon2id, Argon2i, and Argon2d.
 type Argon2Digest struct {
 	variant Argon2Variant
 
@@ -20,40 +20,43 @@ type Argon2Digest struct {
 	salt, key []byte
 }
 
+// Match returns true if the string password matches the current Digest.
 func (d Argon2Digest) Match(password string) (match bool) {
-	if len(d.key) == 0 {
-		return false
-	}
-
-	return subtle.ConstantTimeCompare(d.key, d.variant.KeyFunc()([]byte(password), d.salt, d.t, d.m, d.p, d.k)) == 1
+	return d.MatchBytes([]byte(password))
 }
 
-func (d Argon2Digest) Encode() (hash string) {
-	prefix := AlgorithmPrefixArgon2id
-	switch d.variant {
-	case Argon2VariantI:
-		prefix = AlgorithmPrefixArgon2i
-	case Argon2VariantD:
-		prefix = AlgorithmPrefixArgon2d
-	}
+// MatchBytes returns true if the []byte passwordBytes matches the current Digest.
+func (d Argon2Digest) MatchBytes(passwordBytes []byte) (match bool) {
+	match, _ = d.MatchBytesAdvanced(passwordBytes)
 
+	return match
+}
+
+// MatchAdvanced is the same as Match except if there is an error it returns that as well.
+func (d Argon2Digest) MatchAdvanced(password string) (match bool, err error) {
+	return d.MatchBytesAdvanced([]byte(password))
+}
+
+// MatchBytesAdvanced is the same as MatchBytes except if there is an error it returns that as well.
+func (d Argon2Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
+	return subtle.ConstantTimeCompare(d.key, d.variant.KeyFunc()(passwordBytes, d.salt, d.t, d.m, d.p, d.k)) == 1, nil
+}
+
+// Encode returns the encoded form of this Digest.
+func (d Argon2Digest) Encode() (encodedHash string) {
 	return strings.ReplaceAll(fmt.Sprintf(StorageFormatArgon2,
-		prefix, argon2.Version,
+		d.variant.String(), argon2.Version,
 		d.m, d.t, d.p, d.k,
 		b64rs.EncodeToString(d.salt), b64rs.EncodeToString(d.key),
 	), "\n", "")
 }
 
-var (
-	ErrDigestWithIncorrectFormat  = errors.New("provided hash has an invalid format")
-	ErrDigestWithIncorrectVariant = errors.New("provided hash has an invalid variant")
-)
-
+// Decode takes an encodedDigest string and parses it into this Digest.
 func (d *Argon2Digest) Decode(encodedDigest string) (err error) {
 	encodedDigestParts := splitDigest(encodedDigest, StorageDelimiter)
 
 	if len(encodedDigestParts) != 6 {
-		return fmt.Errorf("argon2 error: %w", ErrDigestWithIncorrectFormat)
+		return fmt.Errorf("argon2 decode error: %w", ErrEncodedHashInvalidFormat)
 	}
 
 	variant, version, options, salt, key := NewArgon2Variant(encodedDigestParts[1]), encodedDigestParts[2], encodedDigestParts[3], encodedDigestParts[4], encodedDigestParts[5]
@@ -61,7 +64,7 @@ func (d *Argon2Digest) Decode(encodedDigest string) (err error) {
 	options += "," + version
 
 	if variant == Argon2VariantNone {
-		return fmt.Errorf("argon2 error: %w: %s", ErrDigestWithIncorrectVariant, encodedDigestParts[1])
+		return fmt.Errorf("argon2 decode error: %w: the '%s' identifier is not an argon2 encoded hash", ErrEncodedHashInvalidIdentifier, encodedDigestParts[1])
 	}
 
 	d.variant = variant
@@ -76,50 +79,54 @@ func (d *Argon2Digest) Decode(encodedDigest string) (err error) {
 		pair := strings.SplitN(opt, "=", 2)
 
 		if len(pair) != 2 {
-			return fmt.Errorf("argon2 hash invalid option '%s'", opt)
+			return fmt.Errorf("argon2 decode error: %w: option '%s' is invalid", ErrEncodedHashInvalidOption, opt)
 		}
 
 		k, v := pair[0], pair[1]
 
 		switch k {
-		case "v":
+		case oV:
 			bitSize = 8
 		default:
 			bitSize = 32
 		}
 
 		if value, err = strconv.ParseUint(v, 10, bitSize); err != nil {
-			return fmt.Errorf("argon2 option '%s' has invalid value '%s': %w", k, v, err)
+			return fmt.Errorf("argon2 decode error: %w: option '%s' has invalid value '%s': %v", ErrEncodedHashInvalidOptionValue, k, v, err)
 		}
 
 		switch k {
-		case "v":
+		case oV:
 			d.v = uint8(value)
-		case "k":
+
+			if d.v != argon2.Version {
+				return fmt.Errorf("argon2 decode error: %w: version %d is supported but encoded hash is version %d", ErrEncodedHashInvalidVersion, argon2.Version, d.v)
+			}
+		case oK:
 			d.k = uint32(value)
-		case "m":
+		case oM:
 			d.m = uint32(value)
-		case "t":
+		case oT:
 			d.t = uint32(value)
-		case "p":
+		case oP:
 			d.p = uint32(value)
 		default:
-			return fmt.Errorf("argon2 option '%s' with value '%d' is unknown", k, value)
+			return fmt.Errorf("argon2 decode error: %w: option '%s' with value '%s' is unknown", ErrEncodedHashInvalidOptionKey, k, v)
 		}
 	}
 
 	if d.salt, err = b64rs.DecodeString(salt); err != nil {
-		return fmt.Errorf("argon2 salt '%s' could not be decoded: %w", salt, err)
+		return fmt.Errorf("argon2 decode error: %w: %v", ErrEncodedHashSaltEncoding, err)
 	}
 
 	if d.key, err = b64rs.DecodeString(key); err != nil {
-		return fmt.Errorf("argon2 key '%s' could not be decoded: %w", key, err)
+		return fmt.Errorf("argon2 decode error: %w: %v", ErrEncodedHashKeyEncoding, err)
 	}
 
 	return nil
 }
 
-// String returns the storable format of the Argon2Digest hash utilizing fmt.Sprintf and StorageFormatArgon2.
+// String returns the storable format of the Digest encoded hash.
 func (d Argon2Digest) String() string {
 	return d.Encode()
 }

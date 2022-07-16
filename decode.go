@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// NewDigest creates a new Digest given a Digest implementation and an encoded digest string.
 func NewDigest(encodedDigest string, digest Digest) (d Digest, err error) {
 	if err = digest.Decode(encodedDigest); err != nil {
 		return nil, err
@@ -13,13 +14,14 @@ func NewDigest(encodedDigest string, digest Digest) (d Digest, err error) {
 	return digest, nil
 }
 
+// Decode an encoded digest string into a Digest.
 func Decode(encodedDigest string) (digest Digest, err error) {
 	encodedDigest = NormalizeEncodedDigest(encodedDigest)
 
 	parts := strings.Split(encodedDigest, StorageDelimiter)
 
 	if len(parts) < 3 {
-		return nil, fmt.Errorf("encoded digest is in an unknown format: %s (%d)", encodedDigest, len(parts))
+		return nil, fmt.Errorf("decode error: %w", ErrEncodedHashInvalidFormat)
 	}
 
 	switch parts[1] {
@@ -34,6 +36,6 @@ func Decode(encodedDigest string) (digest Digest, err error) {
 	case AlgorithmPrefixPBKDF2, AlgorithmPrefixPBKDF2SHA1, AlgorithmPrefixPBKDF2SHA256, AlgorithmPrefixPBKDF2SHA512:
 		return NewDigest(encodedDigest, &PBKDF2Digest{})
 	default:
-		return nil, fmt.Errorf("encoded digest has unknown identifier '%s'", parts[1])
+		return nil, fmt.Errorf("decode error: %w: identifier '%s' is unknown", ErrEncodedHashInvalidIdentifier, parts[1])
 	}
 }

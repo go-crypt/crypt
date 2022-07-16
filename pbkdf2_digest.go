@@ -9,6 +9,7 @@ import (
 	"github.com/go-crypt/x/pbkdf2"
 )
 
+// PBKDF2Digest is a digest which handles PBKDF2 hashes.
 type PBKDF2Digest struct {
 	variant PBKDF2Variant
 
@@ -17,49 +18,68 @@ type PBKDF2Digest struct {
 	salt, key  []byte
 }
 
+// Match returns true if the string password matches the current Digest.
 func (d PBKDF2Digest) Match(password string) (match bool) {
-	if len(d.key) == 0 {
-		return false
-	}
-
-	return subtle.ConstantTimeCompare(d.key, pbkdf2.Key([]byte(password), d.salt, d.iterations, d.k, d.variant.HashFunc())) == 1
+	return d.MatchBytes([]byte(password))
 }
 
+// MatchBytes returns true if the []byte passwordBytes matches the current Digest.
+func (d PBKDF2Digest) MatchBytes(passwordBytes []byte) (match bool) {
+	match, _ = d.MatchBytesAdvanced(passwordBytes)
+
+	return match
+}
+
+// MatchAdvanced is the same as Match except if there is an error it returns that as well.
+func (d PBKDF2Digest) MatchAdvanced(password string) (match bool, err error) {
+	return d.MatchBytesAdvanced([]byte(password))
+}
+
+// MatchBytesAdvanced is the same as MatchBytes except if there is an error it returns that as well.
+func (d PBKDF2Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
+	if len(d.key) == 0 {
+		return false, fmt.Errorf("pbkdf2 match error: digest key has 0 bytes")
+	}
+
+	return subtle.ConstantTimeCompare(d.key, pbkdf2.Key(passwordBytes, d.salt, d.iterations, d.k, d.variant.HashFunc())) == 1, nil
+}
+
+// Encode returns the encoded form of this digest.
 func (d *PBKDF2Digest) Encode() string {
 	return fmt.Sprintf(StorageFormatPBKDF2,
 		d.variant.String(),
 		d.iterations,
-		b64rs.EncodeToString(d.salt), b64rs.EncodeToString(d.key),
+		b64ra.EncodeToString(d.salt), b64ra.EncodeToString(d.key),
 	)
 }
 
+// Decode takes an encodedDigest string and parses it into this Digest.
 func (d *PBKDF2Digest) Decode(encodedDigest string) (err error) {
 	encodedDigestParts := strings.Split(encodedDigest, StorageDelimiter)
 
-	// $pbkdf2-sha256$29000$C.H8PwfgvNdaa21t7Z3zHg$JJEF8JnmHSl.CO49AczNNIPvzNo.KaQGU3T9S3Ebr4M
-
 	if len(encodedDigestParts) != 5 {
-		return fmt.Errorf("encoded digest does not have the correct number of parts: should be 4 but has %d", len(encodedDigestParts)-1)
+		return fmt.Errorf("pbkdf2 decode error: %w", ErrEncodedHashInvalidFormat)
 	}
 
-	identifier, rawIterations, rawSalt, rawKey := encodedDigestParts[1], encodedDigestParts[2], encodedDigestParts[3], encodedDigestParts[4]
+	variant, iterations, salt, key := NewPBKDF2Variant(encodedDigestParts[1]), encodedDigestParts[2], encodedDigestParts[3], encodedDigestParts[4]
 
-	d.variant = NewPBKDF2Variant(identifier)
-
-	if d.variant == PBKDF2VariantNone {
-		return fmt.Errorf("encoded digest has unknown identifier '%s'", identifier)
+	if variant == PBKDF2VariantNone {
+		return fmt.Errorf("pbkdf2 decode error: %w: the '%s' identifier is not a pbkdf2 encoded hash", ErrEncodedHashInvalidIdentifier, encodedDigestParts[1])
 	}
 
-	if d.iterations, err = strconv.Atoi(rawIterations); err != nil {
-		return fmt.Errorf("encoded digest has an invalid iterations value: %w", err)
+	d.variant = variant
+
+	if d.iterations, err = strconv.Atoi(iterations); err != nil {
+		return fmt.Errorf("pbkdf2 decode error: %w: iterations could not be parsed: %v", ErrEncodedHashInvalidOptionValue, err)
 	}
 
-	if d.salt, err = b64rs.DecodeString(strings.ReplaceAll(rawSalt, ".", "+")); err != nil {
-		return fmt.Errorf("encoded digest has a salt which can't be decoded: %w", err)
+	if d.salt, err = b64ra.DecodeString(salt); err != nil {
+		fmt.Println(salt)
+		return fmt.Errorf("pbkdf2 decode error: %w: %v", ErrEncodedHashSaltEncoding, err)
 	}
 
-	if d.key, err = b64rs.DecodeString(strings.ReplaceAll(rawKey, ".", "+")); err != nil {
-		return fmt.Errorf("encoded digest has a key which can't be decoded: %w", err)
+	if d.key, err = b64ra.DecodeString(key); err != nil {
+		return fmt.Errorf("pbkdf2 decode error: %w: %v", ErrEncodedHashKeyEncoding, err)
 	}
 
 	d.k = len(d.key)
@@ -67,7 +87,7 @@ func (d *PBKDF2Digest) Decode(encodedDigest string) (err error) {
 	return nil
 }
 
-// String returns the storable format of the PBKDF2Digest hash utilizing fmt.Sprintf and StorageFormatArgon2.
+// String returns the storable format of the Digest encoded hash.
 func (d PBKDF2Digest) String() string {
 	return d.Encode()
 }

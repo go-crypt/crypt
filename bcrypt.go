@@ -16,6 +16,7 @@ func NewBcryptHash() *BcryptHash {
 	return &BcryptHash{}
 }
 
+// BcryptHash is a Hash for bcrypt which provides a builder design pattern.
 type BcryptHash struct {
 	cost int
 
@@ -95,43 +96,3 @@ func (h *BcryptHash) Validate() (err error) {
 
 	return nil
 }
-
-/*
-// Build checks the options are all configured correctly, setting defaults as necessary, calculates the password hash,
-// and returns the Bcrypt hash.
-func (h BcryptHash) Build(password string) (digest Digest, err error) {
-	digest = &BcryptDigest{
-		cost: h.cost,
-	}
-
-	if h.cost <= 0 {
-		h.cost = hashBcryptDefaultCost
-	}
-
-	if h.cost < hashBcryptMinimumCost {
-		return nil, fmt.Errorf("minimum bcrypt cost is %d but %d was set", hashBcryptMinimumCost, h.cost)
-	}
-
-	if h.salt != "" {
-		if h.salt, err = bcrypt.Base64Decode([]byte(h.salt)); err != nil {
-			return nil, fmt.Errorf("error decoding password salt from base64: %w", err)
-		}
-		if len(h.salt) != 16 {
-			return nil, fmt.Errorf("error decoding password salt from base64: %w", errors.New("bcrypt salt decoded bytes must have a length of 16"))
-		}
-	} else {
-		h.salt = make([]byte, 16)
-
-		if _, err = io.ReadFull(rand.Reader, h.salt); err != nil {
-			return nil, fmt.Errorf("error reading random bytes for the salt: %w", err)
-		}
-	}
-
-	if h.data, err = bcrypt.Key([]byte(password), h.salt, h.cost); err != nil {
-		return nil, fmt.Errorf("error calculating hash: %w", err)
-	}
-
-	return h, nil
-}
-
-*/

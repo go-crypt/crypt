@@ -4,8 +4,9 @@ import (
 	"github.com/go-crypt/x/argon2"
 )
 
-func NewArgon2Variant(s string) (variant Argon2Variant) {
-	switch s {
+// NewArgon2Variant converts an identifier string to a Argon2Variant.
+func NewArgon2Variant(identifier string) (variant Argon2Variant) {
+	switch identifier {
 	case AlgorithmPrefixArgon2id:
 		return Argon2VariantID
 	case AlgorithmPrefixArgon2i:
@@ -17,15 +18,24 @@ func NewArgon2Variant(s string) (variant Argon2Variant) {
 	}
 }
 
+// Argon2Variant is a variant of the Argon2Digest.
 type Argon2Variant int
 
 const (
+	// Argon2VariantNone is a variant of the Argon2Digest which is unknown.
 	Argon2VariantNone Argon2Variant = iota
+
+	// Argon2VariantD is the argon2d variant of the Argon2Digest.
 	Argon2VariantD
+
+	// Argon2VariantI is the argon2i variant of the Argon2Digest.
 	Argon2VariantI
+
+	// Argon2VariantID is the argon2id variant of the Argon2Digest.
 	Argon2VariantID
 )
 
+// String returns the Argon2Variant prefix identifier.
 func (v Argon2Variant) String() (s string) {
 	switch v {
 	case Argon2VariantID:
@@ -39,6 +49,7 @@ func (v Argon2Variant) String() (s string) {
 	}
 }
 
+// KeyFunc returns the KeyFunc of this Argon2Variant.
 func (v Argon2Variant) KeyFunc() argon2.KeyFunc {
 	switch v {
 	case Argon2VariantI:

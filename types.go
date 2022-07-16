@@ -16,6 +16,7 @@ type Digest interface {
 	Decode(encodedDigest string) (err error)
 }
 
+// Hash is an interface which implements password hashing.
 type Hash interface {
 	// Validate checks the hasher configuration to ensure it's valid. This should be used when the Hash is going to be
 	// reused and you should use it in conjunction with MustHash.
@@ -36,6 +37,10 @@ type Hash interface {
 // Matcher is an interface used to match passwords.
 type Matcher interface {
 	Match(password string) (match bool)
+	MatchBytes(passwordBytes []byte) (match bool)
+	MatchAdvanced(password string) (match bool, err error)
+	MatchBytesAdvanced(passwordBytes []byte) (match bool, err error)
 }
 
+// HashFunc is a function which returns a hash.Hash.
 type HashFunc func() hash.Hash

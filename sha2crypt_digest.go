@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/go-crypt/x/base64"
 	xcrypt "github.com/go-crypt/x/crypt"
 )
 
+// SHA2CryptDigest is a digest which handles SHA2 Crypt hashes like SHA256 or SHA512.
 type SHA2CryptDigest struct {
 	variant SHA2CryptVariant
 
@@ -17,10 +17,26 @@ type SHA2CryptDigest struct {
 	salt, key []byte
 }
 
-// Match returns true if the supplied password matches the hash. If it doesn't it returns false. This check is performed
-// via a constant t compare.
+// Match returns true if the string password matches the current Digest.
 func (d SHA2CryptDigest) Match(password string) (match bool) {
-	return subtle.ConstantTimeCompare(d.key, xcrypt.Key(d.variant.HashFunc(), []byte(password), d.salt, int(d.rounds))) == 1
+	return d.MatchBytes([]byte(password))
+}
+
+// MatchBytes returns true if the []byte passwordBytes matches the current Digest.
+func (d SHA2CryptDigest) MatchBytes(passwordBytes []byte) (match bool) {
+	match, _ = d.MatchBytesAdvanced(passwordBytes)
+
+	return match
+}
+
+// MatchAdvanced is the same as Match except if there is an error it returns that as well.
+func (d SHA2CryptDigest) MatchAdvanced(password string) (match bool, err error) {
+	return d.MatchBytesAdvanced([]byte(password))
+}
+
+// MatchBytesAdvanced is the same as MatchBytes except if there is an error it returns that as well.
+func (d SHA2CryptDigest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
+	return subtle.ConstantTimeCompare(d.key, xcrypt.Key(d.variant.HashFunc(), passwordBytes, d.salt, int(d.rounds))) == 1, nil
 }
 
 // Decode a password hash into this SHA2CryptDigest. Returns an error if the supplied encoded hash string cannot be
@@ -68,8 +84,8 @@ func (d *SHA2CryptDigest) Decode(encodedDigest string) (err error) {
 func (d *SHA2CryptDigest) Encode() (hash string) {
 
 	return strings.ReplaceAll(fmt.Sprintf(StorageFormatSHACrypt,
-		d.variant.Prefix(), d.rounds,
-		d.salt, base64.EncodeCrypt(d.key),
+		d.variant.String(), d.rounds,
+		d.salt, d.key,
 	), "\n", "")
 }
 

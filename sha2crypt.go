@@ -22,6 +22,7 @@ func NewSHA2CryptHash() *SHA2CryptHash {
 	return &SHA2CryptHash{}
 }
 
+// SHA2CryptHash is a Hash for SHA2Crypt which provides a builder design pattern.
 type SHA2CryptHash struct {
 	variant SHA2CryptVariant
 

@@ -20,6 +20,8 @@ func TestDecode(t *testing.T) {
 							require.NotNil(t, digest)
 
 							assert.True(t, digest.Match(password.password))
+
+							assert.Equal(t, NormalizeEncodedDigest(password.digest), digest.String())
 						})
 					}
 				})

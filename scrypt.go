@@ -14,6 +14,7 @@ const (
 	hashScryptDefaultParallelism = 1
 )
 
+// ScryptHash is a Hash for scrypt which provides a builder design pattern.
 type ScryptHash struct {
 	rounds, blockSize int
 	parallelism       uint8
