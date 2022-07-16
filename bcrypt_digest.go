@@ -12,6 +12,8 @@ import (
 
 // BcryptDigest is a digest which handles bcrypt hashes.
 type BcryptDigest struct {
+	variant BcryptVariant
+
 	cost int
 
 	salt, key []byte
@@ -38,8 +40,10 @@ func (d BcryptDigest) MatchAdvanced(password string) (match bool, err error) {
 func (d BcryptDigest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
 	var key []byte
 
-	if key, err = bcrypt.Key(passwordBytes, d.salt, d.cost); err != nil {
-		return false, fmt.Errorf("bcrypt match error: %w", err)
+	password := d.variant.EncodeInput(passwordBytes, d.salt)
+
+	if key, err = bcrypt.Key(password, d.salt, d.cost); err != nil {
+		return false, fmt.Errorf("bcrypt match error: %w: %v", ErrKeyDerivation, err)
 	}
 
 	return subtle.ConstantTimeCompare(d.key, key) == 1, nil
@@ -47,31 +51,70 @@ func (d BcryptDigest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err 
 
 // Encode returns the encoded form of this digest.
 func (d *BcryptDigest) Encode() string {
-	return fmt.Sprintf(StorageFormatBcrypt, AlgorithmPrefixBcrypt, d.cost, bcrypt.Base64Encode(d.salt), d.key)
+	return d.variant.Encode(d.cost, AlgorithmPrefixBcrypt, bcrypt.Base64Encode(d.salt), d.key)
 }
 
 // Decode takes an encodedDigest string and parses it into this Digest.
 func (d *BcryptDigest) Decode(encodedDigest string) (err error) {
 	encodedDigestParts := splitDigest(encodedDigest, StorageDelimiter)
 
-	if len(encodedDigestParts) != 4 {
+	countParts := len(encodedDigestParts)
+
+	if countParts < 2 {
 		return fmt.Errorf("bcrypt decode error: %w", ErrEncodedHashInvalidFormat)
 	}
 
-	identifier, cost, secret := encodedDigestParts[1], encodedDigestParts[2], encodedDigestParts[3]
+	var (
+		salt, key []byte
+	)
 
-	switch strings.ToLower(identifier) {
-	case AlgorithmPrefixBcrypt, algorithmPrefixBcryptA, algorithmPrefixBcryptX, algorithmPrefixBcryptY:
-		break
-	default:
-		return fmt.Errorf("bcrypt decode error: %w: the '%s' identifier is not valid for a bcrypt encoded hash", ErrEncodedHashInvalidIdentifier, identifier)
+	d.variant = NewBcryptVariant(encodedDigestParts[1])
+
+	switch d.variant {
+	case BcryptVariantNone:
+		return fmt.Errorf("bcrypt decode error: %w: the '%s' identifier is not valid for a bcrypt encoded hash", ErrEncodedHashInvalidIdentifier, encodedDigestParts[1])
+	case BcryptVariantStandard:
+		if countParts != 4 {
+			return fmt.Errorf("bcrypt decode error: %w", ErrEncodedHashInvalidFormat)
+		}
+
+		if d.cost, err = strconv.Atoi(encodedDigestParts[2]); err != nil {
+			return fmt.Errorf("bcrypt decode error: %w: cost could not be parsed: %v", ErrEncodedHashInvalidOptionValue, err)
+		}
+
+		salt, key = bcrypt.DecodeSecret([]byte(encodedDigestParts[3]))
+	case BcryptVariantSHA256:
+		if countParts != 5 {
+			return fmt.Errorf("bcrypt decode error: %w", ErrEncodedHashInvalidFormat)
+		}
+
+		var options string
+
+		options, salt, key = encodedDigestParts[2], []byte(encodedDigestParts[3]), []byte(encodedDigestParts[4])
+
+		for _, opt := range strings.Split(options, ",") {
+			pair := strings.SplitN(opt, "=", 2)
+
+			if len(pair) != 2 {
+				return fmt.Errorf("bcrypt decode error: %w: option '%s' is invalid", ErrEncodedHashInvalidOption, opt)
+			}
+
+			k, v := pair[0], pair[1]
+
+			switch k {
+			case oV, oT:
+				break
+			case oR:
+				d.cost, err = strconv.Atoi(v)
+			default:
+				return fmt.Errorf("bcrypt decode error: %w: option '%s' with value '%s' is unknown", ErrEncodedHashInvalidOptionKey, k, v)
+			}
+
+			if err != nil {
+				return fmt.Errorf("bcrypt decode error: %w: option '%s' has invalid value '%s': %v", ErrEncodedHashInvalidOptionValue, k, v, err)
+			}
+		}
 	}
-
-	if d.cost, err = strconv.Atoi(cost); err != nil {
-		return fmt.Errorf("bcrypt decode error: %w: cost could not be parsed: %v", ErrEncodedHashInvalidOptionValue, err)
-	}
-
-	salt, key := bcrypt.DecodeSecret([]byte(secret))
 
 	if d.salt, err = bcrypt.Base64Decode(salt); err != nil {
 		return fmt.Errorf("bcrypt decode error: %w: %v", ErrEncodedHashSaltEncoding, err)

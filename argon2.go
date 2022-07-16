@@ -17,13 +17,6 @@ func NewArgon2Hash() *Argon2Hash {
 	return &Argon2Hash{}
 }
 
-// Argon2Hash is a Hash for Argon2 which provides a builder design pattern.
-type Argon2Hash struct {
-	variant Argon2Variant
-
-	s, k, m, t, p uint32
-}
-
 // NewArgon2IDHash returns a *Argon2Hash with just the ID variant configured. This defaults to the low memory RFC9106
 // low memory profile.
 func NewArgon2IDHash() *Argon2Hash {
@@ -40,6 +33,13 @@ func NewArgon2IHash() *Argon2Hash {
 // low memory profile.
 func NewArgon2DHash() *Argon2Hash {
 	return NewArgon2Hash().WithVariant(Argon2VariantD)
+}
+
+// Argon2Hash is a Hash for Argon2 which provides a builder design pattern.
+type Argon2Hash struct {
+	variant Argon2Variant
+
+	s, k, m, t, p uint32
 }
 
 // CopyParamsTo copies all parameters from this Argon2Hash to another *Argon2Hash.

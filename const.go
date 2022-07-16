@@ -12,6 +12,7 @@ const (
 	AlgorithmPrefixArgon2d      = "argon2d"
 	AlgorithmPrefixArgon2id     = "argon2id"
 	AlgorithmPrefixBcrypt       = "2b"
+	AlgorithmPrefixBcryptSHA256 = "bcrypt-sha256"
 	AlgorithmPrefixSHA256       = "5"
 	AlgorithmPrefixSHA512       = "6"
 	AlgorithmPrefixScrypt       = "7"
@@ -25,6 +26,7 @@ const (
 
 const (
 	algorithmPrefixBcryptNormalized = StorageDelimiter + AlgorithmPrefixBcrypt + StorageDelimiter
+	algorithmPrefixBcrypt           = StorageDelimiter + "2" + StorageDelimiter
 	algorithmPrefixBcryptA          = StorageDelimiter + "2a" + StorageDelimiter
 	algorithmPrefixBcryptX          = StorageDelimiter + "2x" + StorageDelimiter
 	algorithmPrefixBcryptY          = StorageDelimiter + "2y" + StorageDelimiter
@@ -44,13 +46,14 @@ const (
 	StorageFormatPrefixLDAPCrypt  = "{CRYPT}"
 	StorageFormatPrefixLDAPArgon2 = "{ARGON2}"
 
-	StorageDelimiter      = "$"
-	StorageFormatSHACrypt = "$%s$rounds=%d$%s$%s"
-	StorageFormatArgon2   = "$%s$v=%d$m=%d,t=%d,p=%d,k=%d$%s$%s"
-	StorageFormatScrypt   = "$%s$ln=%d,r=%d,p=%d,k=%d$%s$%s"
-	StorageFormatBcrypt   = "$%s$%d$%s%s"
-	StorageFormatPBKDF2   = "$%s$%d$%s$%s"
-	StorageFormatSimple   = "$%s$%s"
+	StorageDelimiter          = "$"
+	StorageFormatSHACrypt     = "$%s$rounds=%d$%s$%s"
+	StorageFormatArgon2       = "$%s$v=%d$m=%d,t=%d,p=%d,k=%d$%s$%s"
+	StorageFormatScrypt       = "$%s$ln=%d,r=%d,p=%d,k=%d$%s$%s"
+	StorageFormatBcrypt       = "$%s$%d$%s%s"
+	StorageFormatBcryptSHA256 = "$%s$v=2,t=%s,r=%d$%s$%s"
+	StorageFormatPBKDF2       = "$%s$%d$%s$%s"
+	StorageFormatSimple       = "$%s$%s"
 )
 
 const (
@@ -85,4 +88,5 @@ var (
 	b64rs = base64.RawStdEncoding
 	b64ru = base64.RawURLEncoding
 	b64ra = base64.NewEncoding(encodeTypeA).WithPadding(base64.NoPadding)
+	b64sa = base64.NewEncoding(encodeTypeA).WithPadding(base64.StdPadding)
 )

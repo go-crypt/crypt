@@ -29,7 +29,7 @@ func Decode(encodedDigest string) (digest Digest, err error) {
 		return NewDigest(encodedDigest, &SHA2CryptDigest{})
 	case AlgorithmPrefixScrypt:
 		return NewDigest(encodedDigest, &ScryptDigest{})
-	case AlgorithmPrefixBcrypt:
+	case AlgorithmPrefixBcrypt, AlgorithmPrefixBcryptSHA256:
 		return NewDigest(encodedDigest, &BcryptDigest{})
 	case AlgorithmPrefixArgon2i, AlgorithmPrefixArgon2d, AlgorithmPrefixArgon2id:
 		return NewDigest(encodedDigest, &Argon2Digest{})

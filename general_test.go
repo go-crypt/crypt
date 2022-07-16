@@ -60,13 +60,53 @@ var testSources = []testSource{
 				},
 			},
 			{
-				name: "bcrypt",
+				name: "sha512",
 				passwords: []testPassword{
-					{"apple123", "$2b$13$Aa6FIFnz3feYbEt4eKaRYeTd9y.RGzvRFzvcc5kCM4AONK3p/uH2q"},
-					{"another", "$2b$13$hFLbtif0IKeRlyllUrl24uwG7cjCkgCQRXkejULDNWx.QVx7jtdQu"},
-					{"th15isalongandcomplexpassw0rd@", "$2b$13$ISD.gkdn3BGQwww9P7aYk..e.hobOmSiY23UTuPDoIzpdbb9GCfEW"},
-					{"password123", "$2b$13$C37D8jQVJjjsyvQTz2H7u.wZHJPrJdQrpcd9hM3HhStn9eKs/jely"},
-					{"p@ssw0rd", "$2b$13$ecwPFQ4v9gll5qsvtgnYBOsoZ9KgbAVIFxQKz2mDN9OeSlhwEpMmS"},
+					{"apple123", "$6$rounds=500000$B5uBplhxG6q6SCwr$S3SMNxZAvGeig/EIlE8D.0QfwFa5I2Vllb56tCUVb/HGhyeJ0eQPQvmUW7gTWI7qVlLt6VfJZZZkyfcBkLiqc0"},
+					{"another", "$6$rounds=500000$xnYMzhQahYkhoSRE$eL3BetlNbdaDQnVBZY/VPncSBjBr7d3se8nn6eFb7T9PooeAbfcfIPYlfhna8kxgDV1XRjJs3adg8OIeyy6.Y/"},
+					{"th15isalongandcomplexpassw0rd@", "$6$rounds=500000$vIr2P3vvZDiDolE.$jRI/5j9sCkt3HXi25y3cS4NQznZuudmOt7sj76tTCMiBlNE3CZgpnrGQnjBC0nMeo6xmZXHbmteHpY/V3eADb0"},
+					{"password123", "$6$rounds=500000$Gra7/SdvVelxdbPg$ZPW3y4ohcM6PXVHuMH4SRRpqAdSg6oSzkRZ0kN3MVmhLnZmywr0Hquvi4x6KGX0bJiS0WBzkP7Io7LwBD3BpI1"},
+					{"p@ssw0rd", "$6$rounds=500000$x.Vg1kiTQ8G2CTLu$aMK0SuBpPDOAX2FDBzNJRuDrJtBdl3rKxILRO8dgT.qU.Hkl/aZXRS7idSceLuy/x.RTooXgGk6SsoGuDUhVf0"},
+				},
+			},
+			{
+				name: "argon2d",
+				passwords: []testPassword{
+					{"apple123", "$argon2d$v=19$m=65536,t=4,p=4$PUfIWctZa611rpXSOicEAA$eUtgGpyO1+ylLPGhN8gvRXBXF+Zd97kQIZA7OgX4VIM"},
+					{"another", "$argon2d$v=19$m=65536,t=4,p=4$j5GyNoaQsvYeA8D4Pyek9A$O1LC/BW/nF2/PkgSR2/O62q5ERTXxvIVvBFgeN4REUw"},
+					{"th15isalongandcomplexpassw0rd@", "$argon2d$v=19$m=65536,t=4,p=4$+j8H4BzjvPeeEwKglDLGWA$6OmSgnEaAi+HrvMiMmHhuCMK/9s8zg0KJepXUP8QKFo"},
+					{"password123", "$argon2d$v=19$m=65536,t=4,p=4$QMi5VwrhvBeiVCplDKEUAg$BbFZ3C+ptJO7DhzBIxit9e1ZI7uk9KG5n1kpTZf6ZwQ"},
+					{"p@ssw0rd", "$argon2d$v=19$m=65536,t=4,p=4$25tzbs1ZCwEAAGCMEYJQyg$OlkYC6K4I/X4UJmMC0qecqUwVwLvkT05eje92iumf8E"},
+				},
+			},
+			{
+				name: "argon2i",
+				passwords: []testPassword{
+					{"apple123", "$argon2i$v=19$m=65536,t=4,p=4$cU6JsTZGCEEoxRjD+L/3/g$RyLxXgYks/RplDoRKaxvZDJBvrS7R6vGeusKrfXP0Pg"},
+					{"another", "$argon2i$v=19$m=65536,t=4,p=4$DCHk/B+DcI7xHsP4/7/XWg$6luPgx9bGrYQR0oJdNVfsE85zr0AECdD6RHHgRKHG3M"},
+					{"th15isalongandcomplexpassw0rd@", "$argon2i$v=19$m=65536,t=4,p=4$D6H0HmOs1ZpzDkHoXQvh/A$xQK6H91LeP5ZLv7PHFMpVYHbAgEKB3gnh/0z0ScJRow"},
+					{"password123", "$argon2i$v=19$m=65536,t=4,p=4$NcaYs3bufQ8BwPhfSyklBA$Iuz9GZw5AUrXQ32Z4poJ3COUTp4w0amWRA6XtMnB5pw"},
+					{"p@ssw0rd", "$argon2i$v=19$m=65536,t=4,p=4$t7a2lhKCsBYC4HxPCcH4nw$zhSHktwftzV0aL6MgsN2eiZTa7gq8yFiHxJaomEeNfo"},
+				},
+			},
+			{
+				name: "argon2id",
+				passwords: []testPassword{
+					{"apple123", "$argon2id$v=19$m=65536,t=4,p=4$jfE+JyTE2DtnDCHknJOSsg$+BPKo7PFUjKycwSpEK0Z1ciUPKp05uJvSfC7C+QAvAk"},
+					{"another", "$argon2id$v=19$m=65536,t=4,p=4$FGJszRlDyDmntJbyHoNQag$iGKvD7Oso+PcRhSVT/q/QCRb/mNZL0cwbtCKMzW/NPw"},
+					{"th15isalongandcomplexpassw0rd@", "$argon2id$v=19$m=65536,t=4,p=4$qvU+J6Q0xnivdS5FSMm5Fw$SpP3dXG6xTUcSxGrj+GTtWCFzekltzUodkIcPuX0KhY"},
+					{"password123", "$argon2id$v=19$m=65536,t=4,p=4$rXUOwdg7x3iPkRKCMKZUSg$FgvrlMTstAr9BhVS2yYM/Of68HzCCJGqfgtQ2cGEY1w"},
+					{"p@ssw0rd", "$argon2id$v=19$m=65536,t=4,p=4$15pzjpHSulfKuTcmREjJmQ$xcc8g7C4a9ErFLdjNDKZAvgH6su3s+UEuRYekZpr/9s"},
+				},
+			},
+			{
+				name: "pbkdf2",
+				passwords: []testPassword{
+					{"apple123", "$pbkdf2$131000$OMd4jxFCqFWq9T7HWEvpvQ$MniJ8FEvDtukO8KmKYM1yUV0VWk"},
+					{"another", "$pbkdf2$131000$NIYwJmQsBaCUUiqlFOJcyw$N4z4kukUf7ZB455b.MER2XGuROg"},
+					{"th15isalongandcomplexpassw0rd@", "$pbkdf2$131000$AoDwvndOCSHEuLcWYowxxg$dviIy2JvGQ64f.aKct/q5NzfWqE"},
+					{"password123", "$pbkdf2$131000$ay3FOEdoLQWA0Frr/b83Rg$ZfhrII96N/ysF7yNKHNziHC34E4"},
+					{"p@ssw0rd", "$pbkdf2$131000$DKE0RihlbK21di4lREiptQ$jSUw1ovAsF6hSfoj1FMsN3YrlRE"},
 				},
 			},
 			{
@@ -90,13 +130,23 @@ var testSources = []testSource{
 				},
 			},
 			{
-				name: "sha512",
+				name: "bcrypt",
 				passwords: []testPassword{
-					{"apple123", "$6$rounds=500000$B5uBplhxG6q6SCwr$S3SMNxZAvGeig/EIlE8D.0QfwFa5I2Vllb56tCUVb/HGhyeJ0eQPQvmUW7gTWI7qVlLt6VfJZZZkyfcBkLiqc0"},
-					{"another", "$6$rounds=500000$xnYMzhQahYkhoSRE$eL3BetlNbdaDQnVBZY/VPncSBjBr7d3se8nn6eFb7T9PooeAbfcfIPYlfhna8kxgDV1XRjJs3adg8OIeyy6.Y/"},
-					{"th15isalongandcomplexpassw0rd@", "$6$rounds=500000$vIr2P3vvZDiDolE.$jRI/5j9sCkt3HXi25y3cS4NQznZuudmOt7sj76tTCMiBlNE3CZgpnrGQnjBC0nMeo6xmZXHbmteHpY/V3eADb0"},
-					{"password123", "$6$rounds=500000$Gra7/SdvVelxdbPg$ZPW3y4ohcM6PXVHuMH4SRRpqAdSg6oSzkRZ0kN3MVmhLnZmywr0Hquvi4x6KGX0bJiS0WBzkP7Io7LwBD3BpI1"},
-					{"p@ssw0rd", "$6$rounds=500000$x.Vg1kiTQ8G2CTLu$aMK0SuBpPDOAX2FDBzNJRuDrJtBdl3rKxILRO8dgT.qU.Hkl/aZXRS7idSceLuy/x.RTooXgGk6SsoGuDUhVf0"},
+					{"apple123", "$2b$13$Aa6FIFnz3feYbEt4eKaRYeTd9y.RGzvRFzvcc5kCM4AONK3p/uH2q"},
+					{"another", "$2b$13$hFLbtif0IKeRlyllUrl24uwG7cjCkgCQRXkejULDNWx.QVx7jtdQu"},
+					{"th15isalongandcomplexpassw0rd@", "$2b$13$ISD.gkdn3BGQwww9P7aYk..e.hobOmSiY23UTuPDoIzpdbb9GCfEW"},
+					{"password123", "$2b$13$C37D8jQVJjjsyvQTz2H7u.wZHJPrJdQrpcd9hM3HhStn9eKs/jely"},
+					{"p@ssw0rd", "$2b$13$ecwPFQ4v9gll5qsvtgnYBOsoZ9KgbAVIFxQKz2mDN9OeSlhwEpMmS"},
+				},
+			},
+			{
+				name: "bcrypt-sha256",
+				passwords: []testPassword{
+					{"apple123", "$bcrypt-sha256$v=2,t=2b,r=13$mMneou81ksV3j.jlNh1RR.$n5cWTskbyVqnapQjmAT8gfy4GU1R/wa"},
+					{"another", "$bcrypt-sha256$v=2,t=2b,r=13$JNIlMgI1DsjIsIl7EpjjK.$N0R2Njibo02pQ/K2z1GBaGqHJmPASOm"},
+					{"th15isalongandcomplexpassw0rd@", "$bcrypt-sha256$v=2,t=2b,r=13$Q2Ab.pgymPq3KVr4otazWO$8wTe8O6Pnx.URDwuW4rdY4m5WrSaNAe"},
+					{"password123", "$bcrypt-sha256$v=2,t=2b,r=13$n2keqmPW0PYd6aOOokH/vO$o0x3N/bAWZSbt2cZPj9dW75wSXKTF8K"},
+					{"p@ssw0rd", "$bcrypt-sha256$v=2,t=2b,r=13$htG5/Sx7iRlhjVwb03LDye$aUdVbE4PoXtDJNFGOY7mdjqlMgmSChm"},
 				},
 			},
 			{
@@ -109,51 +159,18 @@ var testSources = []testSource{
 					{"p@ssw0rd", "$scrypt$ln=15,r=8,p=1$sZZyTglBqJUSQqi19j7HuA$WNyijpd/R2LfYS97Yb/lnmSnoarTMPt3l2JQ9XhVMo4"},
 				},
 			},
-			{
-				name: "argon2i",
-				passwords: []testPassword{
-					{"apple123", "$argon2i$v=19$m=65536,t=4,p=4$cU6JsTZGCEEoxRjD+L/3/g$RyLxXgYks/RplDoRKaxvZDJBvrS7R6vGeusKrfXP0Pg"},
-					{"another", "$argon2i$v=19$m=65536,t=4,p=4$DCHk/B+DcI7xHsP4/7/XWg$6luPgx9bGrYQR0oJdNVfsE85zr0AECdD6RHHgRKHG3M"},
-					{"th15isalongandcomplexpassw0rd@", "$argon2i$v=19$m=65536,t=4,p=4$D6H0HmOs1ZpzDkHoXQvh/A$xQK6H91LeP5ZLv7PHFMpVYHbAgEKB3gnh/0z0ScJRow"},
-					{"password123", "$argon2i$v=19$m=65536,t=4,p=4$NcaYs3bufQ8BwPhfSyklBA$Iuz9GZw5AUrXQ32Z4poJ3COUTp4w0amWRA6XtMnB5pw"},
-					{"p@ssw0rd", "$argon2i$v=19$m=65536,t=4,p=4$t7a2lhKCsBYC4HxPCcH4nw$zhSHktwftzV0aL6MgsN2eiZTa7gq8yFiHxJaomEeNfo"},
-				},
-			},
-			{
-				name: "argon2d",
-				passwords: []testPassword{
-					{"apple123", "$argon2d$v=19$m=65536,t=4,p=4$PUfIWctZa611rpXSOicEAA$eUtgGpyO1+ylLPGhN8gvRXBXF+Zd97kQIZA7OgX4VIM"},
-					{"another", "$argon2d$v=19$m=65536,t=4,p=4$j5GyNoaQsvYeA8D4Pyek9A$O1LC/BW/nF2/PkgSR2/O62q5ERTXxvIVvBFgeN4REUw"},
-					{"th15isalongandcomplexpassw0rd@", "$argon2d$v=19$m=65536,t=4,p=4$+j8H4BzjvPeeEwKglDLGWA$6OmSgnEaAi+HrvMiMmHhuCMK/9s8zg0KJepXUP8QKFo"},
-					{"password123", "$argon2d$v=19$m=65536,t=4,p=4$QMi5VwrhvBeiVCplDKEUAg$BbFZ3C+ptJO7DhzBIxit9e1ZI7uk9KG5n1kpTZf6ZwQ"},
-					{"p@ssw0rd", "$argon2d$v=19$m=65536,t=4,p=4$25tzbs1ZCwEAAGCMEYJQyg$OlkYC6K4I/X4UJmMC0qecqUwVwLvkT05eje92iumf8E"},
-				},
-			},
-			{
-				name: "argon2id",
-				passwords: []testPassword{
-					{"apple123", "$argon2id$v=19$m=65536,t=4,p=4$jfE+JyTE2DtnDCHknJOSsg$+BPKo7PFUjKycwSpEK0Z1ciUPKp05uJvSfC7C+QAvAk"},
-					{"another", "$argon2id$v=19$m=65536,t=4,p=4$FGJszRlDyDmntJbyHoNQag$iGKvD7Oso+PcRhSVT/q/QCRb/mNZL0cwbtCKMzW/NPw"},
-					{"th15isalongandcomplexpassw0rd@", "$argon2id$v=19$m=65536,t=4,p=4$qvU+J6Q0xnivdS5FSMm5Fw$SpP3dXG6xTUcSxGrj+GTtWCFzekltzUodkIcPuX0KhY"},
-					{"password123", "$argon2id$v=19$m=65536,t=4,p=4$rXUOwdg7x3iPkRKCMKZUSg$FgvrlMTstAr9BhVS2yYM/Of68HzCCJGqfgtQ2cGEY1w"},
-					{"p@ssw0rd", "$argon2id$v=19$m=65536,t=4,p=4$15pzjpHSulfKuTcmREjJmQ$xcc8g7C4a9ErFLdjNDKZAvgH6su3s+UEuRYekZpr/9s"},
-				},
-			},
-			{
-				name: "pbkdf2",
-				passwords: []testPassword{
-					{"apple123", "$pbkdf2$131000$OMd4jxFCqFWq9T7HWEvpvQ$MniJ8FEvDtukO8KmKYM1yUV0VWk"},
-					{"another", "$pbkdf2$131000$NIYwJmQsBaCUUiqlFOJcyw$N4z4kukUf7ZB455b.MER2XGuROg"},
-					{"th15isalongandcomplexpassw0rd@", "$pbkdf2$131000$AoDwvndOCSHEuLcWYowxxg$dviIy2JvGQ64f.aKct/q5NzfWqE"},
-					{"password123", "$pbkdf2$131000$ay3FOEdoLQWA0Frr/b83Rg$ZfhrII96N/ysF7yNKHNziHC34E4"},
-					{"p@ssw0rd", "$pbkdf2$131000$DKE0RihlbK21di4lREiptQ$jSUw1ovAsF6hSfoj1FMsN3YrlRE"},
-				},
-			},
 		},
 	},
 	{
 		name: "OpenLDAP",
 		algorithms: []testAlgorithm{
+			{
+				name: "argon2i",
+				passwords: []testPassword{
+					{"apple123", "{ARGON2}$argon2i$v=19$m=4096,t=3,p=1$pheUpIlJos7rsy3eS7fapw$L7+pHSnGtABP5eoVkQ+s8MsuYAKKzOKsTOyUv1vvqsg"},
+					{"apple123", "{ARGON2}$argon2i$v=19$m=4096,t=3,p=1$pheUpIlJos7rsy3eS7fapw$L7+pHSnGtABP5eoVkQ+s8MsuYAKKzOKsTOyUv1vvqsg"},
+				},
+			},
 			{
 				name: "pbkdf2",
 				passwords: []testPassword{
@@ -170,12 +187,6 @@ var testSources = []testSource{
 				name: "pbkdf2-sha512",
 				passwords: []testPassword{
 					{"apple123", "{PBKDF2-SHA512}10000$1hggvWEtcJ0AGI5lT57d9A$q1epGDAulI/5Dz426cvJW7GXGmEksiSQmZ3AnQ5fB3FyXkglyOoi1F5kcPeMVQK9RabR6T1T7ANjaEZCxMdpmA"},
-				},
-			},
-			{
-				name: "argon2i",
-				passwords: []testPassword{
-					{"apple123", "{ARGON2}$argon2i$v=19$m=4096,t=3,p=1$pheUpIlJos7rsy3eS7fapw$L7+pHSnGtABP5eoVkQ+s8MsuYAKKzOKsTOyUv1vvqsg"},
 				},
 			},
 		},

@@ -32,7 +32,16 @@ var (
 	// encoding.
 	ErrEncodedHashKeyEncoding = errors.New("provided encoded hash has a key value that can't be decoded")
 
-	// ErrEncodedHashSaltEncoding is an error returned when an encoded hash has a key with an invalid or unsupported
+	// ErrEncodedHashSaltEncoding is an error returned when an encoded hash has a salt with an invalid or unsupported
 	// encoding.
 	ErrEncodedHashSaltEncoding = errors.New("provided encoded hash has a salt value that can't be decoded")
+
+	// ErrKeyDerivation is returned when a Key function returns an error.
+	ErrKeyDerivation = errors.New("failed to derive the key with the provided parameters")
+
+	// ErrSaltEncoding is an error returned when a salt has an invalid or unsupported encoding.
+	ErrSaltEncoding = errors.New("provided salt has a value that can't be decoded")
+
+	// ErrReadRandomBytesForSalt is an error returned when generating the random bytes for salt resulted in an error.
+	ErrReadRandomBytesForSalt = errors.New("could not read random data for the salt")
 )
