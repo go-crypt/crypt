@@ -9,7 +9,7 @@ import (
 	"github.com/go-crypt/x/pbkdf2"
 )
 
-// PBKDF2Digest is a digest which handles PBKDF2 hashes.
+// PBKDF2Digest is a Digest which handles PBKDF2 hashes.
 type PBKDF2Digest struct {
 	variant PBKDF2Variant
 

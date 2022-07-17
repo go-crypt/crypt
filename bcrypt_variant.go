@@ -57,6 +57,7 @@ func (v BcryptVariant) Prefix() (prefix string) {
 	}
 }
 
+// Encode formats the variant encoded Digest.
 func (v BcryptVariant) Encode(cost int, version string, salt, key []byte) (f string) {
 	switch v {
 	case BcryptVariantStandard:
@@ -68,6 +69,7 @@ func (v BcryptVariant) Encode(cost int, version string, salt, key []byte) (f str
 	}
 }
 
+// EncodeInput returns the appropriate algorithm input.
 func (v BcryptVariant) EncodeInput(src, salt []byte) (dst []byte) {
 	switch v {
 	case BcryptVariantSHA256:

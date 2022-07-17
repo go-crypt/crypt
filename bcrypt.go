@@ -25,6 +25,7 @@ type BcryptHash struct {
 	unsafe bool
 }
 
+// WithVariant adjusts the variant of the BcryptDigest algorithm.
 func (h *BcryptHash) WithVariant(variant BcryptVariant) *BcryptHash {
 	h.variant = variant
 

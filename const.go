@@ -5,6 +5,7 @@ import (
 	"regexp"
 )
 
+// Algorithm Prefixes.
 const (
 	AlgorithmPrefixPlainText    = "plaintext"
 	AlgorithmPrefixBase64       = "base64"
@@ -40,6 +41,7 @@ const (
 	maxUnsigned32BitInteger = 4294967295
 )
 
+// Storage Formats.
 const (
 	StorageFormatPrefixLDAPCrypt  = "{CRYPT}"
 	StorageFormatPrefixLDAPArgon2 = "{ARGON2}"

@@ -44,7 +44,9 @@ func NewDigest(encodedDigest string, digest Digest) (d Digest, err error) {
 func Decode(encodedDigest string) (digest Digest, err error) {
 	var prefix string
 
-	encodedDigest, prefix, err = decodePrefixAndNormalize(encodedDigest)
+	if encodedDigest, prefix, err = decodePrefixAndNormalize(encodedDigest); err != nil {
+		return nil, err
+	}
 
 	return decode(encodedDigest, prefix, false)
 }
@@ -53,7 +55,9 @@ func Decode(encodedDigest string) (digest Digest, err error) {
 func DecodeWithPlainText(encodedDigest string) (digest Digest, err error) {
 	var prefix string
 
-	encodedDigest, prefix, err = decodePrefixAndNormalize(encodedDigest)
+	if encodedDigest, prefix, err = decodePrefixAndNormalize(encodedDigest); err != nil {
+		return nil, err
+	}
 
 	return decode(encodedDigest, prefix, true)
 }

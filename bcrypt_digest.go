@@ -1,7 +1,6 @@
 package crypt
 
 import (
-	"bytes"
 	"crypto/subtle"
 	"fmt"
 	"strconv"
@@ -132,13 +131,4 @@ func (d *BcryptDigest) Decode(encodedDigest string) (err error) {
 // String returns the storable format of the Digest encoded hash.
 func (d BcryptDigest) String() string {
 	return d.Encode()
-}
-
-func (d BcryptDigest) secret() []byte {
-	buf := bytes.Buffer{}
-
-	buf.Write(d.salt)
-	buf.Write(d.key)
-
-	return buf.Bytes()
 }

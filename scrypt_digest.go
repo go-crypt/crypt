@@ -9,6 +9,7 @@ import (
 	"github.com/go-crypt/x/scrypt"
 )
 
+// ScryptDigest is a Digest which handles scrypt hashes.
 type ScryptDigest struct {
 	ln, r, p, k int
 
@@ -121,7 +122,7 @@ func (d ScryptDigest) n() (n int) {
 		if i == 1 {
 			n = 2 * 2
 		} else {
-			n = n * 2
+			n *= 2
 		}
 	}
 

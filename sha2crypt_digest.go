@@ -86,7 +86,6 @@ func (d *SHA2CryptDigest) Decode(encodedDigest string) (err error) {
 
 // Encode this SHA2CryptDigest as a string for storage.
 func (d *SHA2CryptDigest) Encode() (hash string) {
-
 	return strings.ReplaceAll(fmt.Sprintf(StorageFormatSHACrypt,
 		d.variant.Prefix(), d.rounds,
 		d.salt, d.key,

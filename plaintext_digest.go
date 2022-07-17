@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// PlainTextDigest is a digest which handles plain text matching.
+// PlainTextDigest is a Digest which handles plain text matching.
 type PlainTextDigest struct {
 	variant PlainTextVariant
 
