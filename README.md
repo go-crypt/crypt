@@ -21,4 +21,11 @@ variant and a base64 (for storage, not security) format.
 
 ### bcrypt-sha256
 
-This algorithm was thought of by the developers of passlib. It
+This algorithm was thought of by the developers of [Passlib](https://passlib.readthedocs.io/en/stable/). It circumvents
+the issue in bcrypt where the maximum password length is effectively 72 bytes by passing the password via a HMAC-SHA-256
+function which uses the salt bytes as the key.
+
+*__Note:__ Only bcrypt-sha256 version 2 which uses the PHC storage format and passes the password through
+a HMAC-SHA-256 function the salt as the key is supported. The bcrypt-sha256 version 1 which uses the
+[Modular Crypt Format](https://passlib.readthedocs.io/en/stable/modular_crypt_format.html) and only passes the password
+via a SHA-256 sum function not supported at all.*
