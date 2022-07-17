@@ -1,3 +1,6 @@
+[![Go Reference](https://pkg.go.dev/badge/github.com/go-crypt/crypt.svg)](https://pkg.go.dev/github.com/go-crypt/crypt)
+[![Go Report Card](https://goreportcard.com/badge/github.com/go-crypt/crypt)](https://goreportcard.com/report/github.com/go-crypt/crypt)
+
 # github.com/go-crypt/crypt
 
 Password Hashing / Digest / Crypt library.

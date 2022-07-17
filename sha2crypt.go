@@ -7,7 +7,7 @@ import (
 )
 
 // NewSHA2CryptHash returns a *SHA2CryptHash without any settings configured. This defaults to a SHA512 hash.Hash
-// with 1000000 rounds. These settings can be overriden with the methods with the With prefix.
+// with 1000000 rounds. These settings can be overridden with the methods with the With prefix.
 func NewSHA2CryptHash() *SHA2CryptHash {
 
 	return &SHA2CryptHash{}
@@ -25,13 +25,13 @@ type SHA2CryptHash struct {
 }
 
 // NewSHA2CryptSHA256Hash returns a *SHA2CryptHash with the SHA256 hash.Hash which defaults to 1000000 rounds. These
-//settings can be overriden with the methods with the With prefix.
+//settings can be overridden with the methods with the With prefix.
 func NewSHA2CryptSHA256Hash() *SHA2CryptHash {
 	return NewSHA2CryptHash().WithSHA256()
 }
 
 // NewSHA2CryptSHA512Hash returns a *SHA2CryptHash with the SHA512 hash.Hash which defaults to 1000000 rounds. These
-//settings can be overriden with the methods with the With prefix.
+//settings can be overridden with the methods with the With prefix.
 func NewSHA2CryptSHA512Hash() *SHA2CryptHash {
 	return NewSHA2CryptHash().WithSHA512()
 }

@@ -1,8 +1,8 @@
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/go-crypt/x v0.0.0-20220716020742-ccac15d7761e h1:T/SdwC3vnnaGZPONwgS4UGfCsxFODTEBx4/mb/jAGMw=
-github.com/go-crypt/x v0.0.0-20220716020742-ccac15d7761e/go.mod h1:UEH8AxW6Ryk4m7sRZyfsxGLgcjSj8uGBBJVwW90w8sg=
+github.com/go-crypt/x v0.0.0-20220717035548-f7ba0d122fba h1:cNYaxYN2BNOqv9Anf5zsNXd7W1AlOjqw//MmDSL5kOI=
+github.com/go-crypt/x v0.0.0-20220717035548-f7ba0d122fba/go.mod h1:UEH8AxW6Ryk4m7sRZyfsxGLgcjSj8uGBBJVwW90w8sg=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
