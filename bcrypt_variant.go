@@ -45,8 +45,8 @@ func (v BcryptVariant) PasswordMaxLength() int {
 	}
 }
 
-// String returns the Argon2Variant prefix identifier.
-func (v BcryptVariant) String() (s string) {
+// Prefix returns the Argon2Variant prefix identifier.
+func (v BcryptVariant) Prefix() (prefix string) {
 	switch v {
 	case BcryptVariantStandard:
 		return AlgorithmPrefixBcrypt
@@ -62,7 +62,7 @@ func (v BcryptVariant) Encode(cost int, version string, salt, key []byte) (f str
 	case BcryptVariantStandard:
 		return fmt.Sprintf(StorageFormatBcrypt, version, cost, salt, key)
 	case BcryptVariantSHA256:
-		return fmt.Sprintf(StorageFormatBcryptSHA256, AlgorithmPrefixBcryptSHA256, version, cost, salt, key)
+		return fmt.Sprintf(StorageFormatBcryptSHA256, v.Prefix(), version, cost, salt, key)
 	default:
 		return
 	}

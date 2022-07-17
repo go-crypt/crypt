@@ -31,8 +31,8 @@ const (
 	SHA2CryptVariantSHA512
 )
 
-// String returns the SHA2CryptVariant prefix identifier.
-func (v SHA2CryptVariant) String() (s string) {
+// Prefix returns the SHA2CryptVariant prefix identifier.
+func (v SHA2CryptVariant) Prefix() (prefix string) {
 	switch v {
 	case SHA2CryptVariantSHA256:
 		return AlgorithmPrefixSHA256

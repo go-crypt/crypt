@@ -38,6 +38,10 @@ func (d BcryptDigest) MatchAdvanced(password string) (match bool, err error) {
 
 // MatchBytesAdvanced is the same as MatchBytes except if there is an error it returns that as well.
 func (d BcryptDigest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
+	if len(d.key) == 0 {
+		return false, fmt.Errorf("bcrypt match error: %w: key has 0 bytes", ErrPasswordInvalid)
+	}
+
 	var key []byte
 
 	password := d.variant.EncodeInput(passwordBytes, d.salt)

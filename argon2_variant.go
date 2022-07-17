@@ -35,8 +35,8 @@ const (
 	Argon2VariantID
 )
 
-// String returns the Argon2Variant prefix identifier.
-func (v Argon2Variant) String() (s string) {
+// Prefix returns the Argon2Variant prefix identifier.
+func (v Argon2Variant) Prefix() (prefix string) {
 	switch v {
 	case Argon2VariantID:
 		return AlgorithmPrefixArgon2id

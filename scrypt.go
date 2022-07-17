@@ -6,11 +6,10 @@ import (
 	"github.com/go-crypt/x/scrypt"
 )
 
-const (
-	hashScryptDefaultRounds      = 16
-	hashScryptDefaultBlockSize   = 8
-	hashScryptDefaultParallelism = 1
-)
+// NewScryptHash returns a *ScryptHash without any settings configured.
+func NewScryptHash() *ScryptHash {
+	return &ScryptHash{}
+}
 
 // ScryptHash is a Hash for scrypt which provides a builder design pattern.
 type ScryptHash struct {
@@ -144,15 +143,15 @@ func (h *ScryptHash) setDefaults() {
 	h.defaults = true
 
 	if h.ln <= 0 {
-		h.ln = hashScryptDefaultRounds
+		h.ln = scryptRoundsDefault
 	}
 
 	if h.r <= 0 {
-		h.r = hashScryptDefaultBlockSize
+		h.r = scryptBlockSizeDefault
 	}
 
 	if h.p <= 0 {
-		h.p = hashScryptDefaultParallelism
+		h.p = scryptParallelismDefault
 	}
 
 	if h.k == 0 {

@@ -38,7 +38,7 @@ func (d PBKDF2Digest) MatchAdvanced(password string) (match bool, err error) {
 // MatchBytesAdvanced is the same as MatchBytes except if there is an error it returns that as well.
 func (d PBKDF2Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
 	if len(d.key) == 0 {
-		return false, fmt.Errorf("pbkdf2 match error: digest key has 0 bytes")
+		return false, fmt.Errorf("pbkdf2 match error: %w: key has 0 bytes", ErrPasswordInvalid)
 	}
 
 	return subtle.ConstantTimeCompare(d.key, pbkdf2.Key(passwordBytes, d.salt, d.iterations, d.k, d.variant.HashFunc())) == 1, nil
@@ -47,7 +47,7 @@ func (d PBKDF2Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err 
 // Encode returns the encoded form of this digest.
 func (d *PBKDF2Digest) Encode() string {
 	return fmt.Sprintf(StorageFormatPBKDF2,
-		d.variant.String(),
+		d.variant.Prefix(),
 		d.iterations,
 		b64ra.EncodeToString(d.salt), b64ra.EncodeToString(d.key),
 	)

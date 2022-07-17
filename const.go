@@ -15,7 +15,7 @@ const (
 	AlgorithmPrefixBcryptSHA256 = "bcrypt-sha256"
 	AlgorithmPrefixSHA256       = "5"
 	AlgorithmPrefixSHA512       = "6"
-	AlgorithmPrefixScrypt       = "7"
+	AlgorithmPrefixScrypt       = "scrypt"
 	AlgorithmPrefixPBKDF2       = "pbkdf2"
 	AlgorithmPrefixPBKDF2SHA1   = "pbkdf2-sha1"
 	AlgorithmPrefixPBKDF2SHA256 = "pbkdf2-sha256"
@@ -30,8 +30,6 @@ const (
 	algorithmPrefixBcryptA          = StorageDelimiter + "2a" + StorageDelimiter
 	algorithmPrefixBcryptX          = StorageDelimiter + "2x" + StorageDelimiter
 	algorithmPrefixBcryptY          = StorageDelimiter + "2y" + StorageDelimiter
-	algorithmPrefixScryptNormalized = StorageDelimiter + AlgorithmPrefixScrypt + StorageDelimiter
-	algorithmPrefixScryptScrypt     = StorageDelimiter + "scrypt" + StorageDelimiter
 )
 
 var (
@@ -80,6 +78,7 @@ var (
 	b64ra = base64.NewEncoding(encodeTypeA).WithPadding(base64.NoPadding)
 )
 
+// argon2 constants.
 const (
 	argon2SaltMinBytes                       = 1
 	argon2ParallelismMax                     = 16777215
@@ -103,6 +102,13 @@ const (
 	pbkdf2IterationsMin           = 100000
 	pbkdf2VariantDefault          = PBKDF2VariantSHA256
 	pbkdf2SaltMinBytes            = 8
+)
+
+// scrypt constants.
+const (
+	scryptRoundsDefault      = 16
+	scryptBlockSizeDefault   = 8
+	scryptParallelismDefault = 1
 )
 
 const (

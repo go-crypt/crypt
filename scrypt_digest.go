@@ -34,6 +34,10 @@ func (d ScryptDigest) MatchAdvanced(password string) (match bool, err error) {
 
 // MatchBytesAdvanced is the same as MatchBytes except if there is an error it returns that as well.
 func (d ScryptDigest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
+	if len(d.key) == 0 {
+		return false, fmt.Errorf("scrypt match error: %w: key has 0 bytes", ErrPasswordInvalid)
+	}
+
 	var key []byte
 
 	if key, err = scrypt.Key(passwordBytes, d.salt, d.n(), d.r, d.p, d.k); err != nil {
@@ -66,7 +70,7 @@ func (d *ScryptDigest) Decode(encodedDigest string) (err error) {
 		return fmt.Errorf("scrypt decode error: %w: the '%s' identifier is not valid for an scrypt encoded hash", ErrEncodedHashInvalidIdentifier, identifier)
 	}
 
-	d.ln, d.r, d.p, d.k = hashScryptDefaultRounds, hashScryptDefaultBlockSize, hashScryptDefaultParallelism, defaultKeySize
+	d.ln, d.r, d.p, d.k = scryptRoundsDefault, scryptBlockSizeDefault, scryptParallelismDefault, defaultKeySize
 
 	for _, opt := range strings.Split(options, ",") {
 		pair := strings.SplitN(opt, "=", 2)

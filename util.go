@@ -17,8 +17,6 @@ func NormalizeEncodedDigest(encodedDigest string) (out string) {
 	switch {
 	case strings.HasPrefix(encodedDigest, StorageFormatPrefixLDAPArgon2):
 		encodedDigest = encodedDigest[8:]
-	case strings.HasPrefix(encodedDigest, algorithmPrefixScryptScrypt):
-		encodedDigest = strings.Replace(encodedDigest, algorithmPrefixScryptScrypt, algorithmPrefixScryptNormalized, 1)
 	case strings.HasPrefix(encodedDigest, algorithmPrefixBcrypt):
 		encodedDigest = strings.Replace(encodedDigest, algorithmPrefixBcrypt, algorithmPrefixBcryptNormalized, 1)
 	case strings.HasPrefix(encodedDigest, algorithmPrefixBcryptA):

@@ -5,6 +5,32 @@ import (
 	"strings"
 )
 
+// CheckPassword takes the string password and an encoded digest. It decodes the Digest, then performs the
+// MatchAdvanced() function on the Digest. If any process returns an error it returns false with the error, otherwise
+// it returns the result of MatchAdvanced(). This is just a helper function and implementers can manually invoke this
+// process themselves in situations where they may want to store the Digest to perform matches at a later date to avoid
+// decoding multiple times for example.
+func CheckPassword(password, encodedDigest string) (valid bool, err error) {
+	var digest Digest
+
+	if digest, err = Decode(encodedDigest); err != nil {
+		return false, err
+	}
+
+	return digest.MatchAdvanced(password)
+}
+
+// CheckPasswordWithPlainText is the same as CheckPassword however it uses DecodeWithPlainText instead.
+func CheckPasswordWithPlainText(password, encodedDigest string) (valid bool, err error) {
+	var digest Digest
+
+	if digest, err = DecodeWithPlainText(encodedDigest); err != nil {
+		return false, err
+	}
+
+	return digest.MatchAdvanced(password)
+}
+
 // NewDigest creates a new Digest given a Digest implementation and an encoded digest string.
 func NewDigest(encodedDigest string, digest Digest) (d Digest, err error) {
 	if err = digest.Decode(encodedDigest); err != nil {

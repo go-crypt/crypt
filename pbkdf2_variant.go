@@ -47,8 +47,8 @@ const (
 	PBKDF2VariantSHA512
 )
 
-// String returns the PlainTextVariant prefix identifier.
-func (v PBKDF2Variant) String() (s string) {
+// Prefix returns the PlainTextVariant prefix identifier.
+func (v PBKDF2Variant) Prefix() (prefix string) {
 	switch v {
 	case PBKDF2VariantSHA1:
 		return AlgorithmPrefixPBKDF2
@@ -61,7 +61,7 @@ func (v PBKDF2Variant) String() (s string) {
 	case PBKDF2VariantSHA512:
 		return AlgorithmPrefixPBKDF2SHA512
 	default:
-		return ""
+		return
 	}
 }
 

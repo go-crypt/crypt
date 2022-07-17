@@ -26,15 +26,15 @@ const (
 	PlainTextVariantBase64
 )
 
-// String returns the PlainTextVariant prefix identifier.
-func (v PlainTextVariant) String() (s string) {
+// Prefix returns the PlainTextVariant prefix identifier.
+func (v PlainTextVariant) Prefix() (prefix string) {
 	switch v {
 	case PlainTextVariantPlainText:
 		return AlgorithmPrefixPlainText
 	case PlainTextVariantBase64:
 		return AlgorithmPrefixBase64
 	default:
-		return ""
+		return
 	}
 }
 

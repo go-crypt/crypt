@@ -27,6 +27,10 @@ func (d PlainTextDigest) MatchBytes(passwordBytes []byte) (match bool) {
 
 // MatchAdvanced is the same as Match except if there is an error it returns that as well.
 func (d PlainTextDigest) MatchAdvanced(password string) (match bool, err error) {
+	if len(d.key) == 0 {
+		return false, fmt.Errorf("plaintext match error: %w: key has 0 bytes", ErrPasswordInvalid)
+	}
+
 	return d.MatchBytesAdvanced([]byte(password))
 }
 
@@ -41,7 +45,7 @@ func (d PlainTextDigest) MatchBytesAdvanced(passwordBytes []byte) (match bool, e
 
 // Encode returns the encoded form of this digest.
 func (d *PlainTextDigest) Encode() string {
-	return fmt.Sprintf(StorageFormatSimple, d.variant.String(), d.variant.Encode(d.key))
+	return fmt.Sprintf(StorageFormatSimple, d.variant.Prefix(), d.variant.Encode(d.key))
 }
 
 // Decode takes an encodedDigest string and parses it into this Digest.

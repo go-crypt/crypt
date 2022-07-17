@@ -39,13 +39,17 @@ func (d Argon2Digest) MatchAdvanced(password string) (match bool, err error) {
 
 // MatchBytesAdvanced is the same as MatchBytes except if there is an error it returns that as well.
 func (d Argon2Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
+	if len(d.key) == 0 {
+		return false, fmt.Errorf("argon2 match error: %w: key has 0 bytes", ErrPasswordInvalid)
+	}
+
 	return subtle.ConstantTimeCompare(d.key, d.variant.KeyFunc()(passwordBytes, d.salt, d.t, d.m, d.p, d.k)) == 1, nil
 }
 
 // Encode returns the encoded form of this Digest.
 func (d Argon2Digest) Encode() (encodedHash string) {
 	return strings.ReplaceAll(fmt.Sprintf(StorageFormatArgon2,
-		d.variant.String(), argon2.Version,
+		d.variant.Prefix(), argon2.Version,
 		d.m, d.t, d.p, d.k,
 		b64rs.EncodeToString(d.salt), b64rs.EncodeToString(d.key),
 	), "\n", "")
