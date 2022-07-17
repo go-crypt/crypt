@@ -1,7 +1,9 @@
 package crypt
 
 import (
+	"crypto/rand"
 	"fmt"
+	"io"
 	"strings"
 )
 
@@ -40,4 +42,18 @@ func splitDigest(encodedDigest, delimiter string) (parts []string) {
 	encodedDigest = NormalizeEncodedDigest(encodedDigest)
 
 	return strings.Split(encodedDigest, delimiter)
+}
+
+func randomBytes(length uint32) (bytes []byte, err error) {
+	bytes = make([]byte, length)
+
+	if _, err = io.ReadFull(rand.Reader, bytes); err != nil {
+		return nil, err
+	}
+
+	return bytes, nil
+}
+
+func roundDownToNearestMultiple(value, multiple uint32) uint32 {
+	return (value / multiple) * multiple
 }

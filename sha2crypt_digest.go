@@ -13,7 +13,7 @@ import (
 type SHA2CryptDigest struct {
 	variant SHA2CryptVariant
 
-	rounds    uint32
+	rounds    int
 	salt, key []byte
 }
 
@@ -69,7 +69,7 @@ func (d *SHA2CryptDigest) Decode(encodedDigest string) (err error) {
 				return fmt.Errorf("sha2crypt option '%s' has invalid value '%s': %w", k, v, err)
 			}
 
-			d.rounds = uint32(rounds)
+			d.rounds = int(rounds)
 		default:
 			return fmt.Errorf("sha2crypt option '%s' with value '%s' is unknown", k, v)
 		}

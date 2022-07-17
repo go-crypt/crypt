@@ -67,26 +67,48 @@ const (
 )
 
 const (
-	DigestSHA1   = "sha1"
-	DigestSHA256 = "sha256"
-	DigestSHA224 = "sha224"
-	DigestSHA384 = "sha384"
-	DigestSHA512 = "sha512"
-)
-
-const (
 	defaultSaltSize = 16
 	defaultKeySize  = 32
 )
 
 const (
 	encodeTypeA = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789./"
-	encodeTypeB = "./ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 )
 
 var (
 	b64rs = base64.RawStdEncoding
-	b64ru = base64.RawURLEncoding
 	b64ra = base64.NewEncoding(encodeTypeA).WithPadding(base64.NoPadding)
-	b64sa = base64.NewEncoding(encodeTypeA).WithPadding(base64.StdPadding)
+)
+
+const (
+	argon2SaltMinBytes                       = 1
+	argon2ParallelismMax                     = 16777215
+	argon2MemoryMinParallelismMultiplier     = 8
+	argon2MemoryRounderParallelismMultiplier = 4
+)
+
+// bcrypt constants.
+const (
+	bcryptCostDefault       = 13
+	bcryptCostMin           = 10
+	bcryptPasswordMaxLength = 72
+	bcryptVariantDefault    = BcryptVariantStandard
+)
+
+// pbkdf2 constants.
+const (
+	pbkdf2IterationsDefaultSHA1   = 720000
+	pbkdf2IterationsDefaultSHA256 = 310000
+	pbkdf2IterationsDefaultSHA512 = 120000
+	pbkdf2IterationsMin           = 100000
+	pbkdf2VariantDefault          = PBKDF2VariantSHA256
+	pbkdf2SaltMinBytes            = 8
+)
+
+const (
+	sha2cryptRoundsMin     = 1000
+	sha2cryptRoundsMax     = 999999999
+	sha2cryptRoundsDefault = 1000000
+	sha2cryptSaltMinBytes  = 1
+	sha2cryptSaltMaxBytes  = 16
 )

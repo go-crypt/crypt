@@ -1,18 +1,9 @@
 package crypt
 
 import (
-	"crypto/rand"
 	"fmt"
-	"io"
 
 	xcrypt "github.com/go-crypt/x/crypt"
-)
-
-const (
-	hashSHACryptMinimumRounds = 1000
-	hashSHACryptDefaultRounds = 1000000
-	hashSHACryptSaltSizeMin   = 1
-	hashSHACryptSaltSizeMax   = 16
 )
 
 // NewSHA2CryptHash returns a *SHA2CryptHash without any settings configured. This defaults to a SHA512 hash.Hash
@@ -26,7 +17,11 @@ func NewSHA2CryptHash() *SHA2CryptHash {
 type SHA2CryptHash struct {
 	variant SHA2CryptVariant
 
-	rounds int
+	bytesSalt uint32
+
+	rounds uint32
+
+	defaults, unsafe bool
 }
 
 // NewSHA2CryptSHA256Hash returns a *SHA2CryptHash with the SHA256 hash.Hash which defaults to 1000000 rounds. These
@@ -42,97 +37,151 @@ func NewSHA2CryptSHA512Hash() *SHA2CryptHash {
 }
 
 // WithSHA256 adjusts this SHA2CryptHash to utilize the SHA256 hash.Hash.
-func (b *SHA2CryptHash) WithSHA256() *SHA2CryptHash {
-	b.variant = SHA2CryptVariantSHA256
+func (h *SHA2CryptHash) WithSHA256() *SHA2CryptHash {
+	h.variant = SHA2CryptVariantSHA256
 
-	return b
+	return h
 }
 
 // WithSHA512 adjusts this SHA2CryptHash to utilize the SHA512 hash.Hash.
-func (b *SHA2CryptHash) WithSHA512() *SHA2CryptHash {
-	b.variant = SHA2CryptVariantSHA512
+func (h *SHA2CryptHash) WithSHA512() *SHA2CryptHash {
+	h.variant = SHA2CryptVariantSHA512
 
-	return b
+	return h
+}
+
+// WithoutValidation disables the validation and allows potentially unsafe values. Use at your own risk.
+func (h *SHA2CryptHash) WithoutValidation() *SHA2CryptHash {
+	h.unsafe = true
+
+	return h
 }
 
 // WithRounds sets the rounds parameter of the resulting SHA2CryptDigest. Default is 1000000.
-func (b *SHA2CryptHash) WithRounds(rounds int) *SHA2CryptHash {
-	b.rounds = rounds
+func (h *SHA2CryptHash) WithRounds(rounds uint32) *SHA2CryptHash {
+	h.rounds = rounds
 
-	return b
+	return h
 }
 
-// Hash checks the options are all configured correctly, setting defaults as necessary, calculates the password hash,
-// and returns the SHA2CryptDigest.
-func (b *SHA2CryptHash) Hash(password string) (hashed Digest, err error) {
-	salt := make([]byte, hashSHACryptSaltSizeMax)
+// WithSaltLength adjusts the salt size (in bytes) of the resulting SHA2CryptDigest. Minimum 1, Maximum 16. Default is
+// 16.
+func (h *SHA2CryptHash) WithSaltLength(bytes uint32) *SHA2CryptHash {
+	h.bytesSalt = bytes
 
-	if _, err = io.ReadFull(rand.Reader, salt); err != nil {
-		return nil, fmt.Errorf("error reading random bytes for the salt: %w", err)
+	return h
+}
+
+// Hash performs the hashing operation and returns either a Digest or an error.
+func (h *SHA2CryptHash) Hash(password string) (digest Digest, err error) {
+	h.setDefaults()
+
+	var salt []byte
+
+	if salt, err = randomBytes(h.bytesSalt); err != nil {
+		return nil, fmt.Errorf("sha2crypt hashing error: %w: %v", ErrSaltReadRandomBytes, err)
 	}
 
-	return b.hashWithSalt(password, salt)
+	return h.hashWithSalt(password, salt)
 }
 
-// HashWithSalt is an overload of Digest which allows setting the salt.
-func (b *SHA2CryptHash) HashWithSalt(password, salt string) (hashed Digest, err error) {
+// HashWithSalt overloads the Hash method allowing the user to provide a salt. It's recommended instead to configure the
+// salt size and let this be a random value generated using crypto/rand.
+func (h *SHA2CryptHash) HashWithSalt(password, salt string) (digest Digest, err error) {
 	var saltBytes []byte
 
-	if saltBytes, err = b.validateSalt(salt); err != nil {
+	if saltBytes, err = h.validateSalt(salt); err != nil {
 		return nil, err
 	}
 
-	return b.hashWithSalt(password, saltBytes)
+	return h.hashWithSalt(password, saltBytes)
 }
 
-func (b *SHA2CryptHash) hashWithSalt(password string, salt []byte) (hashed Digest, err error) {
-	if b.Validate() != nil {
+func (h *SHA2CryptHash) hashWithSalt(password string, salt []byte) (digest Digest, err error) {
+	if err = h.validate(); err != nil {
 		return nil, err
 	}
 
-	h := &SHA2CryptDigest{
-		rounds: uint32(b.rounds),
+	d := &SHA2CryptDigest{
+		rounds: int(h.rounds),
 		salt:   salt,
 	}
 
-	h.key = xcrypt.Key(h.variant.HashFunc(), []byte(password), h.salt, int(h.rounds))
+	d.key = xcrypt.Key(d.variant.HashFunc(), []byte(password), d.salt, d.rounds)
 
-	return h, nil
+	return d, nil
 }
 
-// MustHash overloads the Digest method and panics if the error is not nil. It's recommended if you use this option to
+// MustHash overloads the Hash method and panics if the error is not nil. It's recommended if you use this option to
 // utilize the Validate method first or handle the panic appropriately.
-func (b *SHA2CryptHash) MustHash(password string) (hashed Digest) {
+func (h *SHA2CryptHash) MustHash(password string) (digest Digest) {
 	var err error
 
-	if hashed, err = b.Hash(password); err != nil {
+	if digest, err = h.Hash(password); err != nil {
 		panic(err)
 	}
 
-	return hashed
+	return digest
 }
 
-// Validate checks the settings for this hasher.
-func (b *SHA2CryptHash) Validate() (err error) {
-	if b.rounds <= 0 {
-		b.rounds = hashSHACryptDefaultRounds
-	} else if b.rounds > hashSHACryptMinimumRounds {
-		return fmt.Errorf("error minimum rounds is %d but %d was supplied", hashSHACryptMinimumRounds, b.rounds)
-	}
+// Validate checks the settings/parameters for this Hash and returns an error.
+func (h *SHA2CryptHash) Validate() (err error) {
+	return h.validate()
+}
 
-	if b.variant == SHA2CryptVariantNone {
-		b.variant = SHA2CryptVariantSHA512
+func (h *SHA2CryptHash) validate() (err error) {
+	h.setDefaults()
+
+	if h.unsafe {
+		return nil
 	}
 
 	return nil
 }
 
-func (b *SHA2CryptHash) validateSalt(salt string) (saltBytes []byte, err error) {
+func (h *SHA2CryptHash) validateSalt(salt string) (saltBytes []byte, err error) {
 	saltBytes = []byte(salt)
 
-	if len(saltBytes) < hashSHACryptSaltSizeMin || len(saltBytes) > hashSHACryptSaltSizeMax {
-		return nil, fmt.Errorf("error validating salt: salt bytes must have a length of between %d and %d but has a length of %d", hashSHACryptSaltSizeMin, hashSHACryptSaltSizeMax, len(saltBytes))
+	if h.unsafe {
+		return saltBytes, nil
+	}
+
+	if len(saltBytes) < sha2cryptSaltMinBytes || len(saltBytes) > sha2cryptSaltMaxBytes {
+		return nil, fmt.Errorf("sha2crypt validation error: %w: salt must be between %d and %d bytes but is %d bytes", ErrSaltInvalid, sha2cryptSaltMinBytes, sha2cryptSaltMaxBytes, len(saltBytes))
 	}
 
 	return saltBytes, nil
+}
+
+func (h *SHA2CryptHash) setDefaults() {
+	if h.defaults {
+		return
+	}
+
+	h.defaults = true
+
+	switch {
+	case h.rounds <= 0:
+		h.rounds = sha2cryptRoundsDefault
+	case h.rounds < sha2cryptRoundsMin:
+		h.rounds = sha2cryptRoundsMin
+	case h.rounds > sha2cryptRoundsMax:
+		h.rounds = sha2cryptRoundsMax
+	}
+
+	switch {
+	case h.bytesSalt == 0:
+		h.bytesSalt = defaultSaltSize
+	case h.bytesSalt > sha2cryptSaltMaxBytes:
+		h.bytesSalt = sha2cryptSaltMaxBytes
+	}
+
+	switch h.variant {
+	case SHA2CryptVariantNone:
+		h.variant = SHA2CryptVariantSHA512
+	case SHA2CryptVariantSHA256, SHA2CryptVariantSHA512:
+		break
+	default:
+		h.variant = SHA2CryptVariantSHA512
+	}
 }

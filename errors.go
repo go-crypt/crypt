@@ -42,6 +42,16 @@ var (
 	// ErrSaltEncoding is an error returned when a salt has an invalid or unsupported encoding.
 	ErrSaltEncoding = errors.New("provided salt has a value that can't be decoded")
 
-	// ErrReadRandomBytesForSalt is an error returned when generating the random bytes for salt resulted in an error.
-	ErrReadRandomBytesForSalt = errors.New("could not read random data for the salt")
+	// ErrPasswordInvalid is an error returned when a password has an invalid or unsupported properties. It is NOT
+	// returned on password mismatches.
+	ErrPasswordInvalid = errors.New("password is invalid")
+
+	// ErrSaltInvalid is an error returned when a salt has an invalid or unsupported properties.
+	ErrSaltInvalid = errors.New("salt is invalid")
+
+	// ErrSaltReadRandomBytes is an error returned when generating the random bytes for salt resulted in an error.
+	ErrSaltReadRandomBytes = errors.New("could not read random bytes for salt")
+
+	// ErrParameterInvalid is an error returned when a parameter has an invalid value.
+	ErrParameterInvalid = errors.New("parameter is invalid")
 )

@@ -35,6 +35,16 @@ const (
 	BcryptVariantSHA256
 )
 
+// PasswordMaxLength returns -1 if the variant has no max length, otherwise returns the maximum password length.
+func (v BcryptVariant) PasswordMaxLength() int {
+	switch v {
+	case BcryptVariantSHA256:
+		return -1
+	default:
+		return bcryptPasswordMaxLength
+	}
+}
+
 // String returns the Argon2Variant prefix identifier.
 func (v BcryptVariant) String() (s string) {
 	switch v {
