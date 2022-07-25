@@ -13,7 +13,7 @@ func NewSHA2CryptVariant(identifier string) SHA2CryptVariant {
 	case AlgorithmPrefixSHA512, digestSHA512:
 		return SHA2CryptVariantSHA512
 	default:
-		return SHA2CryptVariantNone
+		return SHA2CryptVariantSHA512
 	}
 }
 
@@ -39,7 +39,7 @@ func (v SHA2CryptVariant) Prefix() (prefix string) {
 	case SHA2CryptVariantSHA512:
 		return AlgorithmPrefixSHA512
 	default:
-		return
+		return AlgorithmPrefixSHA512
 	}
 }
 
@@ -51,7 +51,7 @@ func (v SHA2CryptVariant) Name() (s string) {
 	case SHA2CryptVariantSHA512:
 		return digestSHA512
 	default:
-		return
+		return digestSHA512
 	}
 }
 
@@ -63,6 +63,6 @@ func (v SHA2CryptVariant) HashFunc() HashFunc {
 	case SHA2CryptVariantSHA512:
 		return sha512.New
 	default:
-		return nil
+		return sha512.New
 	}
 }

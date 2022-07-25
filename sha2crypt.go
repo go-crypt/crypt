@@ -35,6 +35,13 @@ func NewSHA2CryptSHA512Hash() *SHA2CryptHash {
 	return NewSHA2CryptHash().WithSHA512()
 }
 
+// WithVariant adjusts this SHA2CryptHash to utilize the provided variant.
+func (h *SHA2CryptHash) WithVariant(variant SHA2CryptVariant) *SHA2CryptHash {
+	h.variant = variant
+
+	return h
+}
+
 // WithSHA256 adjusts this SHA2CryptHash to utilize the SHA256 hash.Hash.
 func (h *SHA2CryptHash) WithSHA256() *SHA2CryptHash {
 	h.variant = SHA2CryptVariantSHA256
