@@ -6,6 +6,26 @@ import (
 	"strings"
 )
 
+// NewPlainTextDigest creates a new PlainTextDigest using the PlainText PlainTextVariant.
+func NewPlainTextDigest(password string) (digest PlainTextDigest) {
+	digest = PlainTextDigest{
+		variant: PlainTextVariantPlainText,
+		key:     []byte(password),
+	}
+
+	return digest
+}
+
+// NewBase64Digest creates a new PlainTextDigest using the Base64 PlainTextVariant.
+func NewBase64Digest(password string) (digest PlainTextDigest) {
+	digest = PlainTextDigest{
+		variant: PlainTextVariantBase64,
+		key:     []byte(password),
+	}
+
+	return digest
+}
+
 // PlainTextDigest is a Digest which handles plain text matching.
 type PlainTextDigest struct {
 	variant PlainTextVariant

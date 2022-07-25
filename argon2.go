@@ -219,7 +219,7 @@ func (h *Argon2Hash) validateSalt(salt string) (saltBytes []byte, err error) {
 
 func (h *Argon2Hash) setDefaults() {
 	if h.variant == Argon2VariantNone {
-		h.variant = Argon2VariantID
+		h.variant = argon2VariantDefault
 	}
 
 	Argon2ProfileRFC9106LowMemory.Params().CopyUnsetParamsTo(h)

@@ -127,6 +127,18 @@ func (d *Argon2Digest) Decode(encodedDigest string) (err error) {
 		return fmt.Errorf("argon2 decode error: %w: %v", ErrEncodedHashKeyEncoding, err)
 	}
 
+	if d.t == 0 {
+		d.t = 1
+	}
+
+	if d.p == 0 {
+		d.p = 4
+	}
+
+	if d.m == 0 {
+		d.m = 32 * 1024
+	}
+
 	return nil
 }
 

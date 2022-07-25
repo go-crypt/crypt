@@ -86,6 +86,7 @@ const (
 	argon2ParallelismMax                     = 16777215
 	argon2MemoryMinParallelismMultiplier     = 8
 	argon2MemoryRounderParallelismMultiplier = 4
+	argon2VariantDefault                     = Argon2VariantID
 )
 
 // bcrypt constants.
@@ -102,8 +103,8 @@ const (
 	pbkdf2IterationsDefaultSHA256 = 310000
 	pbkdf2IterationsDefaultSHA512 = 120000
 	pbkdf2IterationsMin           = 100000
-	pbkdf2VariantDefault          = PBKDF2VariantSHA256
 	pbkdf2SaltMinBytes            = 8
+	pbkdf2VariantDefault          = PBKDF2VariantSHA256
 )
 
 // scrypt constants.
