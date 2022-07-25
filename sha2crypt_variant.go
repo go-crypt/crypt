@@ -8,9 +8,9 @@ import (
 // NewSHA2CryptVariant converts an identifier string to a SHA2CryptVariant.
 func NewSHA2CryptVariant(identifier string) SHA2CryptVariant {
 	switch identifier {
-	case AlgorithmPrefixSHA256:
+	case AlgorithmPrefixSHA256, digestSHA256:
 		return SHA2CryptVariantSHA256
-	case AlgorithmPrefixSHA512:
+	case AlgorithmPrefixSHA512, digestSHA512:
 		return SHA2CryptVariantSHA512
 	default:
 		return SHA2CryptVariantNone
@@ -47,9 +47,9 @@ func (v SHA2CryptVariant) Prefix() (prefix string) {
 func (v SHA2CryptVariant) Name() (s string) {
 	switch v {
 	case SHA2CryptVariantSHA256:
-		return "sha256"
+		return digestSHA256
 	case SHA2CryptVariantSHA512:
-		return "sha512"
+		return digestSHA512
 	default:
 		return
 	}

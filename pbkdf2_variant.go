@@ -9,15 +9,15 @@ import (
 // NewPBKDF2Variant converts an identifier string to a PBKDF2Variant.
 func NewPBKDF2Variant(identifier string) (variant PBKDF2Variant) {
 	switch identifier {
-	case AlgorithmPrefixPBKDF2, AlgorithmPrefixPBKDF2SHA1:
+	case AlgorithmPrefixPBKDF2, AlgorithmPrefixPBKDF2SHA1, digestSHA1:
 		return PBKDF2VariantSHA1
-	case AlgorithmPrefixPBKDF2SHA224:
+	case AlgorithmPrefixPBKDF2SHA224, digestSHA224:
 		return PBKDF2VariantSHA224
-	case AlgorithmPrefixPBKDF2SHA256:
+	case AlgorithmPrefixPBKDF2SHA256, digestSHA256:
 		return PBKDF2VariantSHA256
-	case AlgorithmPrefixPBKDF2SHA384:
+	case AlgorithmPrefixPBKDF2SHA384, digestSHA384:
 		return PBKDF2VariantSHA384
-	case AlgorithmPrefixPBKDF2SHA512:
+	case AlgorithmPrefixPBKDF2SHA512, digestSHA512:
 		return PBKDF2VariantSHA512
 	default:
 		return PBKDF2VariantNone

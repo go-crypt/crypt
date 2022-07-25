@@ -26,6 +26,14 @@ const (
 )
 
 const (
+	digestSHA1   = "sha1"
+	digestSHA224 = "sha224"
+	digestSHA256 = "sha256"
+	digestSHA384 = "sha384"
+	digestSHA512 = "sha512"
+)
+
+const (
 	algorithmPrefixBcryptNormalized = StorageDelimiter + AlgorithmPrefixBcrypt + StorageDelimiter
 	algorithmPrefixBcrypt           = StorageDelimiter + "2" + StorageDelimiter
 	algorithmPrefixBcryptA          = StorageDelimiter + "2a" + StorageDelimiter
