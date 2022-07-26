@@ -40,9 +40,7 @@ func NewPBKDF2SHA512Hash() *PBKDF2Hash {
 type PBKDF2Hash struct {
 	variant PBKDF2Variant
 
-	iterations int
-
-	bytesKey, bytesSalt uint32
+	iterations, bytesKey, bytesSalt uint32
 
 	defaults, unsafe bool
 }
@@ -62,7 +60,7 @@ func (h *PBKDF2Hash) WithoutValidation() *PBKDF2Hash {
 }
 
 // WithIterations sets the iterations parameter of the resulting PBKDF2Digest. Default is 29000.
-func (h *PBKDF2Hash) WithIterations(iterations int) *PBKDF2Hash {
+func (h *PBKDF2Hash) WithIterations(iterations uint32) *PBKDF2Hash {
 	h.iterations = iterations
 
 	return h
@@ -114,12 +112,12 @@ func (h *PBKDF2Hash) hashWithSalt(password string, salt []byte) (digest Digest, 
 
 	d := &PBKDF2Digest{
 		variant:    h.variant,
-		iterations: h.iterations,
+		iterations: int(h.iterations),
 		k:          int(h.bytesKey),
 		salt:       salt,
 	}
 
-	d.key = pbkdf2.Key([]byte(password), d.salt, h.iterations, d.k, d.variant.HashFunc())
+	d.key = pbkdf2.Key([]byte(password), d.salt, int(h.iterations), d.k, d.variant.HashFunc())
 
 	return d, nil
 }
@@ -156,7 +154,7 @@ func (h *PBKDF2Hash) validate() (err error) {
 		return fmt.Errorf("pbkdf2 validation error: %w: salt size must be more than %d but is %d", ErrParameterInvalid, pbkdf2SaltMinBytes, h.bytesSalt)
 	}
 
-	if h.iterations > pbkdf2IterationsMin {
+	if h.iterations < pbkdf2IterationsMin {
 		return fmt.Errorf("pbkdf2 validation error: %w: iterations must be more than %d but is %d", ErrParameterInvalid, pbkdf2IterationsMin, h.iterations)
 	}
 
