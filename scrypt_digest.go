@@ -116,12 +116,10 @@ func (d ScryptDigest) String() string {
 
 // n returns 2 to the power of log N i.e d.ln.
 func (d ScryptDigest) n() (n int) {
+	n = 2
+
 	for i := 1; i < d.ln; i++ {
-		if i == 1 {
-			n = 2 * 2
-		} else {
-			n *= 2
-		}
+		n *= 2
 	}
 
 	return n
