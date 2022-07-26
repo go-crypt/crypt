@@ -15,7 +15,7 @@ type Argon2Digest struct {
 
 	v uint8
 
-	k, m, t, p uint32
+	m, t, p uint32
 
 	salt, key []byte
 }
@@ -43,14 +43,14 @@ func (d Argon2Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err 
 		return false, fmt.Errorf("argon2 match error: %w: key has 0 bytes", ErrPasswordInvalid)
 	}
 
-	return subtle.ConstantTimeCompare(d.key, d.variant.KeyFunc()(passwordBytes, d.salt, d.t, d.m, d.p, d.k)) == 1, nil
+	return subtle.ConstantTimeCompare(d.key, d.variant.KeyFunc()(passwordBytes, d.salt, d.t, d.m, d.p, uint32(len(d.key)))) == 1, nil
 }
 
 // Encode returns the encoded form of this Digest.
 func (d Argon2Digest) Encode() (encodedHash string) {
 	return strings.ReplaceAll(fmt.Sprintf(StorageFormatArgon2,
 		d.variant.Prefix(), argon2.Version,
-		d.m, d.t, d.p, d.k,
+		d.m, d.t, d.p,
 		b64rs.EncodeToString(d.salt), b64rs.EncodeToString(d.key),
 	), "\n", "")
 }
@@ -72,7 +72,6 @@ func (d *Argon2Digest) Decode(encodedDigest string) (err error) {
 	}
 
 	d.variant = variant
-	d.k = defaultKeySize
 
 	var (
 		value   uint64
@@ -107,7 +106,7 @@ func (d *Argon2Digest) Decode(encodedDigest string) (err error) {
 				return fmt.Errorf("argon2 decode error: %w: version %d is supported but encoded hash is version %d", ErrEncodedHashInvalidVersion, argon2.Version, d.v)
 			}
 		case oK:
-			d.k = uint32(value)
+			break
 		case oM:
 			d.m = uint32(value)
 		case oT:

@@ -161,11 +161,10 @@ func (h *Argon2Hash) hashWithSalt(password string, salt []byte) (digest Digest, 
 		t:       h.t,
 		p:       h.p,
 		m:       h.m,
-		k:       h.k,
 		salt:    salt,
 	}
 
-	d.key = d.variant.KeyFunc()(passwordBytes, d.salt, d.t, d.m, d.p, d.k)
+	d.key = d.variant.KeyFunc()(passwordBytes, d.salt, d.t, d.m, d.p, h.k)
 
 	return d, nil
 }

@@ -56,8 +56,8 @@ const (
 
 	StorageDelimiter          = "$"
 	StorageFormatSHACrypt     = "$%s$rounds=%d$%s$%s"
-	StorageFormatArgon2       = "$%s$v=%d$m=%d,t=%d,p=%d,k=%d$%s$%s"
-	StorageFormatScrypt       = "$%s$ln=%d,r=%d,p=%d,k=%d$%s$%s"
+	StorageFormatArgon2       = "$%s$v=%d$m=%d,t=%d,p=%d$%s$%s"
+	StorageFormatScrypt       = "$%s$ln=%d,r=%d,p=%d$%s$%s"
 	StorageFormatBcrypt       = "$%s$%d$%s%s"
 	StorageFormatBcryptSHA256 = "$%s$v=2,t=%s,r=%d$%s$%s"
 	StorageFormatPBKDF2       = "$%s$%d$%s$%s"

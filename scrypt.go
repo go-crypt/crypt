@@ -89,11 +89,10 @@ func (h *ScryptHash) hashWithSalt(password string, salt []byte) (digest Digest, 
 		ln:   int(h.ln),
 		r:    int(h.r),
 		p:    int(h.p),
-		k:    int(h.k),
 		salt: salt,
 	}
 
-	if d.key, err = scrypt.Key([]byte(password), d.salt, d.n(), d.r, d.p, d.k); err != nil {
+	if d.key, err = scrypt.Key([]byte(password), d.salt, d.n(), d.r, d.p, int(h.k)); err != nil {
 		return nil, fmt.Errorf("scrypt hashing error: %w: %v", ErrKeyDerivation, err)
 	}
 

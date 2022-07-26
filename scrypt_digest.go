@@ -11,7 +11,7 @@ import (
 
 // ScryptDigest is a Digest which handles scrypt hashes.
 type ScryptDigest struct {
-	ln, r, p, k int
+	ln, r, p int
 
 	salt, key []byte
 }
@@ -41,7 +41,7 @@ func (d ScryptDigest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err 
 
 	var key []byte
 
-	if key, err = scrypt.Key(passwordBytes, d.salt, d.n(), d.r, d.p, d.k); err != nil {
+	if key, err = scrypt.Key(passwordBytes, d.salt, d.n(), d.r, d.p, len(d.key)); err != nil {
 		return false, fmt.Errorf("scrypt match error: %w", err)
 	}
 
@@ -52,7 +52,7 @@ func (d ScryptDigest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err 
 func (d *ScryptDigest) Encode() string {
 	return fmt.Sprintf(StorageFormatScrypt,
 		AlgorithmPrefixScrypt,
-		d.ln, d.r, d.p, d.k,
+		d.ln, d.r, d.p,
 		b64rs.EncodeToString(d.salt), b64rs.EncodeToString(d.key),
 	)
 }
@@ -71,7 +71,7 @@ func (d *ScryptDigest) Decode(encodedDigest string) (err error) {
 		return fmt.Errorf("scrypt decode error: %w: the '%s' identifier is not valid for an scrypt encoded hash", ErrEncodedHashInvalidIdentifier, identifier)
 	}
 
-	d.ln, d.r, d.p, d.k = scryptRoundsDefault, scryptBlockSizeDefault, scryptParallelismDefault, defaultKeySize
+	d.ln, d.r, d.p = scryptRoundsDefault, scryptBlockSizeDefault, scryptParallelismDefault
 
 	for _, opt := range strings.Split(options, ",") {
 		pair := strings.SplitN(opt, "=", 2)
@@ -89,8 +89,6 @@ func (d *ScryptDigest) Decode(encodedDigest string) (err error) {
 			d.r, err = strconv.Atoi(v)
 		case oP:
 			d.p, err = strconv.Atoi(v)
-		case oK:
-			d.k, err = strconv.Atoi(v)
 		default:
 			return fmt.Errorf("scrypt decode error: %w: option '%s' with value '%s' is unknown", ErrEncodedHashInvalidOptionKey, k, v)
 		}
