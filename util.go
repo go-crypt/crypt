@@ -42,7 +42,7 @@ func splitDigest(encodedDigest, delimiter string) (parts []string) {
 	return strings.Split(encodedDigest, delimiter)
 }
 
-func randomBytes(length uint32) (bytes []byte, err error) {
+func randomBytes(length int) (bytes []byte, err error) {
 	bytes = make([]byte, length)
 
 	if _, err = io.ReadFull(rand.Reader, bytes); err != nil {
@@ -52,6 +52,6 @@ func randomBytes(length uint32) (bytes []byte, err error) {
 	return bytes, nil
 }
 
-func roundDownToNearestMultiple(value, multiple uint32) uint32 {
+func roundDownToNearestMultiple(value, multiple int) int {
 	return (value / multiple) * multiple
 }

@@ -32,7 +32,7 @@ func NewArgon2DHash() *Argon2Hash {
 type Argon2Hash struct {
 	variant Argon2Variant
 
-	s, k, m, t, p uint32
+	s, k, m, t, p int
 
 	unsafe bool
 }
@@ -56,47 +56,47 @@ func (h *Argon2Hash) WithProfile(profile Argon2Profile) *Argon2Hash {
 }
 
 // WithM sets the m parameter in bytes of the resulting Argon2Digest hash. Default is 32768.
-func (h *Argon2Hash) WithM(bytes uint32) *Argon2Hash {
+func (h *Argon2Hash) WithM(bytes int) *Argon2Hash {
 	h.m = bytes
 
 	return h
 }
 
 // WithP sets the p parameter of the resulting Argon2Digest hash. Default is 4.
-func (h *Argon2Hash) WithP(parallelism uint32) *Argon2Hash {
+func (h *Argon2Hash) WithP(parallelism int) *Argon2Hash {
 	h.p = parallelism
 
 	return h
 }
 
 // WithT sets the t parameter of the resulting Argon2Digest hash. Default is 4.
-func (h *Argon2Hash) WithT(time uint32) *Argon2Hash {
+func (h *Argon2Hash) WithT(time int) *Argon2Hash {
 	h.t = time
 
 	return h
 }
 
 // WithK adjusts the key length of the resulting Argon2Digest hash. Default is 32.
-func (h *Argon2Hash) WithK(length uint32) *Argon2Hash {
+func (h *Argon2Hash) WithK(length int) *Argon2Hash {
 	h.k = length
 
 	return h
 }
 
 // WithS adjusts the salt length of the resulting Argon2Digest hash. Default is 16.
-func (h *Argon2Hash) WithS(length uint32) *Argon2Hash {
+func (h *Argon2Hash) WithS(length int) *Argon2Hash {
 	h.s = length
 
 	return h
 }
 
 // CopyParamsTo copies all parameters from this Argon2Hash to another *Argon2Hash.
-func (h Argon2Hash) CopyParamsTo(hash *Argon2Hash) {
+func (h *Argon2Hash) CopyParamsTo(hash *Argon2Hash) {
 	hash.t, hash.p, hash.m, hash.k, hash.s = h.t, h.p, h.m, h.k, h.s
 }
 
 // CopyUnsetParamsTo copies all parameters from this Argon2Hash to another *Argon2Hash where the parameters are unset.
-func (h Argon2Hash) CopyUnsetParamsTo(hash *Argon2Hash) {
+func (h *Argon2Hash) CopyUnsetParamsTo(hash *Argon2Hash) {
 	if hash.t == 0 {
 		hash.t = h.t
 	}
@@ -158,13 +158,13 @@ func (h *Argon2Hash) hashWithSalt(password string, salt []byte) (digest Digest, 
 
 	d := &Argon2Digest{
 		variant: h.variant,
-		t:       h.t,
-		p:       h.p,
-		m:       h.m,
+		t:       uint32(h.t),
+		p:       uint32(h.p),
+		m:       uint32(h.m),
 		salt:    salt,
 	}
 
-	d.key = d.variant.KeyFunc()(passwordBytes, d.salt, d.t, d.m, d.p, h.k)
+	d.key = d.variant.KeyFunc()(passwordBytes, d.salt, d.t, d.m, d.p, uint32(h.k))
 
 	return d, nil
 }

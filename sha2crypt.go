@@ -16,9 +16,7 @@ func NewSHA2CryptHash() *SHA2CryptHash {
 type SHA2CryptHash struct {
 	variant SHA2CryptVariant
 
-	bytesSalt uint32
-
-	rounds uint32
+	rounds, bytesSalt int
 
 	defaults, unsafe bool
 }
@@ -64,7 +62,7 @@ func (h *SHA2CryptHash) WithoutValidation() *SHA2CryptHash {
 }
 
 // WithRounds sets the rounds parameter of the resulting SHA2CryptDigest. Default is 1000000.
-func (h *SHA2CryptHash) WithRounds(rounds uint32) *SHA2CryptHash {
+func (h *SHA2CryptHash) WithRounds(rounds int) *SHA2CryptHash {
 	h.rounds = rounds
 
 	return h
@@ -72,7 +70,7 @@ func (h *SHA2CryptHash) WithRounds(rounds uint32) *SHA2CryptHash {
 
 // WithSaltLength adjusts the salt size (in bytes) of the resulting SHA2CryptDigest. Minimum 1, Maximum 16. Default is
 // 16.
-func (h *SHA2CryptHash) WithSaltLength(bytes uint32) *SHA2CryptHash {
+func (h *SHA2CryptHash) WithSaltLength(bytes int) *SHA2CryptHash {
 	h.bytesSalt = bytes
 
 	return h
@@ -109,7 +107,7 @@ func (h *SHA2CryptHash) hashWithSalt(password string, salt []byte) (digest Diges
 	}
 
 	d := &SHA2CryptDigest{
-		rounds: int(h.rounds),
+		rounds: h.rounds,
 		salt:   salt,
 	}
 

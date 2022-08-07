@@ -40,7 +40,7 @@ func NewPBKDF2SHA512Hash() *PBKDF2Hash {
 type PBKDF2Hash struct {
 	variant PBKDF2Variant
 
-	iterations, bytesKey, bytesSalt uint32
+	iterations, bytesKey, bytesSalt int
 
 	defaults, unsafe bool
 }
@@ -60,21 +60,21 @@ func (h *PBKDF2Hash) WithoutValidation() *PBKDF2Hash {
 }
 
 // WithIterations sets the iterations parameter of the resulting PBKDF2Digest. Default is 29000.
-func (h *PBKDF2Hash) WithIterations(iterations uint32) *PBKDF2Hash {
+func (h *PBKDF2Hash) WithIterations(iterations int) *PBKDF2Hash {
 	h.iterations = iterations
 
 	return h
 }
 
 // WithKeyLength adjusts the key size (in bytes) of the resulting PBKDF2Digest. Default is 32.
-func (h *PBKDF2Hash) WithKeyLength(bytes uint32) *PBKDF2Hash {
+func (h *PBKDF2Hash) WithKeyLength(bytes int) *PBKDF2Hash {
 	h.bytesKey = bytes
 
 	return h
 }
 
 // WithSaltLength adjusts the salt size (in bytes) of the resulting PBKDF2Digest. Default is 16.
-func (h *PBKDF2Hash) WithSaltLength(bytes uint32) *PBKDF2Hash {
+func (h *PBKDF2Hash) WithSaltLength(bytes int) *PBKDF2Hash {
 	h.bytesSalt = bytes
 
 	return h
@@ -112,12 +112,12 @@ func (h *PBKDF2Hash) hashWithSalt(password string, salt []byte) (digest Digest, 
 
 	d := &PBKDF2Digest{
 		variant:    h.variant,
-		iterations: int(h.iterations),
-		k:          int(h.bytesKey),
+		iterations: h.iterations,
+		k:          h.bytesKey,
 		salt:       salt,
 	}
 
-	d.key = pbkdf2.Key([]byte(password), d.salt, int(h.iterations), d.k, d.variant.HashFunc())
+	d.key = pbkdf2.Key([]byte(password), d.salt, h.iterations, d.k, d.variant.HashFunc())
 
 	return d, nil
 }

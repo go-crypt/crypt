@@ -17,24 +17,24 @@ type ScryptDigest struct {
 }
 
 // Match returns true if the string password matches the current Digest.
-func (d ScryptDigest) Match(password string) (match bool) {
+func (d *ScryptDigest) Match(password string) (match bool) {
 	return d.MatchBytes([]byte(password))
 }
 
 // MatchBytes returns true if the []byte passwordBytes matches the current Digest.
-func (d ScryptDigest) MatchBytes(passwordBytes []byte) (match bool) {
+func (d *ScryptDigest) MatchBytes(passwordBytes []byte) (match bool) {
 	match, _ = d.MatchBytesAdvanced(passwordBytes)
 
 	return match
 }
 
 // MatchAdvanced is the same as Match except if there is an error it returns that as well.
-func (d ScryptDigest) MatchAdvanced(password string) (match bool, err error) {
+func (d *ScryptDigest) MatchAdvanced(password string) (match bool, err error) {
 	return d.MatchBytesAdvanced([]byte(password))
 }
 
 // MatchBytesAdvanced is the same as MatchBytes except if there is an error it returns that as well.
-func (d ScryptDigest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
+func (d *ScryptDigest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
 	if len(d.key) == 0 {
 		return false, fmt.Errorf("scrypt match error: %w: key has 0 bytes", ErrPasswordInvalid)
 	}
@@ -110,12 +110,12 @@ func (d *ScryptDigest) Decode(encodedDigest string) (err error) {
 }
 
 // String returns the storable format of the Digest encoded hash.
-func (d ScryptDigest) String() string {
+func (d *ScryptDigest) String() string {
 	return d.Encode()
 }
 
 // n returns 2 to the power of log N i.e d.ln.
-func (d ScryptDigest) n() (n int) {
+func (d *ScryptDigest) n() (n int) {
 	n = 2
 
 	for i := 1; i < d.ln; i++ {

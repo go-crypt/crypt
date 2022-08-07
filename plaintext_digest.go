@@ -34,19 +34,19 @@ type PlainTextDigest struct {
 }
 
 // Match returns true if the string password matches the current Digest.
-func (d PlainTextDigest) Match(password string) (match bool) {
+func (d *PlainTextDigest) Match(password string) (match bool) {
 	return d.MatchBytes([]byte(password))
 }
 
 // MatchBytes returns true if the []byte passwordBytes matches the current Digest.
-func (d PlainTextDigest) MatchBytes(passwordBytes []byte) (match bool) {
+func (d *PlainTextDigest) MatchBytes(passwordBytes []byte) (match bool) {
 	match, _ = d.MatchBytesAdvanced(passwordBytes)
 
 	return match
 }
 
 // MatchAdvanced is the same as Match except if there is an error it returns that as well.
-func (d PlainTextDigest) MatchAdvanced(password string) (match bool, err error) {
+func (d *PlainTextDigest) MatchAdvanced(password string) (match bool, err error) {
 	if len(d.key) == 0 {
 		return false, fmt.Errorf("plaintext match error: %w: key has 0 bytes", ErrPasswordInvalid)
 	}
@@ -55,7 +55,7 @@ func (d PlainTextDigest) MatchAdvanced(password string) (match bool, err error) 
 }
 
 // MatchBytesAdvanced is the same as MatchBytes except if there is an error it returns that as well.
-func (d PlainTextDigest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
+func (d *PlainTextDigest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
 	if len(d.key) == 0 {
 		return false, fmt.Errorf("plaintext match error: key has 0 bytes")
 	}
@@ -90,6 +90,6 @@ func (d *PlainTextDigest) Decode(encodedDigest string) (err error) {
 }
 
 // String returns the storable format of the Digest encoded hash.
-func (d PlainTextDigest) String() string {
+func (d *PlainTextDigest) String() string {
 	return d.Encode()
 }

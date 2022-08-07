@@ -7,21 +7,50 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type HashModifier interface {
+	Apply(input string) string
+	String() string
+}
+
+type HashModifierRaw struct{}
+
+func (hm HashModifierRaw) Apply(input string) string {
+	return input
+}
+
+func (hm HashModifierRaw) String() string {
+	return "Standard"
+}
+
+type HashModifierCRYPT struct{}
+
+func (hm HashModifierCRYPT) Apply(input string) string {
+	return StorageFormatPrefixLDAPCrypt + input
+}
+
+func (hm HashModifierCRYPT) String() string {
+	return "CRYPT"
+}
+
 func TestDecode(t *testing.T) {
 	for _, source := range testSources {
 		t.Run(source.name, func(t *testing.T) {
 			for _, algorithm := range source.algorithms {
 				t.Run(algorithm.name, func(t *testing.T) {
-					for _, password := range algorithm.passwords {
-						t.Run(password.password, func(t *testing.T) {
-							digest, err := Decode(password.digest)
+					for _, modifier := range []HashModifier{&HashModifierRaw{}, &HashModifierCRYPT{}} {
+						t.Run(modifier.String(), func(t *testing.T) {
+							for _, password := range algorithm.passwords {
+								t.Run(password.password, func(t *testing.T) {
+									digest, err := Decode(modifier.Apply(password.digest))
 
-							assert.NoError(t, err)
-							require.NotNil(t, digest)
+									assert.NoError(t, err)
+									require.NotNil(t, digest)
 
-							assert.True(t, digest.Match(password.password))
+									assert.True(t, digest.Match(password.password))
 
-							assert.Equal(t, NormalizeEncodedDigest(password.digest), digest.String())
+									assert.Equal(t, NormalizeEncodedDigest(modifier.Apply(password.digest)), digest.String())
+								})
+							}
 						})
 					}
 				})

@@ -13,43 +13,41 @@ func NewScryptHash() *ScryptHash {
 
 // ScryptHash is a Hash for scrypt which provides a builder design pattern.
 type ScryptHash struct {
-	ln, r, k, bytesSalt uint32
-
-	p uint8
+	ln, r, k, p, bytesSalt int
 
 	defaults, unsafe bool
 }
 
 // WithKeySize adjusts the key size of the resulting Scrypt hash. Default is 32.
-func (h *ScryptHash) WithKeySize(size uint32) *ScryptHash {
+func (h *ScryptHash) WithKeySize(size int) *ScryptHash {
 	h.k = size
 
 	return h
 }
 
 // WithSaltSize adjusts the salt size of the resulting Scrypt hash. Default is 16.
-func (h *ScryptHash) WithSaltSize(size uint32) *ScryptHash {
+func (h *ScryptHash) WithSaltSize(size int) *ScryptHash {
 	h.bytesSalt = size
 
 	return h
 }
 
 // WithLN sets the ln parameter (logN) of the resulting Scrypt hash. Default is 16.
-func (h *ScryptHash) WithLN(rounds uint32) *ScryptHash {
+func (h *ScryptHash) WithLN(rounds int) *ScryptHash {
 	h.ln = rounds
 
 	return h
 }
 
 // WithR sets the r parameter (block size) of the resulting Scrypt hash. Default is 8.
-func (h *ScryptHash) WithR(blockSize uint32) *ScryptHash {
+func (h *ScryptHash) WithR(blockSize int) *ScryptHash {
 	h.r = blockSize
 
 	return h
 }
 
 // WithP sets the p parameter (parallelism) of the resulting Scrypt hash. Default is 1.
-func (h *ScryptHash) WithP(parallelism uint8) *ScryptHash {
+func (h *ScryptHash) WithP(parallelism int) *ScryptHash {
 	h.p = parallelism
 
 	return h
@@ -86,13 +84,13 @@ func (h *ScryptHash) hashWithSalt(password string, salt []byte) (digest Digest, 
 	}
 
 	d := &ScryptDigest{
-		ln:   int(h.ln),
-		r:    int(h.r),
-		p:    int(h.p),
+		ln:   h.ln,
+		r:    h.r,
+		p:    h.p,
 		salt: salt,
 	}
 
-	if d.key, err = scrypt.Key([]byte(password), d.salt, d.n(), d.r, d.p, int(h.k)); err != nil {
+	if d.key, err = scrypt.Key([]byte(password), d.salt, d.n(), d.r, d.p, h.k); err != nil {
 		return nil, fmt.Errorf("scrypt hashing error: %w: %v", ErrKeyDerivation, err)
 	}
 

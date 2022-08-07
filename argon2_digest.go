@@ -21,24 +21,24 @@ type Argon2Digest struct {
 }
 
 // Match returns true if the string password matches the current Digest.
-func (d Argon2Digest) Match(password string) (match bool) {
+func (d *Argon2Digest) Match(password string) (match bool) {
 	return d.MatchBytes([]byte(password))
 }
 
 // MatchBytes returns true if the []byte passwordBytes matches the current Digest.
-func (d Argon2Digest) MatchBytes(passwordBytes []byte) (match bool) {
+func (d *Argon2Digest) MatchBytes(passwordBytes []byte) (match bool) {
 	match, _ = d.MatchBytesAdvanced(passwordBytes)
 
 	return match
 }
 
 // MatchAdvanced is the same as Match except if there is an error it returns that as well.
-func (d Argon2Digest) MatchAdvanced(password string) (match bool, err error) {
+func (d *Argon2Digest) MatchAdvanced(password string) (match bool, err error) {
 	return d.MatchBytesAdvanced([]byte(password))
 }
 
 // MatchBytesAdvanced is the same as MatchBytes except if there is an error it returns that as well.
-func (d Argon2Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
+func (d *Argon2Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
 	if len(d.key) == 0 {
 		return false, fmt.Errorf("argon2 match error: %w: key has 0 bytes", ErrPasswordInvalid)
 	}
@@ -47,7 +47,7 @@ func (d Argon2Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err 
 }
 
 // Encode returns the encoded form of this Digest.
-func (d Argon2Digest) Encode() (encodedHash string) {
+func (d *Argon2Digest) Encode() (encodedHash string) {
 	return strings.ReplaceAll(fmt.Sprintf(StorageFormatArgon2,
 		d.variant.Prefix(), argon2.Version,
 		d.m, d.t, d.p,
@@ -56,6 +56,8 @@ func (d Argon2Digest) Encode() (encodedHash string) {
 }
 
 // Decode takes an encodedDigest string and parses it into this Digest.
+//
+//nolint:gocyclo
 func (d *Argon2Digest) Decode(encodedDigest string) (err error) {
 	encodedDigestParts := splitDigest(encodedDigest, StorageDelimiter)
 
@@ -142,6 +144,6 @@ func (d *Argon2Digest) Decode(encodedDigest string) (err error) {
 }
 
 // String returns the storable format of the Digest encoded hash.
-func (d Argon2Digest) String() string {
+func (d *Argon2Digest) String() string {
 	return d.Encode()
 }

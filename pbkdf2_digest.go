@@ -19,24 +19,24 @@ type PBKDF2Digest struct {
 }
 
 // Match returns true if the string password matches the current Digest.
-func (d PBKDF2Digest) Match(password string) (match bool) {
+func (d *PBKDF2Digest) Match(password string) (match bool) {
 	return d.MatchBytes([]byte(password))
 }
 
 // MatchBytes returns true if the []byte passwordBytes matches the current Digest.
-func (d PBKDF2Digest) MatchBytes(passwordBytes []byte) (match bool) {
+func (d *PBKDF2Digest) MatchBytes(passwordBytes []byte) (match bool) {
 	match, _ = d.MatchBytesAdvanced(passwordBytes)
 
 	return match
 }
 
 // MatchAdvanced is the same as Match except if there is an error it returns that as well.
-func (d PBKDF2Digest) MatchAdvanced(password string) (match bool, err error) {
+func (d *PBKDF2Digest) MatchAdvanced(password string) (match bool, err error) {
 	return d.MatchBytesAdvanced([]byte(password))
 }
 
 // MatchBytesAdvanced is the same as MatchBytes except if there is an error it returns that as well.
-func (d PBKDF2Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
+func (d *PBKDF2Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
 	if len(d.key) == 0 {
 		return false, fmt.Errorf("pbkdf2 match error: %w: key has 0 bytes", ErrPasswordInvalid)
 	}
@@ -87,6 +87,6 @@ func (d *PBKDF2Digest) Decode(encodedDigest string) (err error) {
 }
 
 // String returns the storable format of the Digest encoded hash.
-func (d PBKDF2Digest) String() string {
+func (d *PBKDF2Digest) String() string {
 	return d.Encode()
 }
