@@ -12,9 +12,9 @@ import (
 // NewBcryptVariant converts an identifier string to a Argon2Variant.
 func NewBcryptVariant(identifier string) (variant BcryptVariant) {
 	switch identifier {
-	case AlgorithmPrefixBcrypt, algorithmPrefixBcryptA, algorithmPrefixBcryptY, algorithmPrefixBcryptX:
+	case AlgorithmPrefixBcrypt, algorithmPrefixBcryptA, algorithmPrefixBcryptY, algorithmPrefixBcryptX, "", "standard", "common":
 		return BcryptVariantStandard
-	case AlgorithmPrefixBcryptSHA256:
+	case AlgorithmPrefixBcryptSHA256, digestSHA256:
 		return BcryptVariantSHA256
 	default:
 		return BcryptVariantNone
