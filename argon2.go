@@ -133,16 +133,14 @@ func (h *Argon2Hash) Hash(password string) (hashed Digest, err error) {
 
 // HashWithSalt overloads the Hash method allowing the user to provide a salt. It's recommended instead to configure the
 // salt size and let this be a random value generated using crypto/rand.
-func (h *Argon2Hash) HashWithSalt(password, salt string) (hashed Digest, err error) {
+func (h *Argon2Hash) HashWithSalt(password string, salt []byte) (hashed Digest, err error) {
 	h.setDefaults()
 
-	var saltBytes []byte
-
-	if saltBytes, err = h.validateSalt(salt); err != nil {
+	if err = h.validateSalt(salt); err != nil {
 		return nil, err
 	}
 
-	return h.hashWithSalt(password, saltBytes)
+	return h.hashWithSalt(password, salt)
 }
 
 func (h *Argon2Hash) hashWithSalt(password string, salt []byte) (digest Digest, err error) {
@@ -206,14 +204,12 @@ func (h *Argon2Hash) validate() (err error) {
 	return nil
 }
 
-func (h *Argon2Hash) validateSalt(salt string) (saltBytes []byte, err error) {
-	saltBytes = []byte(salt)
-
-	if len(saltBytes) < argon2SaltMinBytes || len(saltBytes) > maxUnsigned32BitInteger {
-		return nil, fmt.Errorf("argon2 hashing error: %w: salt bytes must have a length of between %d and %d but has a length of %d", ErrSaltInvalid, argon2SaltMinBytes, maxUnsigned32BitInteger, len(saltBytes))
+func (h *Argon2Hash) validateSalt(salt []byte) (err error) {
+	if len(salt) < argon2SaltMinBytes || len(salt) > maxUnsigned32BitInteger {
+		return fmt.Errorf("argon2 hashing error: %w: salt bytes must have a length of between %d and %d but has a length of %d", ErrSaltInvalid, argon2SaltMinBytes, maxUnsigned32BitInteger, len(salt))
 	}
 
-	return saltBytes, nil
+	return nil
 }
 
 func (h *Argon2Hash) setDefaults() {

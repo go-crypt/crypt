@@ -68,14 +68,8 @@ func (h *ScryptHash) Hash(password string) (digest Digest, err error) {
 
 // HashWithSalt overloads the Hash method allowing the user to provide a salt. It's recommended instead to configure the
 // salt size and let this be a random value generated using crypto/rand.
-func (h *ScryptHash) HashWithSalt(password, salt string) (digest Digest, err error) {
-	var saltBytes []byte
-
-	if saltBytes, err = h.validateSalt(salt); err != nil {
-		return nil, err
-	}
-
-	return h.hashWithSalt(password, saltBytes)
+func (h *ScryptHash) HashWithSalt(password string, salt []byte) (digest Digest, err error) {
+	return h.hashWithSalt(password, salt)
 }
 
 func (h *ScryptHash) hashWithSalt(password string, salt []byte) (digest Digest, err error) {
@@ -122,14 +116,6 @@ func (h *ScryptHash) validate() (err error) {
 	}
 
 	return nil
-}
-
-func (h *ScryptHash) validateSalt(salt string) (saltBytes []byte, err error) {
-	if saltBytes, err = b64rs.DecodeString(salt); err != nil {
-		return nil, fmt.Errorf("scrypt validation error: %w: %v", ErrSaltEncoding, err)
-	}
-
-	return saltBytes, nil
 }
 
 func (h *ScryptHash) setDefaults() {

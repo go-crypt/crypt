@@ -27,7 +27,7 @@ type Hash interface {
 	Hash(password string) (hashed Digest, err error)
 
 	// HashWithSalt is an overload of Digest that also accepts a salt.
-	HashWithSalt(password, salt string) (hashed Digest, err error)
+	HashWithSalt(password string, salt []byte) (hashed Digest, err error)
 
 	// MustHash overloads the Hash method and panics if the error is not nil. It's recommended if you use this method to
 	// utilize the Validate method first or handle the panic appropriately.

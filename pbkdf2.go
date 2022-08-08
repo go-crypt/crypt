@@ -95,14 +95,8 @@ func (h *PBKDF2Hash) Hash(password string) (digest Digest, err error) {
 
 // HashWithSalt overloads the Hash method allowing the user to provide a salt. It's recommended instead to configure the
 // salt size and let this be a random value generated using crypto/rand.
-func (h *PBKDF2Hash) HashWithSalt(password, salt string) (digest Digest, err error) {
-	var saltBytes []byte
-
-	if saltBytes, err = h.validateSalt(salt); err != nil {
-		return nil, err
-	}
-
-	return h.hashWithSalt(password, saltBytes)
+func (h *PBKDF2Hash) HashWithSalt(password string, salt []byte) (digest Digest, err error) {
+	return h.hashWithSalt(password, salt)
 }
 
 func (h *PBKDF2Hash) hashWithSalt(password string, salt []byte) (digest Digest, err error) {
@@ -159,14 +153,6 @@ func (h *PBKDF2Hash) validate() (err error) {
 	}
 
 	return nil
-}
-
-func (h *PBKDF2Hash) validateSalt(salt string) (saltBytes []byte, err error) {
-	if saltBytes, err = b64rs.DecodeString(salt); err != nil {
-		return nil, fmt.Errorf("pbkdf2 validation error: %w: %v", ErrSaltEncoding, err)
-	}
-
-	return saltBytes, nil
 }
 
 func (h *PBKDF2Hash) setDefaults() {

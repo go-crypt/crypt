@@ -91,14 +91,12 @@ func (h *SHA2CryptHash) Hash(password string) (digest Digest, err error) {
 
 // HashWithSalt overloads the Hash method allowing the user to provide a salt. It's recommended instead to configure the
 // salt size and let this be a random value generated using crypto/rand.
-func (h *SHA2CryptHash) HashWithSalt(password, salt string) (digest Digest, err error) {
-	var saltBytes []byte
-
-	if saltBytes, err = h.validateSalt(salt); err != nil {
+func (h *SHA2CryptHash) HashWithSalt(password string, salt []byte) (digest Digest, err error) {
+	if err = h.validateSalt(salt); err != nil {
 		return nil, err
 	}
 
-	return h.hashWithSalt(password, saltBytes)
+	return h.hashWithSalt(password, salt)
 }
 
 func (h *SHA2CryptHash) hashWithSalt(password string, salt []byte) (digest Digest, err error) {
@@ -143,18 +141,16 @@ func (h *SHA2CryptHash) validate() (err error) {
 	return nil
 }
 
-func (h *SHA2CryptHash) validateSalt(salt string) (saltBytes []byte, err error) {
-	saltBytes = []byte(salt)
-
+func (h *SHA2CryptHash) validateSalt(salt []byte) (err error) {
 	if h.unsafe {
-		return saltBytes, nil
+		return nil
 	}
 
-	if len(saltBytes) < sha2cryptSaltMinBytes || len(saltBytes) > sha2cryptSaltMaxBytes {
-		return nil, fmt.Errorf("sha2crypt validation error: %w: salt must be between %d and %d bytes but is %d bytes", ErrSaltInvalid, sha2cryptSaltMinBytes, sha2cryptSaltMaxBytes, len(saltBytes))
+	if len(salt) < sha2cryptSaltMinBytes || len(salt) > sha2cryptSaltMaxBytes {
+		return fmt.Errorf("sha2crypt validation error: %w: salt must be between %d and %d bytes but is %d bytes", ErrSaltInvalid, sha2cryptSaltMinBytes, sha2cryptSaltMaxBytes, len(salt))
 	}
 
-	return saltBytes, nil
+	return nil
 }
 
 func (h *SHA2CryptHash) setDefaults() {

@@ -59,14 +59,8 @@ func (h *BcryptHash) Hash(password string) (digest Digest, err error) {
 
 // HashWithSalt overloads the Hash method allowing the user to provide a salt. It's recommended instead to configure the
 // salt size and let this be a random value generated using crypto/rand.
-func (h *BcryptHash) HashWithSalt(password, salt string) (digest Digest, err error) {
-	var saltBytes []byte
-
-	if saltBytes, err = bcrypt.Base64Decode([]byte(salt)); err != nil {
-		return nil, fmt.Errorf("bcrypt hashing error: %w: %v", ErrSaltEncoding, err)
-	}
-
-	return h.hashWithSalt(password, saltBytes)
+func (h *BcryptHash) HashWithSalt(password string, salt []byte) (digest Digest, err error) {
+	return h.hashWithSalt(password, salt)
 }
 
 func (h *BcryptHash) hashWithSalt(password string, salt []byte) (digest Digest, err error) {
