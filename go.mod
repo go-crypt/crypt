@@ -3,7 +3,7 @@ module github.com/go-crypt/crypt
 go 1.19
 
 require (
-	github.com/go-crypt/x v0.0.0-20220717035548-f7ba0d122fba
+	github.com/go-crypt/x v0.1.0
 	github.com/stretchr/testify v1.8.0
 )
 
