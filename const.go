@@ -46,7 +46,7 @@ var (
 )
 
 const (
-	maxUnsigned32BitInteger = 4294967295
+	maxSigned32BitInteger = 2147483647
 )
 
 // Storage Formats.
@@ -91,6 +91,8 @@ var (
 // argon2 constants.
 const (
 	argon2SaltMinBytes                       = 1
+	argon2SaltMaxBytes                       = maxSigned32BitInteger
+	argon2PasswordMaxBytes                   = maxSigned32BitInteger
 	argon2ParallelismMax                     = 16777215
 	argon2MemoryMinParallelismMultiplier     = 8
 	argon2MemoryRounderParallelismMultiplier = 4

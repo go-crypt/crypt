@@ -150,8 +150,8 @@ func (h *Argon2Hash) hashWithSalt(password string, salt []byte) (digest Digest, 
 
 	passwordBytes := []byte(password)
 
-	if len(passwordBytes) > maxUnsigned32BitInteger {
-		return nil, fmt.Errorf("argon2 hashing error: %w: password has a length of '%d' but must be less than or equal to %d", ErrParameterInvalid, len(passwordBytes), maxUnsigned32BitInteger)
+	if len(passwordBytes) > argon2PasswordMaxBytes {
+		return nil, fmt.Errorf("argon2 hashing error: %w: password has a length of '%d' but must be less than or equal to %d", ErrParameterInvalid, len(passwordBytes), argon2PasswordMaxBytes)
 	}
 
 	d := &Argon2Digest{
@@ -205,8 +205,8 @@ func (h *Argon2Hash) validate() (err error) {
 }
 
 func (h *Argon2Hash) validateSalt(salt []byte) (err error) {
-	if len(salt) < argon2SaltMinBytes || len(salt) > maxUnsigned32BitInteger {
-		return fmt.Errorf("argon2 hashing error: %w: salt bytes must have a length of between %d and %d but has a length of %d", ErrSaltInvalid, argon2SaltMinBytes, maxUnsigned32BitInteger, len(salt))
+	if len(salt) < argon2SaltMinBytes || len(salt) > argon2SaltMaxBytes {
+		return fmt.Errorf("argon2 hashing error: %w: salt bytes must have a length of between %d and %d but has a length of %d", ErrSaltInvalid, argon2SaltMinBytes, argon2SaltMaxBytes, len(salt))
 	}
 
 	return nil
