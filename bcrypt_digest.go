@@ -120,7 +120,7 @@ func (d *BcryptDigest) Decode(encodedDigest string) (err error) {
 	}
 
 	if d.salt, err = bcrypt.Base64Decode(salt); err != nil {
-		return fmt.Errorf("bcrypt decode error: %w: %v", ErrEncodedHashSaltEncoding, err)
+		return fmt.Errorf("bcrypt decode error: %w: %+v", ErrEncodedHashSaltEncoding, err)
 	}
 
 	d.key = key

@@ -18,24 +18,24 @@ type SHA2CryptDigest struct {
 }
 
 // Match returns true if the string password matches the current Digest.
-func (d SHA2CryptDigest) Match(password string) (match bool) {
+func (d *SHA2CryptDigest) Match(password string) (match bool) {
 	return d.MatchBytes([]byte(password))
 }
 
 // MatchBytes returns true if the []byte passwordBytes matches the current Digest.
-func (d SHA2CryptDigest) MatchBytes(passwordBytes []byte) (match bool) {
+func (d *SHA2CryptDigest) MatchBytes(passwordBytes []byte) (match bool) {
 	match, _ = d.MatchBytesAdvanced(passwordBytes)
 
 	return match
 }
 
 // MatchAdvanced is the same as Match except if there is an error it returns that as well.
-func (d SHA2CryptDigest) MatchAdvanced(password string) (match bool, err error) {
+func (d *SHA2CryptDigest) MatchAdvanced(password string) (match bool, err error) {
 	return d.MatchBytesAdvanced([]byte(password))
 }
 
 // MatchBytesAdvanced is the same as MatchBytes except if there is an error it returns that as well.
-func (d SHA2CryptDigest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
+func (d *SHA2CryptDigest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
 	if len(d.key) == 0 {
 		return false, fmt.Errorf("sha2crypt match error: %w: key has 0 bytes", ErrPasswordInvalid)
 	}
@@ -79,20 +79,28 @@ func (d *SHA2CryptDigest) Decode(encodedDigest string) (err error) {
 		}
 	}
 
-	d.salt, d.key = []byte(salt), []byte(key)
+	if d.salt, err = b64rs.DecodeString(salt); err != nil {
+		return fmt.Errorf("sha2crypt decode error: %w: %+v", ErrEncodedHashSaltEncoding, err)
+	}
+
+	d.key = []byte(key)
 
 	return nil
 }
 
 // Encode this SHA2CryptDigest as a string for storage.
 func (d *SHA2CryptDigest) Encode() (hash string) {
+	salt := make([]byte, b64rs.EncodedLen(len(d.salt)))
+
+	b64rs.Encode(salt, d.salt)
+
 	return strings.ReplaceAll(fmt.Sprintf(StorageFormatSHACrypt,
 		d.variant.Prefix(), d.rounds,
-		d.salt, d.key,
+		salt, d.key,
 	), "\n", "")
 }
 
 // String returns the storable format of the SHA2CryptDigest hash utilizing fmt.Sprintf and StorageFormatSHACrypt.
-func (d SHA2CryptDigest) String() string {
+func (d *SHA2CryptDigest) String() string {
 	return d.Encode()
 }

@@ -74,7 +74,7 @@ func (d *PBKDF2Digest) Decode(encodedDigest string) (err error) {
 	}
 
 	if d.salt, err = b64ra.DecodeString(salt); err != nil {
-		return fmt.Errorf("pbkdf2 decode error: %w: %v", ErrEncodedHashSaltEncoding, err)
+		return fmt.Errorf("pbkdf2 decode error: %w: %+v", ErrEncodedHashSaltEncoding, err)
 	}
 
 	if d.key, err = b64ra.DecodeString(key); err != nil {
