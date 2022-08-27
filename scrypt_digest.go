@@ -99,7 +99,7 @@ func (d *ScryptDigest) Decode(encodedDigest string) (err error) {
 	}
 
 	if d.salt, err = b64rs.DecodeString(salt); err != nil {
-		return fmt.Errorf("scrypt decode error: %w: %v", ErrEncodedHashSaltEncoding, err)
+		return fmt.Errorf("scrypt decode error: %w: %+v", ErrEncodedHashSaltEncoding, err)
 	}
 
 	if d.key, err = b64rs.DecodeString(key); err != nil {
