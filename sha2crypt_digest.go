@@ -79,24 +79,16 @@ func (d *SHA2CryptDigest) Decode(encodedDigest string) (err error) {
 		}
 	}
 
-	if d.salt, err = b64rs.DecodeString(salt); err != nil {
-		return fmt.Errorf("sha2crypt decode error: %w: %+v", ErrEncodedHashSaltEncoding, err)
-	}
-
-	d.key = []byte(key)
+	d.salt, d.key = []byte(salt), []byte(key)
 
 	return nil
 }
 
 // Encode this SHA2CryptDigest as a string for storage.
 func (d *SHA2CryptDigest) Encode() (hash string) {
-	salt := make([]byte, b64rs.EncodedLen(len(d.salt)))
-
-	b64rs.Encode(salt, d.salt)
-
 	return strings.ReplaceAll(fmt.Sprintf(StorageFormatSHACrypt,
 		d.variant.Prefix(), d.rounds,
-		salt, d.key,
+		d.salt, d.key,
 	), "\n", "")
 }
 

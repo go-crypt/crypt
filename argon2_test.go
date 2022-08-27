@@ -30,8 +30,8 @@ func TestNewArgon2Hash(t *testing.T) {
 		{name: "ShouldHashPassword/argon2id/apple123", have: Argon2Hash{variant: Argon2VariantID, m: 65536, t: 4, p: 4}, password: "apple123", salt: "jfE+JyTE2DtnDCHknJOSsg", expected: "$argon2id$v=19$m=65536,t=4,p=4$jfE+JyTE2DtnDCHknJOSsg$+BPKo7PFUjKycwSpEK0Z1ciUPKp05uJvSfC7C+QAvAk"},
 		{name: "ShouldHashPassword/argon2id/another", have: Argon2Hash{variant: Argon2VariantID, m: 65536, t: 4, p: 4}, password: "another", salt: "FGJszRlDyDmntJbyHoNQag", expected: "$argon2id$v=19$m=65536,t=4,p=4$FGJszRlDyDmntJbyHoNQag$iGKvD7Oso+PcRhSVT/q/QCRb/mNZL0cwbtCKMzW/NPw"},
 		{name: "ShouldHashPassword/argon2id/th15isalongandcomplexpassw0rd@", have: Argon2Hash{variant: Argon2VariantID, m: 65536, t: 4, p: 4}, password: "th15isalongandcomplexpassw0rd@", salt: "qvU+J6Q0xnivdS5FSMm5Fw", expected: "$argon2id$v=19$m=65536,t=4,p=4$qvU+J6Q0xnivdS5FSMm5Fw$SpP3dXG6xTUcSxGrj+GTtWCFzekltzUodkIcPuX0KhY"},
-		{name: "ShouldHashPassword/argon2id/password123", have: Argon2Hash{variant: Argon2VariantID, m: 65536, t: 4, p: 4}, password: "password123", salt: "NcaYs3bufQ8BwPhfSyklBA", expected: "$argon2id$v=19$m=65536,t=4,p=4$rXUOwdg7x3iPkRKCMKZUSg$FgvrlMTstAr9BhVS2yYM/Of68HzCCJGqfgtQ2cGEY1w"},
-		{name: "ShouldHashPassword/argon2id/p@ssw0rd", have: Argon2Hash{variant: Argon2VariantID, m: 65536, t: 4, p: 4}, password: "p@ssw0rd", salt: "t7a2lhKCsBYC4HxPCcH4nw", expected: "$argon2i$v=19$m=65536,t=4,p=4$t7a2lhKCsBYC4HxPCcH4nw$zhSHktwftzV0aL6MgsN2eiZTa7gq8yFiHxJaomEeNfo"},
+		{name: "ShouldHashPassword/argon2id/password123", have: Argon2Hash{variant: Argon2VariantID, m: 65536, t: 4, p: 4}, password: "password123", salt: "NcaYs3bufQ8BwPhfSyklBA", expected: "$argon2id$v=19$m=65536,t=4,p=4$NcaYs3bufQ8BwPhfSyklBA$2rePx1Br3YqXPROcvo6Ze9fdMRAMLzvm2eFiX+j4Ct4"},
+		{name: "ShouldHashPassword/argon2id/p@ssw0rd", have: Argon2Hash{variant: Argon2VariantID, m: 65536, t: 4, p: 4}, password: "p@ssw0rd", salt: "t7a2lhKCsBYC4HxPCcH4nw", expected: "$argon2id$v=19$m=65536,t=4,p=4$t7a2lhKCsBYC4HxPCcH4nw$62nblX1UlyusrAsH8rrXYvq0z7wpWJVGC4+7Xooy8ss"},
 	}
 
 	for _, tc := range testCases {

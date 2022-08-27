@@ -82,7 +82,7 @@ func (h *SHA2CryptHash) Hash(password string) (digest Digest, err error) {
 
 	var salt []byte
 
-	if salt, err = randomBytes(h.bytesSalt); err != nil {
+	if salt, err = randomCharacterBytes(h.bytesSalt, encodeTypeA); err != nil {
 		return nil, fmt.Errorf("sha2crypt hashing error: %w: %v", ErrSaltReadRandomBytes, err)
 	}
 
