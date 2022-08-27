@@ -52,6 +52,20 @@ func randomBytes(length int) (bytes []byte, err error) {
 	return bytes, nil
 }
 
+func randomCharacterBytes(n int, characters string) (bytes []byte, err error) {
+	bytes = make([]byte, n)
+
+	if _, err = rand.Read(bytes); err != nil {
+		return nil, err
+	}
+
+	for i, b := range bytes {
+		bytes[i] = characters[b%byte(len(characters))]
+	}
+
+	return bytes, nil
+}
+
 func roundDownToNearestMultiple(value, multiple int) int {
 	return (value / multiple) * multiple
 }
