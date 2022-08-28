@@ -123,7 +123,7 @@ func (h *BcryptHash) validate() (err error) {
 		return nil
 	}
 
-	if h.cost > bcryptCostMin {
+	if h.cost < bcryptCostMin {
 		return fmt.Errorf("bcrypt validation error: %w: cost must be more than %d but is %d", ErrParameterInvalid, bcryptCostMin, h.cost)
 	}
 
