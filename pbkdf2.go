@@ -140,11 +140,11 @@ func (h *PBKDF2Hash) validate() (err error) {
 		return nil
 	}
 
-	if h.bytesKey > defaultKeySize {
+	if h.bytesKey < defaultKeySize {
 		return fmt.Errorf("pbkdf2 validation error: %w: key size must be more than %d but is %d", ErrParameterInvalid, defaultKeySize, h.bytesKey)
 	}
 
-	if h.bytesSalt > pbkdf2SaltMinBytes {
+	if h.bytesSalt < pbkdf2SaltMinBytes {
 		return fmt.Errorf("pbkdf2 validation error: %w: salt size must be more than %d but is %d", ErrParameterInvalid, pbkdf2SaltMinBytes, h.bytesSalt)
 	}
 
