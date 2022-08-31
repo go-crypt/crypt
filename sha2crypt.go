@@ -138,6 +138,14 @@ func (h *SHA2CryptHash) validate() (err error) {
 		return nil
 	}
 
+	if h.rounds < SHA2CryptIterationsMin || h.rounds > SHA2CryptIterationsMax {
+		return fmt.Errorf(errFmtInvalidIntParameter, algorithmNameSHA2Crypt, ErrParameterInvalid, "rounds", SHA2CryptIterationsMin, "", SHA2CryptIterationsMax, h.rounds)
+	}
+
+	if h.bytesSalt < SHA2CryptSaltSizeMin || h.bytesSalt > SHA2CryptSaltSizeMax {
+		return fmt.Errorf(errFmtInvalidIntParameter, algorithmNameSHA2Crypt, ErrParameterInvalid, "salt length", SHA2CryptSaltSizeMin, "", SHA2CryptSaltSizeMax, h.bytesSalt)
+	}
+
 	return nil
 }
 
@@ -146,8 +154,8 @@ func (h *SHA2CryptHash) validateSalt(salt []byte) (err error) {
 		return nil
 	}
 
-	if len(salt) < sha2cryptSaltMinBytes || len(salt) > sha2cryptSaltMaxBytes {
-		return fmt.Errorf("sha2crypt validation error: %w: salt must be between %d and %d bytes but is %d bytes", ErrSaltInvalid, sha2cryptSaltMinBytes, sha2cryptSaltMaxBytes, len(salt))
+	if len(salt) < SHA2CryptSaltSizeMin || len(salt) > SHA2CryptSaltSizeMax {
+		return fmt.Errorf("sha2crypt validation error: %w: salt must be between %d and %d bytes but is %d bytes", ErrSaltInvalid, SHA2CryptSaltSizeMin, SHA2CryptSaltSizeMax, len(salt))
 	}
 
 	return nil
@@ -160,20 +168,12 @@ func (h *SHA2CryptHash) setDefaults() {
 
 	h.defaults = true
 
-	switch {
-	case h.rounds <= 0:
-		h.rounds = sha2cryptRoundsDefault
-	case h.rounds < sha2cryptRoundsMin:
-		h.rounds = sha2cryptRoundsMin
-	case h.rounds > sha2cryptRoundsMax:
-		h.rounds = sha2cryptRoundsMax
+	if h.rounds == 0 {
+		h.rounds = SHA2CryptIterationsDefault
 	}
 
-	switch {
-	case h.bytesSalt == 0:
-		h.bytesSalt = defaultSaltSize
-	case h.bytesSalt > sha2cryptSaltMaxBytes:
-		h.bytesSalt = sha2cryptSaltMaxBytes
+	if h.bytesSalt == 0 {
+		h.bytesSalt = SaltSizeDefault
 	}
 
 	switch h.variant {

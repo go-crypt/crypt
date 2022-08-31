@@ -41,7 +41,7 @@ func (v BcryptVariant) PasswordMaxLength() int {
 	case BcryptVariantSHA256:
 		return -1
 	default:
-		return bcryptPasswordMaxLength
+		return BcryptPasswordInputSizeMax
 	}
 }
 

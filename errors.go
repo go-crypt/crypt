@@ -55,3 +55,7 @@ var (
 	// ErrParameterInvalid is an error returned when a parameter has an invalid value.
 	ErrParameterInvalid = errors.New("parameter is invalid")
 )
+
+const (
+	errFmtInvalidIntParameter = "%s validation error: %w: parameter '%s' must be between %d%s and %d but is set to '%d'"
+)

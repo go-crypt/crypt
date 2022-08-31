@@ -150,8 +150,8 @@ func (h *Argon2Hash) hashWithSalt(password string, salt []byte) (digest Digest, 
 
 	passwordBytes := []byte(password)
 
-	if len(passwordBytes) > argon2PasswordMaxBytes {
-		return nil, fmt.Errorf("argon2 hashing error: %w: password has a length of '%d' but must be less than or equal to %d", ErrParameterInvalid, len(passwordBytes), argon2PasswordMaxBytes)
+	if len(passwordBytes) > Argon2PasswordInputSizeMax {
+		return nil, fmt.Errorf("argon2 hashing error: %w: password has a length of '%d' but must be less than or equal to %d", ErrParameterInvalid, len(passwordBytes), Argon2PasswordInputSizeMax)
 	}
 
 	d := &Argon2Digest{
@@ -191,22 +191,34 @@ func (h *Argon2Hash) validate() (err error) {
 		return nil
 	}
 
-	if h.p > argon2ParallelismMax {
-		return fmt.Errorf("argon2 hashing error: %w: parameter 'p' must be between 1 and %d but is set to '%d'", ErrParameterInvalid, argon2ParallelismMax, h.p)
+	if h.k < Argon2KeySizeMin || h.k > Argon2KeySizeMax {
+		return fmt.Errorf(errFmtInvalidIntParameter, algorithmNameArgon2, ErrParameterInvalid, "k", Argon2KeySizeMin, "", Argon2KeySizeMax, h.k)
 	}
 
-	mMin := h.p * argon2MemoryMinParallelismMultiplier
+	if h.s < Argon2SaltSizeMin || h.s > Argon2SaltSizeMax {
+		return fmt.Errorf(errFmtInvalidIntParameter, algorithmNameArgon2, ErrParameterInvalid, "s", Argon2SaltSizeMin, "", Argon2SaltSizeMax, h.s)
+	}
 
-	if h.m < mMin {
-		return fmt.Errorf("argon2 hashing error: %w: parameter 'm' must be between %d (p * 8) and %d but is set to '%d'", ErrParameterInvalid, mMin, argon2ParallelismMax, h.p)
+	if h.t < Argon2IterationsMin || h.t > Argon2IterationsMax {
+		return fmt.Errorf(errFmtInvalidIntParameter, algorithmNameArgon2, ErrParameterInvalid, "t", Argon2IterationsMin, "", Argon2IterationsMax, h.t)
+	}
+
+	if h.p < Argon2ParallelismMin || h.p > Argon2ParallelismMax {
+		return fmt.Errorf(errFmtInvalidIntParameter, algorithmNameArgon2, ErrParameterInvalid, "p", Argon2ParallelismMin, "", Argon2ParallelismMax, h.p)
+	}
+
+	mMin := h.p * Argon2MemoryMinParallelismMultiplier
+
+	if h.m < mMin || h.m > Argon2MemoryMax {
+		return fmt.Errorf(errFmtInvalidIntParameter, algorithmNameArgon2, ErrParameterInvalid, "m", mMin, " (p * 8)", Argon2MemoryMax, h.m)
 	}
 
 	return nil
 }
 
 func (h *Argon2Hash) validateSalt(salt []byte) (err error) {
-	if len(salt) < argon2SaltMinBytes || len(salt) > argon2SaltMaxBytes {
-		return fmt.Errorf("argon2 hashing error: %w: salt bytes must have a length of between %d and %d but has a length of %d", ErrSaltInvalid, argon2SaltMinBytes, argon2SaltMaxBytes, len(salt))
+	if len(salt) < Argon2SaltSizeMin || len(salt) > Argon2SaltSizeMax {
+		return fmt.Errorf("argon2 hashing error: %w: salt bytes must have a length of between %d and %d but has a length of %d", ErrSaltInvalid, Argon2SaltSizeMin, Argon2SaltSizeMax, len(salt))
 	}
 
 	return nil
@@ -214,7 +226,7 @@ func (h *Argon2Hash) validateSalt(salt []byte) (err error) {
 
 func (h *Argon2Hash) setDefaults() {
 	if h.variant == Argon2VariantNone {
-		h.variant = argon2VariantDefault
+		h.variant = variantArgon2Default
 	}
 
 	Argon2ProfileRFC9106LowMemory.Params().CopyUnsetParamsTo(h)
@@ -225,7 +237,7 @@ func (h *Argon2Hash) setDefaults() {
 	   down to the nearest multiple of 4*p.
 	*/
 
-	pM := h.p * argon2MemoryRounderParallelismMultiplier
+	pM := h.p * Argon2MemoryRoundingParallelismMultiplier
 
 	h.m = roundDownToNearestMultiple(h.m, pM)
 }

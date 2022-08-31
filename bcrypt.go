@@ -50,7 +50,7 @@ func (h *BcryptHash) WithCost(cost int) *BcryptHash {
 func (h *BcryptHash) Hash(password string) (digest Digest, err error) {
 	var salt []byte
 
-	if salt, err = randomBytes(defaultSaltSize); err != nil {
+	if salt, err = randomBytes(SaltSizeDefault); err != nil {
 		return nil, fmt.Errorf("bcrypt hashing error: %w: %v", ErrSaltReadRandomBytes, err)
 	}
 
@@ -81,7 +81,7 @@ func (h *BcryptHash) hashWithSalt(password string, salt []byte) (digest Digest, 
 	}
 
 	if !h.unsafe {
-		if len(salt) != defaultSaltSize {
+		if len(salt) != SaltSizeDefault {
 			return nil, fmt.Errorf("bcrypt hashing error: %w: salt size must be 16 bytes but it's %d bytes", ErrSaltInvalid, len(salt))
 		}
 
@@ -123,8 +123,8 @@ func (h *BcryptHash) validate() (err error) {
 		return nil
 	}
 
-	if h.cost < bcryptCostMin {
-		return fmt.Errorf("bcrypt validation error: %w: cost must be more than %d but is %d", ErrParameterInvalid, bcryptCostMin, h.cost)
+	if h.cost < BcryptCostMin || h.cost > BcryptCostMax {
+		return fmt.Errorf(errFmtInvalidIntParameter, algorithmNameBcrypt, ErrParameterInvalid, "cost", BcryptCostMin, "", BcryptCostMax, h.cost)
 	}
 
 	return nil
@@ -133,14 +133,14 @@ func (h *BcryptHash) validate() (err error) {
 func (h *BcryptHash) setDefaults() {
 	switch h.variant {
 	case BcryptVariantNone:
-		h.variant = bcryptVariantDefault
+		h.variant = variantBcryptDefault
 	case BcryptVariantStandard, BcryptVariantSHA256:
 		break
 	default:
-		h.variant = bcryptVariantDefault
+		h.variant = variantBcryptDefault
 	}
 
 	if h.cost <= 0 {
-		h.cost = bcryptCostDefault
+		h.cost = BcryptCostDefault
 	}
 }

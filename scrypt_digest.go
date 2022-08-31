@@ -71,7 +71,7 @@ func (d *ScryptDigest) Decode(encodedDigest string) (err error) {
 		return fmt.Errorf("scrypt decode error: %w: the '%s' identifier is not valid for an scrypt encoded hash", ErrEncodedHashInvalidIdentifier, identifier)
 	}
 
-	d.ln, d.r, d.p = scryptRoundsDefault, scryptBlockSizeDefault, scryptParallelismDefault
+	d.ln, d.r, d.p = ScryptIterationsDefault, ScryptBlockSizeDefault, ScryptParallelismDefault
 
 	for _, opt := range strings.Split(options, ",") {
 		pair := strings.SplitN(opt, "=", 2)
@@ -116,11 +116,5 @@ func (d *ScryptDigest) String() string {
 
 // n returns 2 to the power of log N i.e d.ln.
 func (d *ScryptDigest) n() (n int) {
-	n = 2
-
-	for i := 1; i < d.ln; i++ {
-		n *= 2
-	}
-
-	return n
+	return 1 << d.ln
 }

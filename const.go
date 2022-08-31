@@ -19,10 +19,16 @@ const (
 	AlgorithmPrefixScrypt       = "scrypt"
 	AlgorithmPrefixPBKDF2       = "pbkdf2"
 	AlgorithmPrefixPBKDF2SHA1   = "pbkdf2-sha1"
-	AlgorithmPrefixPBKDF2SHA256 = "pbkdf2-sha256"
 	AlgorithmPrefixPBKDF2SHA224 = "pbkdf2-sha224"
+	AlgorithmPrefixPBKDF2SHA256 = "pbkdf2-sha256"
 	AlgorithmPrefixPBKDF2SHA384 = "pbkdf2-sha384"
 	AlgorithmPrefixPBKDF2SHA512 = "pbkdf2-sha512"
+
+	algorithmNameArgon2    = "argon2"
+	algorithmNamePBKDF2    = "pbkdf2"
+	algorithmNameSHA2Crypt = "sha2crypt"
+	algorithmNameBcrypt    = "bcrypt"
+	algorithmNameScrypt    = "scrypt"
 )
 
 const (
@@ -46,7 +52,8 @@ var (
 )
 
 const (
-	maxSigned32BitInteger = 2147483647
+	maxInt                = int(^uint(0) >> 1)
+	maxSigned32BitInteger = 1<<31 - 1
 )
 
 // Storage Formats.
@@ -75,8 +82,11 @@ const (
 )
 
 const (
-	defaultSaltSize = 16
-	defaultKeySize  = 32
+	// SaltSizeDefault is the default salt size for most implementations.
+	SaltSizeDefault = 16
+
+	// KeySizeDefault is the default key size for most implementations.
+	KeySizeDefault = 32
 )
 
 const (
@@ -90,44 +100,63 @@ var (
 
 // argon2 constants.
 const (
-	argon2SaltMinBytes                       = 1
-	argon2SaltMaxBytes                       = maxSigned32BitInteger
-	argon2PasswordMaxBytes                   = maxSigned32BitInteger
-	argon2ParallelismMax                     = 16777215
-	argon2MemoryMinParallelismMultiplier     = 8
-	argon2MemoryRounderParallelismMultiplier = 4
-	argon2VariantDefault                     = Argon2VariantID
+	Argon2KeySizeMin                          = 4
+	Argon2KeySizeMax                          = maxSigned32BitInteger
+	Argon2SaltSizeMin                         = 1
+	Argon2SaltSizeMax                         = maxSigned32BitInteger
+	Argon2IterationsMin                       = 1
+	Argon2IterationsMax                       = maxSigned32BitInteger
+	Argon2ParallelismMin                      = 1
+	Argon2ParallelismMax                      = 16777215
+	Argon2MemoryMinParallelismMultiplier      = 8
+	Argon2MemoryRoundingParallelismMultiplier = 4
+	Argon2MemoryMax                           = maxSigned32BitInteger
+	Argon2PasswordInputSizeMax                = maxSigned32BitInteger
+	variantArgon2Default                      = Argon2VariantID
 )
 
 // bcrypt constants.
 const (
-	bcryptCostDefault       = 13
-	bcryptCostMin           = 10
-	bcryptPasswordMaxLength = 72
-	bcryptVariantDefault    = BcryptVariantStandard
+	BcryptCostDefault          = 13
+	BcryptCostMin              = 10
+	BcryptCostMax              = 31
+	BcryptPasswordInputSizeMax = 72
+	variantBcryptDefault       = BcryptVariantStandard
 )
 
 // pbkdf2 constants.
 const (
-	pbkdf2IterationsDefaultSHA1   = 720000
-	pbkdf2IterationsDefaultSHA256 = 310000
-	pbkdf2IterationsDefaultSHA512 = 120000
-	pbkdf2IterationsMin           = 100000
-	pbkdf2SaltMinBytes            = 8
-	pbkdf2VariantDefault          = PBKDF2VariantSHA256
+	PBKDF2KeySizeMax              = maxSigned32BitInteger
+	PBKDF2SaltSizeMin             = 8
+	PBKDF2SaltSizeMax             = maxSigned32BitInteger
+	PBKDF2IterationsMin           = 100000
+	PBKDF2IterationsMax           = maxSigned32BitInteger
+	PBKDF2SHA1IterationsDefault   = 720000
+	PBKDF2SHA256IterationsDefault = 310000
+	PBKDF2SHA512IterationsDefault = 120000
+	variantPBKDF2Default          = PBKDF2VariantSHA256
 )
 
 // scrypt constants.
 const (
-	scryptRoundsDefault      = 16
-	scryptBlockSizeDefault   = 8
-	scryptParallelismDefault = 1
+	ScryptKeySizeMin         = 1
+	ScryptKeySizeMax         = (1<<32 - 1) * 32
+	ScryptSaltSizeMin        = 8
+	ScryptSaltSizeMax        = 1024
+	ScryptIterationsMin      = 1
+	ScryptIterationsDefault  = 16
+	ScryptBlockSizeMin       = 1
+	ScryptBlockSizeMax       = maxInt / 256
+	ScryptBlockSizeDefault   = 8
+	ScryptParallelismMin     = 1
+	ScryptParallelismDefault = ScryptParallelismMin
 )
 
+// SHA2Crypt constants.
 const (
-	sha2cryptRoundsMin     = 1000
-	sha2cryptRoundsMax     = 999999999
-	sha2cryptRoundsDefault = 1000000
-	sha2cryptSaltMinBytes  = 1
-	sha2cryptSaltMaxBytes  = 16
+	SHA2CryptIterationsMin     = 1000
+	SHA2CryptIterationsMax     = 999999999
+	SHA2CryptIterationsDefault = 1000000
+	SHA2CryptSaltSizeMin       = 1
+	SHA2CryptSaltSizeMax       = 16
 )

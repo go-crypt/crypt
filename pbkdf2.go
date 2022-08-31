@@ -66,7 +66,11 @@ func (h *PBKDF2Hash) WithIterations(iterations int) *PBKDF2Hash {
 	return h
 }
 
-// WithKeyLength adjusts the key size (in bytes) of the resulting PBKDF2Digest. Default is 32.
+// WithKeyLength adjusts the key size (in bytes) of the resulting PBKDF2Digest. Default is the output length of the
+// HMAC digest. Generally it's NOT recommended to change this value at all and let the default values be applied.
+// Longer key lengths technically reduce security by forcing a longer hash calculation for legitimate users but not
+// requiring this for an attacker. In addition most implementations expect the key length to match the output length of
+// the HMAC digest.
 func (h *PBKDF2Hash) WithKeyLength(bytes int) *PBKDF2Hash {
 	h.bytesKey = bytes
 
@@ -111,7 +115,13 @@ func (h *PBKDF2Hash) hashWithSalt(password string, salt []byte) (digest Digest, 
 		salt:       salt,
 	}
 
-	d.key = pbkdf2.Key([]byte(password), d.salt, h.iterations, d.k, d.variant.HashFunc())
+	hf := d.variant.HashFunc()
+
+	if d.k == 0 {
+		d.k = hf().Size()
+	}
+
+	d.key = pbkdf2.Key([]byte(password), d.salt, h.iterations, d.k, hf)
 
 	return d, nil
 }
@@ -140,16 +150,20 @@ func (h *PBKDF2Hash) validate() (err error) {
 		return nil
 	}
 
-	if h.bytesKey < defaultKeySize {
-		return fmt.Errorf("pbkdf2 validation error: %w: key size must be more than %d but is %d", ErrParameterInvalid, defaultKeySize, h.bytesKey)
+	if h.bytesKey != 0 {
+		keySizeMin := h.variant.HashFunc()().Size()
+
+		if h.bytesKey < keySizeMin || h.bytesKey > PBKDF2KeySizeMax {
+			return fmt.Errorf(errFmtInvalidIntParameter, algorithmNamePBKDF2, ErrParameterInvalid, "key size", keySizeMin, "", PBKDF2KeySizeMax, h.bytesKey)
+		}
 	}
 
-	if h.bytesSalt < pbkdf2SaltMinBytes {
-		return fmt.Errorf("pbkdf2 validation error: %w: salt size must be more than %d but is %d", ErrParameterInvalid, pbkdf2SaltMinBytes, h.bytesSalt)
+	if h.bytesSalt < PBKDF2SaltSizeMin || h.bytesSalt > PBKDF2SaltSizeMax {
+		return fmt.Errorf(errFmtInvalidIntParameter, algorithmNamePBKDF2, ErrParameterInvalid, "salt size", PBKDF2SaltSizeMin, "", PBKDF2SaltSizeMax, h.bytesSalt)
 	}
 
-	if h.iterations < pbkdf2IterationsMin {
-		return fmt.Errorf("pbkdf2 validation error: %w: iterations must be more than %d but is %d", ErrParameterInvalid, pbkdf2IterationsMin, h.iterations)
+	if h.iterations < PBKDF2IterationsMin || h.iterations > PBKDF2IterationsMax {
+		return fmt.Errorf(errFmtInvalidIntParameter, algorithmNamePBKDF2, ErrParameterInvalid, "iterations", PBKDF2IterationsMin, "", PBKDF2IterationsMax, h.iterations)
 	}
 
 	return nil
@@ -164,29 +178,25 @@ func (h *PBKDF2Hash) setDefaults() {
 
 	switch h.variant {
 	case PBKDF2VariantNone:
-		h.variant = pbkdf2VariantDefault
+		h.variant = variantPBKDF2Default
 	case PBKDF2VariantSHA1, PBKDF2VariantSHA224, PBKDF2VariantSHA256, PBKDF2VariantSHA384, PBKDF2VariantSHA512:
 		break
 	default:
-		h.variant = pbkdf2VariantDefault
-	}
-
-	if h.bytesKey == 0 {
-		h.bytesKey = defaultKeySize
+		h.variant = variantPBKDF2Default
 	}
 
 	if h.bytesSalt == 0 {
-		h.bytesSalt = defaultSaltSize
+		h.bytesSalt = SaltSizeDefault
 	}
 
 	if h.iterations == 0 {
 		switch h.variant {
 		case PBKDF2VariantSHA1, PBKDF2VariantSHA224:
-			h.iterations = pbkdf2IterationsDefaultSHA1
+			h.iterations = PBKDF2SHA1IterationsDefault
 		case PBKDF2VariantSHA256, PBKDF2VariantSHA384:
-			h.iterations = pbkdf2IterationsDefaultSHA256
+			h.iterations = PBKDF2SHA256IterationsDefault
 		case PBKDF2VariantSHA512:
-			h.iterations = pbkdf2IterationsDefaultSHA512
+			h.iterations = PBKDF2SHA512IterationsDefault
 		}
 	}
 }
