@@ -140,7 +140,6 @@ const (
 // scrypt constants.
 const (
 	ScryptKeySizeMin         = 1
-	ScryptKeySizeMax         = (1<<32 - 1) * 32
 	ScryptSaltSizeMin        = 8
 	ScryptSaltSizeMax        = 1024
 	ScryptIterationsMin      = 1
