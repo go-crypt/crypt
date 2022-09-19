@@ -76,15 +76,17 @@ func (d *PlainTextDigest) Decode(encodedDigest string) (err error) {
 		return fmt.Errorf("plaintext decode error: %w", ErrEncodedHashInvalidFormat)
 	}
 
-	variant, key := NewPlainTextVariant(encodedDigestParts[1]), encodedDigestParts[2]
+	var (
+		key string
+	)
 
-	if variant == PlainTextVariantNone {
+	d.variant, key = NewPlainTextVariant(encodedDigestParts[1]), encodedDigestParts[2]
+
+	if d.variant == PlainTextVariantNone {
 		return fmt.Errorf("plaintext decode error: %w: the '%s' identifier is not a plaintext encoded hash", ErrEncodedHashInvalidIdentifier, encodedDigestParts[1])
 	}
 
-	d.variant = variant
-
-	if d.key, err = variant.Decode(key); err != nil {
+	if d.key, err = d.variant.Decode(key); err != nil {
 		return fmt.Errorf("plaintext decode error: %w: %v", ErrEncodedHashKeyEncoding, err)
 	}
 
