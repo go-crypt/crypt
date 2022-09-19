@@ -139,7 +139,7 @@ func (h *ScryptHash) validate() (err error) {
 		return fmt.Errorf(errFmtInvalidIntParameter, algorithmNameScrypt, ErrParameterInvalid, "r", ScryptBlockSizeMin, "", ScryptBlockSizeMax, h.r)
 	}
 
-	mp := ((1<<32 - 1) * 32) / (128 * h.r)
+	mp := ScryptKeySizeMax / (128 * h.r)
 
 	if h.p < ScryptParallelismMin || h.p > mp {
 		return fmt.Errorf(errFmtInvalidIntParameter, algorithmNameScrypt, ErrParameterInvalid, "p", ScryptParallelismMin, "", mp, h.p)
