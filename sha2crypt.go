@@ -105,8 +105,9 @@ func (h *SHA2CryptHash) hashWithSalt(password string, salt []byte) (digest Diges
 	}
 
 	d := &SHA2CryptDigest{
-		rounds: h.rounds,
-		salt:   salt,
+		variant: h.variant,
+		rounds:  h.rounds,
+		salt:    salt,
 	}
 
 	d.key = xcrypt.Key(d.variant.HashFunc(), []byte(password), d.salt, d.rounds)
