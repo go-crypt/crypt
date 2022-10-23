@@ -70,7 +70,7 @@ func (d *PlainTextDigest) Encode() string {
 
 // Decode takes an encodedDigest string and parses it into this Digest.
 func (d *PlainTextDigest) Decode(encodedDigest string) (err error) {
-	encodedDigestParts := strings.Split(encodedDigest, StorageDelimiter)
+	encodedDigestParts := strings.SplitN(encodedDigest, StorageDelimiter, 3)
 
 	if len(encodedDigestParts) != 3 {
 		return fmt.Errorf("plaintext decode error: %w", ErrEncodedHashInvalidFormat)
