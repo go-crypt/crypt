@@ -58,3 +58,64 @@ Many password storage formats use Base64 with an Adapted charset to store the by
 the standard Base64 encoding without padding as per [RFC4648 section 4] but replaces the `+` chars with a `.`.
 
 [RFC4648 section 4]: https://datatracker.ietf.org/doc/html/rfc4648#section-4
+
+## Usage
+
+The following examples show how easy it is to interact with the argon2 algorithm. Most other algorithm implementations
+are relatively similar.
+
+### Decoding a Password and Validating It
+
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/go-crypt/crypt/encoding"
+)
+
+func main() {
+	decoder, err := encoding.NewDefaultDecoder()
+	if err != nil {
+		panic(err)
+	}
+	
+	digest, err := decoder.Decode("$argon2id$v=19$m=2097152,t=1,p=4$BjVeoTI4ntTQc0WkFQdLWg$OAUnkkyx5STI0Ixl+OSpv4JnI6J1TYWKuCuvIbUGHTY")
+	if err != nil {
+		panic(err)
+	}
+    
+    fmt.Printf("Digest Matches Password 'example': %t\n", digest.Match("example"))
+	fmt.Printf("Digest Matches Password 'invalid': %t\n", digest.Match("invalid"))
+}
+```
+
+
+### Generating an Encoded Digest from a Password
+
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/go-crypt/crypt/algorithm/argon2"
+)
+
+func main() {
+	hasher, err := argon2.New(
+		argon2.WithProfileRFC9106LowMemory(),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	digest, err := hasher.Hash("example")
+	if err != nil {
+		panic(err)
+	}
+    
+    fmt.Printf("Encoded Digest With Password 'example': %s\n", digest.Encode())
+}
+```
