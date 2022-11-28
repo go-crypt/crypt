@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/go-crypt/x v0.1.3
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.1
 )
 
 require (
