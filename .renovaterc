@@ -1,0 +1,22 @@
+{
+  "constraints": {
+    "go": "1.19"
+  },
+  "extends": [
+    "config:base",
+    ":semanticCommitTypeAll(build)",
+    ":separatePatchReleases"
+  ],
+  "ignorePresets": [
+    ":combinePatchMinorReleases",
+    ":prHourlyLimit2",
+    ":semanticPrefixFixDepsChoreOthers"
+  ],
+  "enabledManagers": [
+    "gomod"
+  ],
+  "postUpdateOptions": [
+      "gomodTidy",
+      "gomodNoMassage"
+  ]
+}
