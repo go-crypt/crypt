@@ -1,12 +1,6 @@
 package crypt
 
-import (
-	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-)
-
+/*
 type HashModifier interface {
 	Apply(input string) string
 	String() string
@@ -221,3 +215,6 @@ var testSources = []testSource{
 		},
 	},
 }
+
+
+*/

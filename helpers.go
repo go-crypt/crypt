@@ -1,5 +1,6 @@
 package crypt
 
+/*
 import (
 	"fmt"
 	"strings"
@@ -96,3 +97,5 @@ func decode(encodedDigest, prefix string, plaintext bool) (digest Digest, err er
 		return nil, fmt.Errorf("decode error: %w: identifier '%s' is unknown", ErrEncodedHashInvalidIdentifier, prefix)
 	}
 }
+
+*/

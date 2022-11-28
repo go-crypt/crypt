@@ -56,6 +56,11 @@ var (
 	ErrParameterInvalid = errors.New("parameter is invalid")
 )
 
+// Error format strings.
 const (
-	errFmtInvalidIntParameter = "%s validation error: %w: parameter '%s' must be between %d%s and %d but is set to '%d'"
+	ErrFmtInvalidIntParameter = "%w: parameter '%s' must be between %d%s and %d but is set to '%d'"
+	ErrFmtDigestDecode        = "%s decode error: %w"
+	ErrFmtDigestMatch         = "%s match error: %w"
+	ErrFmtHasherHash          = "%s hashing error: %w"
+	ErrFmtHasherValidation    = "%s validation error: %w"
 )

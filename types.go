@@ -5,17 +5,6 @@ import (
 	"hash"
 )
 
-// Digest represents a hashed password. It's implemented by all hashed password results so that when we pass a
-// stored hash into its relevant type we can verify the password against the hash.
-type Digest interface {
-	fmt.Stringer
-
-	Matcher
-
-	Encode() (hash string)
-	Decode(encodedDigest string) (err error)
-}
-
 // Hash is an interface which implements password hashing.
 type Hash interface {
 	// Validate checks the hasher configuration to ensure it's valid. This should be used when the Hash is going to be
@@ -40,6 +29,24 @@ type Matcher interface {
 	MatchBytes(passwordBytes []byte) (match bool)
 	MatchAdvanced(password string) (match bool, err error)
 	MatchBytesAdvanced(passwordBytes []byte) (match bool, err error)
+}
+
+// Digest represents a hashed password. It's implemented by all hashed password results so that when we pass a
+// stored hash into its relevant type we can verify the password against the hash.
+type Digest interface {
+	fmt.Stringer
+
+	Matcher
+
+	Encode() (hash string)
+}
+
+// DecodeFunc describes a function to decode an encoded digest into a crypt.Digest.
+type DecodeFunc func(encodedDigest string) (digest Digest, err error)
+
+// DecoderRegister describes an implementation that allows registering DecodeFunc's.
+type DecoderRegister interface {
+	Register(prefix string, decoder DecodeFunc) (err error)
 }
 
 // HashFunc is a function which returns a hash.Hash.
