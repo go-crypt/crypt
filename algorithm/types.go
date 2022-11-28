@@ -1,4 +1,4 @@
-package crypt
+package algorithm
 
 import (
 	"fmt"
@@ -41,7 +41,7 @@ type Digest interface {
 	Encode() (hash string)
 }
 
-// DecodeFunc describes a function to decode an encoded digest into a crypt.Digest.
+// DecodeFunc describes a function to decode an encoded digest into a algorithm.Digest.
 type DecodeFunc func(encodedDigest string) (digest Digest, err error)
 
 // DecoderRegister describes an implementation that allows registering DecodeFunc's.

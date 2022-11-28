@@ -1,9 +1,9 @@
-package encoding
+package crypt
 
 import (
 	"fmt"
 
-	"github.com/go-crypt/crypt"
+	"github.com/go-crypt/crypt/algorithm"
 )
 
 // The global Decoder. This is utilized by the Decode function.
@@ -11,7 +11,7 @@ var gdecoder *Decoder
 
 // Decode is a convenience function which wraps the Decoder functionality. It's recommended to create your own decoder
 // instead via NewDecoder or NewDefaultDecoder.
-func Decode(encodedDigest string) (digest crypt.Digest, err error) {
+func Decode(encodedDigest string) (digest algorithm.Digest, err error) {
 	if digest, err = decode(encodedDigest); err != nil {
 		return nil, fmt.Errorf("decode error: %w", err)
 	}
@@ -19,7 +19,7 @@ func Decode(encodedDigest string) (digest crypt.Digest, err error) {
 	return digest, nil
 }
 
-func decode(encodedDigest string) (digest crypt.Digest, err error) {
+func decode(encodedDigest string) (digest algorithm.Digest, err error) {
 	if gdecoder == nil {
 		if gdecoder, err = NewDefaultDecoder(); err != nil {
 			return nil, err

@@ -1,10 +1,10 @@
-package encoding
+package crypt
 
 import (
 	"fmt"
 	"strconv"
 
-	"github.com/go-crypt/crypt"
+	"github.com/go-crypt/crypt/algorithm"
 	"github.com/go-crypt/crypt/algorithm/argon2"
 	"github.com/go-crypt/crypt/algorithm/bcrypt"
 	"github.com/go-crypt/crypt/algorithm/pbkdf2"
@@ -51,16 +51,16 @@ func NewDecoderAll() (d *Decoder, err error) {
 	return d, nil
 }
 
-// Decoder is a struct which allows registering crypt.DecodeFunc's and utilizing the programmatically to decode an
+// Decoder is a struct which allows registering algorithm.DecodeFunc's and utilizing the programmatically to decode an
 // encoded digest with them.
 type Decoder struct {
-	decoders map[string]crypt.DecodeFunc
+	decoders map[string]algorithm.DecodeFunc
 }
 
-// Register a new decoders crypt.DecodeFunc against a specific identifier.
-func (d *Decoder) Register(identifier string, decoder crypt.DecodeFunc) (err error) {
+// Register a new decoders algorithm.DecodeFunc against a specific identifier.
+func (d *Decoder) Register(identifier string, decoder algorithm.DecodeFunc) (err error) {
 	if d.decoders == nil {
-		d.decoders = map[string]crypt.DecodeFunc{}
+		d.decoders = map[string]algorithm.DecodeFunc{}
 	}
 
 	if _, ok := d.decoders[identifier]; ok {
@@ -72,8 +72,8 @@ func (d *Decoder) Register(identifier string, decoder crypt.DecodeFunc) (err err
 	return nil
 }
 
-// Decode an encoded digest into a crypt.Digest.
-func (d *Decoder) Decode(encodedDigest string) (digest crypt.Digest, err error) {
+// Decode an encoded digest into a algorithm.Digest.
+func (d *Decoder) Decode(encodedDigest string) (digest algorithm.Digest, err error) {
 	if digest, err = d.decode(encodedDigest); err != nil {
 		return nil, fmt.Errorf("decoder error: %w", err)
 	}
@@ -81,17 +81,17 @@ func (d *Decoder) Decode(encodedDigest string) (digest crypt.Digest, err error) 
 	return digest, nil
 }
 
-func (d *Decoder) decode(encodedDigest string) (digest crypt.Digest, err error) {
+func (d *Decoder) decode(encodedDigest string) (digest algorithm.Digest, err error) {
 	encodedDigest = Normalize(encodedDigest)
 
 	if len(encodedDigest) == 0 || rune(encodedDigest[0]) != encoding.Delimiter {
-		return nil, fmt.Errorf("%w: the hash doesn't begin with the delimiter %s and is not one of the other understood formats", crypt.ErrEncodedHashInvalidFormat, strconv.QuoteRune(encoding.Delimiter))
+		return nil, fmt.Errorf("%w: the hash doesn't begin with the delimiter %s and is not one of the other understood formats", algorithm.ErrEncodedHashInvalidFormat, strconv.QuoteRune(encoding.Delimiter))
 	}
 
 	parts := encoding.Split(encodedDigest, 3)
 
 	if len(parts) != 3 {
-		return nil, fmt.Errorf("%w: the hash doesn't have the minimum number of parts for it to be considered an encoded digest", crypt.ErrEncodedHashInvalidFormat)
+		return nil, fmt.Errorf("%w: the hash doesn't have the minimum number of parts for it to be considered an encoded digest", algorithm.ErrEncodedHashInvalidFormat)
 	}
 
 	if decodeFunc, ok := d.decoders[parts[1]]; ok {
@@ -100,9 +100,9 @@ func (d *Decoder) decode(encodedDigest string) (digest crypt.Digest, err error) 
 
 	switch d {
 	case gdecoder:
-		return nil, fmt.Errorf("%w: the identifier '%s' is unknown to the global decoder", crypt.ErrEncodedHashInvalidIdentifier, parts[1])
+		return nil, fmt.Errorf("%w: the identifier '%s' is unknown to the global decoder", algorithm.ErrEncodedHashInvalidIdentifier, parts[1])
 	default:
-		return nil, fmt.Errorf("%w: the identifier '%s' is unknown to the decoder", crypt.ErrEncodedHashInvalidIdentifier, parts[1])
+		return nil, fmt.Errorf("%w: the identifier '%s' is unknown to the decoder", algorithm.ErrEncodedHashInvalidIdentifier, parts[1])
 	}
 }
 

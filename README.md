@@ -72,11 +72,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/go-crypt/crypt/encoding"
+	"github.com/go-crypt/crypt"
 )
 
 func main() {
-	decoder, err := encoding.NewDefaultDecoder()
+	decoder, err := crypt.NewDefaultDecoder()
 	if err != nil {
 		panic(err)
 	}

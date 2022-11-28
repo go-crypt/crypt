@@ -5,21 +5,21 @@ import (
 	"crypto/sha256"
 	"crypto/sha512"
 
-	"github.com/go-crypt/crypt"
+	"github.com/go-crypt/crypt/algorithm"
 )
 
 // NewVariant converts an identifier string to a Variant.
 func NewVariant(identifier string) (variant Variant) {
 	switch identifier {
-	case AlgIdentifier, AlgIdentifierSHA1, crypt.DigestSHA1:
+	case AlgIdentifier, AlgIdentifierSHA1, algorithm.DigestSHA1:
 		return VariantSHA1
-	case AlgIdentifierSHA224, crypt.DigestSHA224:
+	case AlgIdentifierSHA224, algorithm.DigestSHA224:
 		return VariantSHA224
-	case AlgIdentifierSHA256, crypt.DigestSHA256:
+	case AlgIdentifierSHA256, algorithm.DigestSHA256:
 		return VariantSHA256
-	case AlgIdentifierSHA384, crypt.DigestSHA384:
+	case AlgIdentifierSHA384, algorithm.DigestSHA384:
 		return VariantSHA384
-	case AlgIdentifierSHA512, crypt.DigestSHA512:
+	case AlgIdentifierSHA512, algorithm.DigestSHA512:
 		return VariantSHA512
 	default:
 		return VariantNone
@@ -68,7 +68,7 @@ func (v Variant) Prefix() (prefix string) {
 }
 
 // HashFunc returns the internal HMAC HashFunc.
-func (v Variant) HashFunc() crypt.HashFunc {
+func (v Variant) HashFunc() algorithm.HashFunc {
 	switch v {
 	case VariantSHA1:
 		return sha1.New

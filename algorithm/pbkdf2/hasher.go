@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-crypt/x/pbkdf2"
 
-	"github.com/go-crypt/crypt"
+	"github.com/go-crypt/crypt/algorithm"
 	"github.com/go-crypt/crypt/internal/random"
 )
 
@@ -16,7 +16,7 @@ func New(opts ...Opt) (hasher *Hasher, err error) {
 	if err = hasher.WithOptions(
 		WithVariant(VariantSHA256),
 		WithIterations(VariantSHA256.DefaultIterations()),
-		WithSaltLength(crypt.SaltSizeDefault),
+		WithSaltLength(algorithm.SaltSizeDefault),
 	); err != nil {
 		return nil, err
 	}
@@ -117,22 +117,22 @@ func (h *Hasher) WithOptions(opts ...Opt) (err error) {
 	return nil
 }
 
-// Hash performs the hashing operation and returns either a crypt.Digest or an error.
-func (h *Hasher) Hash(password string) (digest crypt.Digest, err error) {
+// Hash performs the hashing operation and returns either a algorithm.Digest or an error.
+func (h *Hasher) Hash(password string) (digest algorithm.Digest, err error) {
 	if digest, err = h.hash(password); err != nil {
-		return nil, fmt.Errorf(crypt.ErrFmtHasherHash, AlgName, err)
+		return nil, fmt.Errorf(algorithm.ErrFmtHasherHash, AlgName, err)
 	}
 
 	return digest, nil
 }
 
-func (h *Hasher) hash(password string) (digest crypt.Digest, err error) {
+func (h *Hasher) hash(password string) (digest algorithm.Digest, err error) {
 	h.setDefaults()
 
 	var salt []byte
 
 	if salt, err = random.Bytes(h.bytesSalt); err != nil {
-		return nil, fmt.Errorf("%w: %v", crypt.ErrSaltReadRandomBytes, err)
+		return nil, fmt.Errorf("%w: %v", algorithm.ErrSaltReadRandomBytes, err)
 	}
 
 	return h.hashWithSalt(password, salt)
@@ -140,15 +140,15 @@ func (h *Hasher) hash(password string) (digest crypt.Digest, err error) {
 
 // HashWithSalt overloads the Hash method allowing the user to provide a salt. It's recommended instead to configure the
 // salt size and let this be a random value generated using crypto/rand.
-func (h *Hasher) HashWithSalt(password string, salt []byte) (digest crypt.Digest, err error) {
+func (h *Hasher) HashWithSalt(password string, salt []byte) (digest algorithm.Digest, err error) {
 	if digest, err = h.hashWithSalt(password, salt); err != nil {
-		return nil, fmt.Errorf(crypt.ErrFmtHasherHash, AlgName, err)
+		return nil, fmt.Errorf(algorithm.ErrFmtHasherHash, AlgName, err)
 	}
 
 	return digest, nil
 }
 
-func (h *Hasher) hashWithSalt(password string, salt []byte) (digest crypt.Digest, err error) {
+func (h *Hasher) hashWithSalt(password string, salt []byte) (digest algorithm.Digest, err error) {
 	if err = h.validate(); err != nil {
 		return nil, err
 	}
@@ -173,7 +173,7 @@ func (h *Hasher) hashWithSalt(password string, salt []byte) (digest crypt.Digest
 
 // MustHash overloads the Hash method and panics if the error is not nil. It's recommended if you use this option to
 // utilize the Validate method first or handle the panic appropriately.
-func (h *Hasher) MustHash(password string) (digest crypt.Digest) {
+func (h *Hasher) MustHash(password string) (digest algorithm.Digest) {
 	var err error
 
 	if digest, err = h.Hash(password); err != nil {
@@ -186,7 +186,7 @@ func (h *Hasher) MustHash(password string) (digest crypt.Digest) {
 // Validate checks the settings/parameters for this Hash and returns an error.
 func (h *Hasher) Validate() (err error) {
 	if err = h.validate(); err != nil {
-		return fmt.Errorf(crypt.ErrFmtHasherValidation, AlgName, err)
+		return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, err)
 	}
 
 	return nil
@@ -203,16 +203,16 @@ func (h *Hasher) validate() (err error) {
 		keySizeMin := h.variant.HashFunc()().Size()
 
 		if h.bytesKey < keySizeMin || h.bytesKey > KeySizeMax {
-			return fmt.Errorf(crypt.ErrFmtInvalidIntParameter, crypt.ErrParameterInvalid, "key size", keySizeMin, "", KeySizeMax, h.bytesKey)
+			return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "key size", keySizeMin, "", KeySizeMax, h.bytesKey)
 		}
 	}
 
 	if h.bytesSalt < SaltSizeMin || h.bytesSalt > SaltSizeMax {
-		return fmt.Errorf(crypt.ErrFmtInvalidIntParameter, crypt.ErrParameterInvalid, "salt size", SaltSizeMin, "", SaltSizeMax, h.bytesSalt)
+		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "salt size", SaltSizeMin, "", SaltSizeMax, h.bytesSalt)
 	}
 
 	if h.iterations < IterationsMin || h.iterations > IterationsMax {
-		return fmt.Errorf(crypt.ErrFmtInvalidIntParameter, crypt.ErrParameterInvalid, "iterations", IterationsMin, "", IterationsMax, h.iterations)
+		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "iterations", IterationsMin, "", IterationsMax, h.iterations)
 	}
 
 	return nil
@@ -235,7 +235,7 @@ func (h *Hasher) setDefaults() {
 	}
 
 	if h.bytesSalt == 0 {
-		h.bytesSalt = crypt.SaltSizeDefault
+		h.bytesSalt = algorithm.SaltSizeDefault
 	}
 
 	if h.iterations == 0 {

@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-crypt/x/bcrypt"
 
-	"github.com/go-crypt/crypt"
+	"github.com/go-crypt/crypt/algorithm"
 )
 
 // Digest is a digest which handles bcrypt hashes.
@@ -38,7 +38,7 @@ func (d *Digest) MatchAdvanced(password string) (match bool, err error) {
 // MatchBytesAdvanced is the same as MatchBytes except if there is an error it returns that as well.
 func (d *Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
 	if len(d.key) == 0 {
-		return false, fmt.Errorf(crypt.ErrFmtDigestMatch, AlgName, fmt.Errorf("%w: key has 0 bytes", crypt.ErrPasswordInvalid))
+		return false, fmt.Errorf(algorithm.ErrFmtDigestMatch, AlgName, fmt.Errorf("%w: key has 0 bytes", algorithm.ErrPasswordInvalid))
 	}
 
 	input := d.variant.EncodeInput(passwordBytes, d.salt)
@@ -46,7 +46,7 @@ func (d *Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error
 	var key []byte
 
 	if key, err = bcrypt.Key(input, d.salt, d.cost); err != nil {
-		return false, fmt.Errorf(crypt.ErrFmtDigestMatch, AlgName, fmt.Errorf("%w: %v", crypt.ErrKeyDerivation, err))
+		return false, fmt.Errorf(algorithm.ErrFmtDigestMatch, AlgName, fmt.Errorf("%w: %v", algorithm.ErrKeyDerivation, err))
 	}
 
 	return subtle.ConstantTimeCompare(d.key, key) == 1, nil

@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-crypt/x/scrypt"
 
-	"github.com/go-crypt/crypt"
+	"github.com/go-crypt/crypt/algorithm"
 )
 
 // Digest is a Digest which handles scrypt hashes.
@@ -32,7 +32,7 @@ func (d *Digest) MatchBytes(passwordBytes []byte) (match bool) {
 // MatchAdvanced is the same as Match except if there is an error it returns that as well.
 func (d *Digest) MatchAdvanced(password string) (match bool, err error) {
 	if match, err = d.MatchBytesAdvanced([]byte(password)); err != nil {
-		return match, fmt.Errorf(crypt.ErrFmtDigestMatch, AlgName, err)
+		return match, fmt.Errorf(algorithm.ErrFmtDigestMatch, AlgName, err)
 	}
 
 	return match, nil
@@ -41,7 +41,7 @@ func (d *Digest) MatchAdvanced(password string) (match bool, err error) {
 // MatchBytesAdvanced is the same as MatchBytes except if there is an error it returns that as well.
 func (d *Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
 	if len(d.key) == 0 {
-		return false, fmt.Errorf("%w: key has 0 bytes", crypt.ErrPasswordInvalid)
+		return false, fmt.Errorf("%w: key has 0 bytes", algorithm.ErrPasswordInvalid)
 	}
 
 	var key []byte

@@ -4,7 +4,7 @@ import (
 	"crypto/subtle"
 	"fmt"
 
-	"github.com/go-crypt/crypt"
+	"github.com/go-crypt/crypt/algorithm"
 )
 
 // NewDigest creates a new plaintext.Digest using the PlainText Variant.
@@ -49,7 +49,7 @@ func (d *Digest) MatchBytes(passwordBytes []byte) (match bool) {
 // MatchAdvanced is the same as Match except if there is an error it returns that as well.
 func (d *Digest) MatchAdvanced(password string) (match bool, err error) {
 	if len(d.key) == 0 {
-		return false, fmt.Errorf("plaintext match error: %w: key has 0 bytes", crypt.ErrPasswordInvalid)
+		return false, fmt.Errorf("plaintext match error: %w: key has 0 bytes", algorithm.ErrPasswordInvalid)
 	}
 
 	return d.MatchBytesAdvanced([]byte(password))

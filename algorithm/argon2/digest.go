@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-crypt/x/argon2"
 
-	"github.com/go-crypt/crypt"
+	"github.com/go-crypt/crypt/algorithm"
 )
 
 // Digest is a digest which handles Argon2 hashes like Argon2id, Argon2i, and Argon2d.
@@ -42,7 +42,7 @@ func (d *Digest) MatchAdvanced(password string) (match bool, err error) {
 // MatchBytesAdvanced is the same as MatchBytes except if there is an error it returns that as well.
 func (d *Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
 	if len(d.key) == 0 {
-		return false, fmt.Errorf("argon2 match error: %w: key has 0 bytes", crypt.ErrPasswordInvalid)
+		return false, fmt.Errorf("argon2 match error: %w: key has 0 bytes", algorithm.ErrPasswordInvalid)
 	}
 
 	return subtle.ConstantTimeCompare(d.key, d.variant.KeyFunc()(passwordBytes, d.salt, d.t, d.m, d.p, uint32(len(d.key)))) == 1, nil

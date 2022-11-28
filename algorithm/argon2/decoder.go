@@ -8,12 +8,12 @@ import (
 
 	"github.com/go-crypt/x/argon2"
 
-	"github.com/go-crypt/crypt"
+	"github.com/go-crypt/crypt/algorithm"
 	"github.com/go-crypt/crypt/internal/encoding"
 )
 
-// Register the decoder with the crypt.DecoderRegister.
-func Register(r crypt.DecoderRegister) (err error) {
+// Register the decoder with the algorithm.DecoderRegister.
+func Register(r algorithm.DecoderRegister) (err error) {
 	if err = r.Register(AlgIdentifierVariantID, Decode); err != nil {
 		return err
 	}
@@ -29,19 +29,19 @@ func Register(r crypt.DecoderRegister) (err error) {
 	return nil
 }
 
-// Decode the encoded digest into a crypt.Digest.
-func Decode(encodedDigest string) (digest crypt.Digest, err error) {
+// Decode the encoded digest into a algorithm.Digest.
+func Decode(encodedDigest string) (digest algorithm.Digest, err error) {
 	var (
 		parts   []string
 		variant Variant
 	)
 
 	if variant, parts, err = decoderParts(encodedDigest); err != nil {
-		return nil, fmt.Errorf(crypt.ErrFmtDigestDecode, AlgName, err)
+		return nil, fmt.Errorf(algorithm.ErrFmtDigestDecode, AlgName, err)
 	}
 
 	if digest, err = decode(variant, parts); err != nil {
-		return nil, fmt.Errorf(crypt.ErrFmtDigestDecode, AlgName, err)
+		return nil, fmt.Errorf(algorithm.ErrFmtDigestDecode, AlgName, err)
 	}
 
 	return digest, nil
@@ -51,19 +51,19 @@ func decoderParts(encodedDigest string) (variant Variant, parts []string, err er
 	parts = encoding.Split(encodedDigest, -1)
 
 	if len(parts) != 6 {
-		return VariantNone, nil, crypt.ErrEncodedHashInvalidFormat
+		return VariantNone, nil, algorithm.ErrEncodedHashInvalidFormat
 	}
 
 	variant = NewVariant(parts[1])
 
 	if variant == VariantNone {
-		return variant, nil, fmt.Errorf("%w: identifier '%s' is not an encoded %s digest", crypt.ErrEncodedHashInvalidIdentifier, parts[1], AlgName)
+		return variant, nil, fmt.Errorf("%w: identifier '%s' is not an encoded %s digest", algorithm.ErrEncodedHashInvalidIdentifier, parts[1], AlgName)
 	}
 
 	return variant, parts[2:], nil
 }
 
-func decode(variant Variant, parts []string) (digest crypt.Digest, err error) {
+func decode(variant Variant, parts []string) (digest algorithm.Digest, err error) {
 	version, options, salt, key := parts[0], parts[1], parts[2], parts[3]
 
 	options += "," + version
@@ -81,7 +81,7 @@ func decode(variant Variant, parts []string) (digest crypt.Digest, err error) {
 		pair := strings.SplitN(opt, "=", 2)
 
 		if len(pair) != 2 {
-			return nil, fmt.Errorf("%w: option '%s' is invalid", crypt.ErrEncodedHashInvalidOption, opt)
+			return nil, fmt.Errorf("%w: option '%s' is invalid", algorithm.ErrEncodedHashInvalidOption, opt)
 		}
 
 		k, v := pair[0], pair[1]
@@ -94,7 +94,7 @@ func decode(variant Variant, parts []string) (digest crypt.Digest, err error) {
 		}
 
 		if value, err = strconv.ParseUint(v, 10, bitSize); err != nil {
-			return nil, fmt.Errorf("%w: option '%s' has invalid value '%s': %v", crypt.ErrEncodedHashInvalidOptionValue, k, v, err)
+			return nil, fmt.Errorf("%w: option '%s' has invalid value '%s': %v", algorithm.ErrEncodedHashInvalidOptionValue, k, v, err)
 		}
 
 		switch k {
@@ -102,7 +102,7 @@ func decode(variant Variant, parts []string) (digest crypt.Digest, err error) {
 			decoded.v = uint8(value)
 
 			if decoded.v != argon2.Version {
-				return nil, fmt.Errorf("%w: version %d is supported but encoded hash is version %d", crypt.ErrEncodedHashInvalidVersion, argon2.Version, decoded.v)
+				return nil, fmt.Errorf("%w: version %d is supported but encoded hash is version %d", algorithm.ErrEncodedHashInvalidVersion, argon2.Version, decoded.v)
 			}
 		case oK:
 			break
@@ -113,16 +113,16 @@ func decode(variant Variant, parts []string) (digest crypt.Digest, err error) {
 		case oP:
 			decoded.p = uint32(value)
 		default:
-			return nil, fmt.Errorf("%w: option '%s' with value '%s' is unknown", crypt.ErrEncodedHashInvalidOptionKey, k, v)
+			return nil, fmt.Errorf("%w: option '%s' with value '%s' is unknown", algorithm.ErrEncodedHashInvalidOptionKey, k, v)
 		}
 	}
 
 	if decoded.salt, err = base64.RawStdEncoding.DecodeString(salt); err != nil {
-		return nil, fmt.Errorf("%w: %v", crypt.ErrEncodedHashSaltEncoding, err)
+		return nil, fmt.Errorf("%w: %v", algorithm.ErrEncodedHashSaltEncoding, err)
 	}
 
 	if decoded.key, err = base64.RawStdEncoding.DecodeString(key); err != nil {
-		return nil, fmt.Errorf("%w: %v", crypt.ErrEncodedHashKeyEncoding, err)
+		return nil, fmt.Errorf("%w: %v", algorithm.ErrEncodedHashKeyEncoding, err)
 	}
 
 	if decoded.t == 0 {

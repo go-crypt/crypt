@@ -1,7 +1,7 @@
 package plaintext
 
 import (
-	"github.com/go-crypt/crypt"
+	"github.com/go-crypt/crypt/algorithm"
 )
 
 // New returns a *Hasher without any settings configured.
@@ -43,7 +43,7 @@ func (h *Hasher) Validate() (err error) {
 
 // Hash performs the hashing operation on a password and resets any relevant parameters such as a manually set salt.
 // It then returns a Digest and error.
-func (h *Hasher) Hash(password string) (hashed crypt.Digest, err error) {
+func (h *Hasher) Hash(password string) (hashed algorithm.Digest, err error) {
 	return &Digest{
 		variant: h.variant,
 		key:     []byte(password),
@@ -51,13 +51,13 @@ func (h *Hasher) Hash(password string) (hashed crypt.Digest, err error) {
 }
 
 // HashWithSalt is an overload of Digest that also accepts a salt.
-func (h *Hasher) HashWithSalt(password string, _ []byte) (hashed crypt.Digest, err error) {
+func (h *Hasher) HashWithSalt(password string, _ []byte) (hashed algorithm.Digest, err error) {
 	return h.Hash(password)
 }
 
 // MustHash overloads the Hash method and panics if the error is not nil. It's recommended if you use this method to
 // utilize the Validate method first or handle the panic appropriately.
-func (h *Hasher) MustHash(password string) (hashed crypt.Digest) {
+func (h *Hasher) MustHash(password string) (hashed algorithm.Digest) {
 	if d, err := h.Hash(password); err != nil {
 		panic(err)
 	} else {

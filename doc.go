@@ -2,12 +2,12 @@
 // hashes, encoding them in a common storage format, and comparing them to ensure they are valid.
 //
 // It's recommended that you either use encoding.NewDefaultDecoder for decoding existing encoded digests into the
-// crypt.Digest. The Match function on the crypt.Digest as well as the other methods described by crypt.Matcher can be
-// utilized to validate passwords.
+// algorithm.Digest. The Match function on the algorithm.Digest as well as the other methods described by
+// algorithm.Matcher can be utilized to validate passwords.
 //
-// The crypt.Digest implementations include an Encode method which encodes the crypt.Digest in the PHC String Format.
+// The algorithm.Digest implementations include an Encode method which encodes the algorithm.Digest in the PHC String Format.
 //
-// To create new crypt.Digest results you can utilize the crypt.Hash implementations which exist for each algorithm.
+// To create new algorithm.Digest results you can utilize the algorithm.Hash implementations which exist for each algorithm.
 // The implementations utilize the functional options pattern where all options methods have the pattern With* or
 // Without*.
 package crypt

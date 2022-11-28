@@ -1,2 +1,3 @@
-// Package algorithm is a meta package which contains the individual algorithms.
+// Package algorithm is a package which contains the individual algorithms and interfaces related to their
+// implementation.
 package algorithm

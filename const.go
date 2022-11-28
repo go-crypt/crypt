@@ -1,17 +1,18 @@
 package crypt
 
-const (
-	DigestSHA1   = "sha1"
-	DigestSHA224 = "sha224"
-	DigestSHA256 = "sha256"
-	DigestSHA384 = "sha384"
-	DigestSHA512 = "sha512"
+import (
+	"github.com/go-crypt/crypt/internal/encoding"
 )
 
 const (
-	// SaltSizeDefault is the default salt size for most implementations.
-	SaltSizeDefault = 16
+	// Delimiter for all storage formats.
+	Delimiter = encoding.DelimiterStr
+)
 
-	// KeySizeDefault is the default key size for most implementations.
-	KeySizeDefault = 32
+const (
+	// StorageFormatPrefixLDAPCrypt is a prefix used by OpenLDAP for crypt format encoded digests.
+	StorageFormatPrefixLDAPCrypt = "{CRYPT}"
+
+	// StorageFormatPrefixLDAPArgon2 is a prefix used by OpenLDAP for argon2 format encoded digests.
+	StorageFormatPrefixLDAPArgon2 = "{ARGON2}"
 )
