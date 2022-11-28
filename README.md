@@ -16,17 +16,18 @@ A list of tasks that need to be accomplished are listed in the
 
 ## Algorithms
 
-|                                 Algorithm                                  |               Variants               |
-|:--------------------------------------------------------------------------:|:------------------------------------:|
-|           [Argon2](https://www.rfc-editor.org/rfc/rfc9106.html)            |      Argon2id, Argon2i, Argon2d      |
-|        [SHA2 Crypt](https://www.akkadia.org/drepper/SHA-crypt.txt)         |            SHA256, SHA512            |
-|                                   PBKDF2                                   | SHA1, SHA224, SHA256, SHA384, SHA512 |
-| [bcrypt](https://www.usenix.org/legacy/event/usenix99/provos/provos_html/) |        bcrypt, bcrypt-sha256         |
-|           [scrypt](https://www.rfc-editor.org/rfc/rfc7914.html)            |                scrypt                |
+|                                 Algorithm                                  |               Variants               |                                         Identifiers                                         |
+|:--------------------------------------------------------------------------:|:------------------------------------:|:-------------------------------------------------------------------------------------------:|
+|           [Argon2](https://www.rfc-editor.org/rfc/rfc9106.html)            |      Argon2id, Argon2i, Argon2d      |                              `argon2id`, `argon2i`, `argon2d`                               |
+|        [SHA2 Crypt](https://www.akkadia.org/drepper/SHA-crypt.txt)         |            SHA256, SHA512            |                                          `5`, `6`                                           |
+|                                   PBKDF2                                   | SHA1, SHA224, SHA256, SHA384, SHA512 | `pbkdf2`, `pbkdf2-sha1`, `pbkdf2-sha224`, `pbkdf2-sha256`, `pbkdf2-sha384`, `pbkdf2-sha512` |
+| [bcrypt](https://www.usenix.org/legacy/event/usenix99/provos/provos_html/) |        bcrypt, bcrypt-sha256         |                        `2`, `2a`, `2b`, `2x`, `2y`,  `bcrypt-sha256`                        |
+|           [scrypt](https://www.rfc-editor.org/rfc/rfc7914.html)            |                scrypt                |                                          `scrypt`                                           |
+|                      [PlainText](#plain-text-format)                       |          plaintext, base64           |                                    `plaintext`, `base64`                                    |
 
 ### Plain Text Format
 
-In addition to the crypt functions above we also support a plain text storage format which has a regular plain text
+In addition to the standard crypt functions we also support a plain text storage format which has a regular plain text
 variant and a Base64 format (for storage, not security).
 
 The [PHC string format] we decided to use is as follows:
