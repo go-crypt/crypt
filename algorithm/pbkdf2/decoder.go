@@ -72,27 +72,29 @@ func decoderParts(encodedDigest string) (variant Variant, parts []string, err er
 }
 
 func decode(variant Variant, parts []string) (digest algorithm.Digest, err error) {
-	iterations, salt, key := parts[0], parts[1], parts[2]
-
 	decoded := &Digest{
 		variant: variant,
 	}
 
 	decoded.variant = variant
 
-	if decoded.iterations, err = strconv.Atoi(iterations); err != nil {
+	if decoded.iterations, err = strconv.Atoi(parts[0]); err != nil {
 		return nil, fmt.Errorf("%w: iterations could not be parsed: %v", algorithm.ErrEncodedHashInvalidOptionValue, err)
 	}
 
-	if decoded.salt, err = encoding.Base64RawAdaptedEncoding.DecodeString(salt); err != nil {
+	if decoded.salt, err = encoding.Base64RawAdaptedEncoding.DecodeString(parts[1]); err != nil {
 		return nil, fmt.Errorf("%w: %v", algorithm.ErrEncodedHashSaltEncoding, err)
 	}
 
-	if decoded.key, err = encoding.Base64RawAdaptedEncoding.DecodeString(key); err != nil {
+	if decoded.key, err = encoding.Base64RawAdaptedEncoding.DecodeString(parts[2]); err != nil {
 		return nil, fmt.Errorf("%w: %v", algorithm.ErrEncodedHashKeyEncoding, err)
 	}
 
-	decoded.k = len(decoded.key)
+	decoded.t = len(decoded.key)
+
+	if decoded.t == 0 {
+		return nil, fmt.Errorf("%w: key has 0 bytes", algorithm.ErrEncodedHashKeyEncoding)
+	}
 
 	return decoded, nil
 }

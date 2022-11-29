@@ -13,19 +13,7 @@ import (
 func New(opts ...Opt) (hasher *Hasher, err error) {
 	hasher = &Hasher{}
 
-	if err = hasher.WithOptions(
-		WithVariant(VariantSHA256),
-		WithIterations(VariantSHA256.DefaultIterations()),
-		WithSaltLength(algorithm.SaltSizeDefault),
-	); err != nil {
-		return nil, err
-	}
-
 	if err = hasher.WithOptions(opts...); err != nil {
-		return nil, err
-	}
-
-	if err = hasher.WithOptions(WithDefaultKeyLength(hasher.variant.HashFunc()().Size())); err != nil {
 		return nil, err
 	}
 
@@ -38,7 +26,7 @@ func NewSHA1(opts ...Opt) (hasher *Hasher, err error) {
 		return nil, err
 	}
 
-	if err = hasher.WithOptions(WithVariant(VariantSHA1), WithKeyLength(VariantSHA1.HashFunc()().Size())); err != nil {
+	if err = hasher.WithOptions(WithVariant(VariantSHA1), WithTagLength(VariantSHA1.HashFunc()().Size())); err != nil {
 		return nil, err
 	}
 
@@ -51,7 +39,7 @@ func NewSHA224(opts ...Opt) (hasher *Hasher, err error) {
 		return nil, err
 	}
 
-	if err = hasher.WithOptions(WithVariant(VariantSHA224), WithKeyLength(VariantSHA224.HashFunc()().Size())); err != nil {
+	if err = hasher.WithOptions(WithVariant(VariantSHA224), WithTagLength(VariantSHA224.HashFunc()().Size())); err != nil {
 		return nil, err
 	}
 
@@ -64,7 +52,7 @@ func NewSHA256(opts ...Opt) (hasher *Hasher, err error) {
 		return nil, err
 	}
 
-	if err = hasher.WithOptions(WithVariant(VariantSHA256), WithKeyLength(VariantSHA256.HashFunc()().Size())); err != nil {
+	if err = hasher.WithOptions(WithVariant(VariantSHA256), WithTagLength(VariantSHA256.HashFunc()().Size())); err != nil {
 		return nil, err
 	}
 
@@ -77,7 +65,7 @@ func NewSHA384(opts ...Opt) (hasher *Hasher, err error) {
 		return nil, err
 	}
 
-	if err = hasher.WithOptions(WithVariant(VariantSHA384), WithKeyLength(VariantSHA384.HashFunc()().Size())); err != nil {
+	if err = hasher.WithOptions(WithVariant(VariantSHA384), WithTagLength(VariantSHA384.HashFunc()().Size())); err != nil {
 		return nil, err
 	}
 
@@ -90,7 +78,7 @@ func NewSHA512(opts ...Opt) (hasher *Hasher, err error) {
 		return nil, err
 	}
 
-	if err = hasher.WithOptions(WithVariant(VariantSHA512), WithKeyLength(VariantSHA512.HashFunc()().Size())); err != nil {
+	if err = hasher.WithOptions(WithVariant(VariantSHA512), WithTagLength(VariantSHA512.HashFunc()().Size())); err != nil {
 		return nil, err
 	}
 
@@ -101,9 +89,9 @@ func NewSHA512(opts ...Opt) (hasher *Hasher, err error) {
 type Hasher struct {
 	variant Variant
 
-	iterations, bytesKey, bytesSalt int
+	iterations, bytesTag, bytesSalt int
 
-	defaults, unsafe bool
+	defaults bool
 }
 
 // WithOptions applies the provided functional options provided as an Opt to the pbkdf2.Hasher.
@@ -149,24 +137,16 @@ func (h *Hasher) HashWithSalt(password string, salt []byte) (digest algorithm.Di
 }
 
 func (h *Hasher) hashWithSalt(password string, salt []byte) (digest algorithm.Digest, err error) {
-	if err = h.validate(); err != nil {
-		return nil, err
-	}
-
 	d := &Digest{
 		variant:    h.variant,
 		iterations: h.iterations,
-		k:          h.bytesKey,
+		t:          h.bytesTag,
 		salt:       salt,
 	}
 
 	hf := d.variant.HashFunc()
 
-	if d.k == 0 {
-		d.k = hf().Size()
-	}
-
-	d.key = pbkdf2.Key([]byte(password), d.salt, h.iterations, d.k, hf)
+	d.key = pbkdf2.Key([]byte(password), d.salt, h.iterations, d.t, hf)
 
 	return d, nil
 }
@@ -195,24 +175,10 @@ func (h *Hasher) Validate() (err error) {
 func (h *Hasher) validate() (err error) {
 	h.setDefaults()
 
-	if h.unsafe {
-		return nil
-	}
+	tagSizeMin := h.variant.HashFunc()().Size()
 
-	if h.bytesKey != 0 {
-		keySizeMin := h.variant.HashFunc()().Size()
-
-		if h.bytesKey < keySizeMin || h.bytesKey > KeySizeMax {
-			return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "key size", keySizeMin, "", KeySizeMax, h.bytesKey)
-		}
-	}
-
-	if h.bytesSalt < SaltSizeMin || h.bytesSalt > SaltSizeMax {
-		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "salt size", SaltSizeMin, "", SaltSizeMax, h.bytesSalt)
-	}
-
-	if h.iterations < IterationsMin || h.iterations > IterationsMax {
-		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "iterations", IterationsMin, "", IterationsMax, h.iterations)
+	if h.bytesTag < tagSizeMin || h.bytesTag > TagSizeMax {
+		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "tag size", tagSizeMin, "", TagSizeMax, h.bytesTag)
 	}
 
 	return nil
@@ -232,6 +198,10 @@ func (h *Hasher) setDefaults() {
 		break
 	default:
 		h.variant = variantDefault
+	}
+
+	if h.bytesTag == 0 {
+		h.bytesTag = h.variant.HashFunc()().Size()
 	}
 
 	if h.bytesSalt == 0 {

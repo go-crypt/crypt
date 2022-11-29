@@ -2,6 +2,8 @@ package bcrypt
 
 import (
 	"fmt"
+
+	"github.com/go-crypt/crypt/algorithm"
 )
 
 // Opt describes the functional option pattern for the bcrypt.Hasher.
@@ -16,14 +18,33 @@ func WithVariant(variant Variant) Opt {
 
 			return nil
 		default:
-			return fmt.Errorf("bcrypt variant error: variant with id '%d' is not valid", variant)
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf("%w: variant '%d' is invalid", algorithm.ErrParameterInvalid, variant))
 		}
+	}
+}
+
+// WithVariantName satisfies the argon2.Opt type and sets the variant by name.
+func WithVariantName(identifier string) Opt {
+	return func(h *Hasher) (err error) {
+		variant := NewVariant(identifier)
+
+		if variant == VariantNone {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf("%w: variant identifier '%s' is invalid", algorithm.ErrParameterInvalid, identifier))
+		}
+
+		h.variant = variant
+
+		return nil
 	}
 }
 
 // WithCost sets the cost parameter of the resulting Bcrypt hash. Default is 12.
 func WithCost(cost int) Opt {
 	return func(h *Hasher) (err error) {
+		if cost < CostMinimum || cost > CostMaximum {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "cost", CostMinimum, "", CostMaximum, cost))
+		}
+
 		h.cost = cost
 
 		return nil

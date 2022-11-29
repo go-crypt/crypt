@@ -12,7 +12,11 @@ import (
 func New(opts ...Opt) (hasher *Hasher, err error) {
 	hasher = ProfileRFC9106Recommended.Hasher()
 
-	if err = hasher.Options(opts...); err != nil {
+	if err = hasher.WithOptions(opts...); err != nil {
+		return nil, err
+	}
+
+	if err = hasher.Validate(); err != nil {
 		return nil, err
 	}
 
@@ -25,11 +29,11 @@ type Hasher struct {
 
 	s, k, m, t, p int
 
-	unsafe bool
+	defaults bool
 }
 
-// Options applies the provided functional options provided as an Opt to the Hasher.
-func (h *Hasher) Options(opts ...Opt) (err error) {
+// WithOptions applies the provided functional options provided as an Opt to the Hasher.
+func (h *Hasher) WithOptions(opts ...Opt) (err error) {
 	for _, opt := range opts {
 		if err = opt(h); err != nil {
 			return err
@@ -41,7 +45,7 @@ func (h *Hasher) Options(opts ...Opt) (err error) {
 
 // Copy copies all parameters from this argon2.Hasher to another *argon2.Hasher.
 func (h *Hasher) Copy(hasher *Hasher) {
-	hasher.variant, hasher.unsafe, hasher.t, hasher.p, hasher.m, hasher.k, hasher.s = h.variant, h.unsafe, h.t, h.p, h.m, h.k, h.s
+	hasher.variant, hasher.t, hasher.p, hasher.m, hasher.k, hasher.s = h.variant, h.t, h.p, h.m, h.k, h.s
 }
 
 // Clone returns a clone from this argon2.Hasher to another *argon2.Hasher.
@@ -53,7 +57,6 @@ func (h *Hasher) Clone() *Hasher {
 		m:       h.m,
 		k:       h.k,
 		s:       h.s,
-		unsafe:  h.unsafe,
 	}
 }
 
@@ -122,10 +125,6 @@ func (h *Hasher) hashWithSalt(password string, salt []byte) (digest algorithm.Di
 		return nil, err
 	}
 
-	if err = h.validate(); err != nil {
-		return nil, err
-	}
-
 	passwordBytes := []byte(password)
 
 	if len(passwordBytes) > PasswordInputSizeMax {
@@ -169,26 +168,6 @@ func (h *Hasher) Validate() (err error) {
 func (h *Hasher) validate() (err error) {
 	h.setDefaults()
 
-	if h.unsafe {
-		return nil
-	}
-
-	if h.k < TagLengthMin || h.k > TagLengthMax {
-		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "k", TagLengthMin, "", TagLengthMax, h.k)
-	}
-
-	if h.s < SaltSizeMin || h.s > SaltSizeMax {
-		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "s", SaltSizeMin, "", SaltSizeMax, h.s)
-	}
-
-	if h.t < PassesMin || h.t > PassesMax {
-		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "t", PassesMin, "", PassesMax, h.t)
-	}
-
-	if h.p < ParallelismMin || h.p > ParallelismMax {
-		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "p", ParallelismMin, "", ParallelismMax, h.p)
-	}
-
 	mMin := h.p * MemoryMinParallelismMultiplier
 
 	if h.m < mMin || h.m > MemoryMax {
@@ -207,21 +186,27 @@ func (h *Hasher) validateSalt(salt []byte) (err error) {
 }
 
 func (h *Hasher) setDefaults() {
+	if h.defaults {
+		return
+	}
+
+	h.defaults = true
+
 	if h.variant == VariantNone {
 		h.variant = variantArgon2Default
 	}
 
 	ProfileRFC9106LowMemory.Hasher().Merge(h)
 
+	if h.s < SaltSizeMin {
+		h.s = algorithm.SaltSizeDefault
+	}
+
 	/*
 	   Memory size m MUST be an integer number of kibibytes from 8*p to
 	   2^(32)-1.  The actual number of blocks is m', which is m rounded
 	   down to the nearest multiple of 4*p.
 	*/
-
-	if h.s < SaltSizeMin {
-		h.s = algorithm.SaltSizeDefault
-	}
 
 	pM := h.p * MemoryRoundingParallelismMultiplier
 

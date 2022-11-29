@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/go-crypt/x/argon2"
 
@@ -64,10 +63,6 @@ func decoderParts(encodedDigest string) (variant Variant, parts []string, err er
 }
 
 func decode(variant Variant, parts []string) (digest algorithm.Digest, err error) {
-	version, options, salt, key := parts[0], parts[1], parts[2], parts[3]
-
-	options += "," + version
-
 	decoded := &Digest{
 		variant: variant,
 	}
@@ -77,27 +72,25 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 		bitSize int
 	)
 
-	for _, opt := range strings.Split(options, ",") {
-		pair := strings.SplitN(opt, "=", 2)
+	var params []encoding.Parameter
 
-		if len(pair) != 2 {
-			return nil, fmt.Errorf("%w: option '%s' is invalid", algorithm.ErrEncodedHashInvalidOption, opt)
-		}
+	if params, err = encoding.DecodeParameterStr(parts[1] + "," + parts[0]); err != nil {
+		return nil, err
+	}
 
-		k, v := pair[0], pair[1]
-
-		switch k {
+	for _, param := range params {
+		switch param.Key {
 		case oV:
 			bitSize = 8
 		default:
 			bitSize = 32
 		}
 
-		if value, err = strconv.ParseUint(v, 10, bitSize); err != nil {
-			return nil, fmt.Errorf("%w: option '%s' has invalid value '%s': %v", algorithm.ErrEncodedHashInvalidOptionValue, k, v, err)
+		if value, err = strconv.ParseUint(param.Value, 10, bitSize); err != nil {
+			return nil, fmt.Errorf("%w: option '%s' has invalid value '%s': %v", algorithm.ErrEncodedHashInvalidOptionValue, param.Key, param.Value, err)
 		}
 
-		switch k {
+		switch param.Key {
 		case oV:
 			decoded.v = uint8(value)
 
@@ -113,16 +106,20 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 		case oP:
 			decoded.p = uint32(value)
 		default:
-			return nil, fmt.Errorf("%w: option '%s' with value '%s' is unknown", algorithm.ErrEncodedHashInvalidOptionKey, k, v)
+			return nil, fmt.Errorf("%w: option '%s' with value '%s' is unknown", algorithm.ErrEncodedHashInvalidOptionKey, param.Key, param.Value)
 		}
 	}
 
-	if decoded.salt, err = base64.RawStdEncoding.DecodeString(salt); err != nil {
+	if decoded.salt, err = base64.RawStdEncoding.DecodeString(parts[2]); err != nil {
 		return nil, fmt.Errorf("%w: %v", algorithm.ErrEncodedHashSaltEncoding, err)
 	}
 
-	if decoded.key, err = base64.RawStdEncoding.DecodeString(key); err != nil {
+	if decoded.key, err = base64.RawStdEncoding.DecodeString(parts[3]); err != nil {
 		return nil, fmt.Errorf("%w: %v", algorithm.ErrEncodedHashKeyEncoding, err)
+	}
+
+	if len(decoded.key) == 0 {
+		return nil, fmt.Errorf("%w: key has 0 bytes", algorithm.ErrEncodedHashKeyEncoding)
 	}
 
 	if decoded.t == 0 {

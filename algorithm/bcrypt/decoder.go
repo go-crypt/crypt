@@ -3,7 +3,6 @@ package bcrypt
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/go-crypt/x/bcrypt"
 
@@ -30,6 +29,10 @@ func Register(r algorithm.DecoderRegister) (err error) {
 	}
 
 	if err = r.Register(AlgIdentifierVerY, Decode); err != nil {
+		return err
+	}
+
+	if err = r.Register(AlgIdentifierUnversioned, Decode); err != nil {
 		return err
 	}
 
@@ -97,36 +100,36 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 			return nil, algorithm.ErrEncodedHashInvalidFormat
 		}
 
-		var options string
+		salt, key = []byte(parts[1]), []byte(parts[2])
 
-		options, salt, key = parts[0], []byte(parts[1]), []byte(parts[2])
+		var params []encoding.Parameter
 
-		for _, opt := range strings.Split(options, ",") {
-			pair := strings.SplitN(opt, "=", 2)
+		if params, err = encoding.DecodeParameterStr(parts[0]); err != nil {
+			return nil, err
+		}
 
-			if len(pair) != 2 {
-				return nil, fmt.Errorf("%w: option '%s' is invalid", algorithm.ErrEncodedHashInvalidOption, opt)
-			}
-
-			k, v := pair[0], pair[1]
-
-			switch k {
+		for _, param := range params {
+			switch param.Key {
 			case oV, oT:
 				break
 			case oR:
-				decoded.cost, err = strconv.Atoi(v)
+				decoded.cost, err = param.Int()
 			default:
-				return nil, fmt.Errorf("%w: option '%s' with value '%s' is unknown", algorithm.ErrEncodedHashInvalidOptionKey, k, v)
+				return nil, fmt.Errorf("%w: option '%s' with value '%s' is unknown", algorithm.ErrEncodedHashInvalidOptionKey, param.Key, param.Value)
 			}
 
 			if err != nil {
-				return nil, fmt.Errorf("%w: option '%s' has invalid value '%s': %v", algorithm.ErrEncodedHashInvalidOptionValue, k, v, err)
+				return nil, fmt.Errorf("%w: option '%s' has invalid value '%s': %v", algorithm.ErrEncodedHashInvalidOptionValue, param.Key, param.Value, err)
 			}
 		}
 	}
 
 	if decoded.salt, err = bcrypt.Base64Decode(salt); err != nil {
 		return nil, fmt.Errorf("%w: %v", algorithm.ErrEncodedHashSaltEncoding, err)
+	}
+
+	if len(key) == 0 {
+		return nil, fmt.Errorf("%w: key has 0 bytes", algorithm.ErrEncodedHashKeyEncoding)
 	}
 
 	decoded.key = key

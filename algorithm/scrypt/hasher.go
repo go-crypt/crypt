@@ -30,6 +30,10 @@ func New(opts ...Opt) (hasher *Hasher, err error) {
 		return nil, err
 	}
 
+	if err = hasher.Validate(); err != nil {
+		return nil, err
+	}
+
 	return hasher, nil
 }
 
@@ -37,7 +41,7 @@ func New(opts ...Opt) (hasher *Hasher, err error) {
 type Hasher struct {
 	ln, r, k, p, bytesSalt int
 
-	defaults, unsafe bool
+	defaults bool
 }
 
 // WithOptions defines the options for this scrypt.Hasher.
@@ -83,10 +87,6 @@ func (h *Hasher) HashWithSalt(password string, salt []byte) (digest algorithm.Di
 }
 
 func (h *Hasher) hashWithSalt(password string, salt []byte) (digest algorithm.Digest, err error) {
-	if err = h.validate(); err != nil {
-		return nil, err
-	}
-
 	d := &Digest{
 		ln:   h.ln,
 		r:    h.r,
@@ -125,30 +125,10 @@ func (h *Hasher) Validate() (err error) {
 func (h *Hasher) validate() (err error) {
 	h.setDefaults()
 
-	if h.unsafe {
-		return nil
-	}
-
-	if h.k < KeySizeMin || h.k > KeySizeMax {
-		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "k", KeySizeMin, "", KeySizeMax, h.k)
-	}
-
-	if h.bytesSalt < SaltSizeMin || h.bytesSalt > SaltSizeMax {
-		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "s", SaltSizeMin, "", SaltSizeMax, h.bytesSalt)
-	}
-
-	if h.ln < IterationsMin {
-		return fmt.Errorf("%w: parameter 'ln' must be more than %d but is set to '%d'", algorithm.ErrParameterInvalid, IterationsMin, h.ln)
-	}
-
 	rp := uint64(h.r) * uint64(h.p)
 
 	if rp >= 1<<30 {
 		return fmt.Errorf("%w: parameters 'r' and 'p' must be less than %d when multiplied but they are '%d'", algorithm.ErrParameterInvalid, 1<<30, rp)
-	}
-
-	if h.r < BlockSizeMin || h.r > BlockSizeMax {
-		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "r", BlockSizeMin, "", BlockSizeMax, h.r)
 	}
 
 	mp := KeySizeMax / (128 * h.r)

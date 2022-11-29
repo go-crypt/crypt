@@ -2,6 +2,8 @@ package plaintext
 
 import (
 	"fmt"
+
+	"github.com/go-crypt/crypt/algorithm"
 )
 
 // Opt describes the functional option pattern for the pbkdf2.Hasher.
@@ -16,7 +18,22 @@ func WithVariant(variant Variant) Opt {
 
 			return nil
 		default:
-			return fmt.Errorf("plaintext variant error: variant with id '%d' is not valid", variant)
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf("%w: variant '%d' is invalid", algorithm.ErrParameterInvalid, variant))
 		}
+	}
+}
+
+// WithVariantName uses the variant name set the variant.
+func WithVariantName(identifier string) Opt {
+	return func(h *Hasher) (err error) {
+		variant := NewVariant(identifier)
+
+		if variant == VariantNone {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf("%w: variant identifier '%s' is invalid", algorithm.ErrParameterInvalid, identifier))
+		}
+
+		h.variant = variant
+
+		return nil
 	}
 }

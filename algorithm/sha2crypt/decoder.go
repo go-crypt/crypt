@@ -3,7 +3,6 @@ package sha2crypt
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/go-crypt/crypt/algorithm"
 	"github.com/go-crypt/crypt/internal/encoding"
@@ -61,32 +60,32 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 		variant: variant,
 	}
 
-	options, salt, key := parts[0], parts[1], parts[2]
+	if len(parts[2]) == 0 {
+		return nil, fmt.Errorf("%w: key has 0 bytes", algorithm.ErrEncodedHashKeyEncoding)
+	}
 
-	for _, opt := range strings.Split(options, ",") {
-		pair := strings.SplitN(opt, "=", 2)
+	var params []encoding.Parameter
 
-		if len(pair) != 2 {
-			return nil, fmt.Errorf("%w: option '%s' is invalid", algorithm.ErrEncodedHashInvalidOption, opt)
-		}
+	if params, err = encoding.DecodeParameterStr(parts[0]); err != nil {
+		return nil, err
+	}
 
-		k, v := pair[0], pair[1]
-
-		switch k {
+	for _, param := range params {
+		switch param.Key {
 		case "rounds":
 			var rounds uint64
 
-			if rounds, err = strconv.ParseUint(v, 10, 32); err != nil {
-				return nil, fmt.Errorf("%w: option '%s' has invalid value '%s': %v", algorithm.ErrEncodedHashInvalidOptionValue, k, v, err)
+			if rounds, err = strconv.ParseUint(param.Value, 10, 32); err != nil {
+				return nil, fmt.Errorf("%w: option '%s' has invalid value '%s': %v", algorithm.ErrEncodedHashInvalidOptionValue, param.Key, param.Value, err)
 			}
 
 			decoded.rounds = int(rounds)
 		default:
-			return nil, fmt.Errorf("%w: option '%s' with value '%s' is unknown", algorithm.ErrEncodedHashInvalidOptionKey, k, v)
+			return nil, fmt.Errorf("%w: option '%s' with value '%s' is unknown", algorithm.ErrEncodedHashInvalidOptionKey, param.Key, param.Value)
 		}
 	}
 
-	decoded.salt, decoded.key = []byte(salt), []byte(key)
+	decoded.salt, decoded.key = []byte(parts[1]), []byte(parts[2])
 
 	return decoded, nil
 }

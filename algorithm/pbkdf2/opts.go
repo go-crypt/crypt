@@ -2,6 +2,8 @@ package pbkdf2
 
 import (
 	"fmt"
+
+	"github.com/go-crypt/crypt/algorithm"
 )
 
 // Opt describes the functional option pattern for the pbkdf2.Hasher.
@@ -18,7 +20,7 @@ func WithVariant(variant Variant) Opt {
 
 			return nil
 		default:
-			return fmt.Errorf("pbkdf2 variant error: variant with id '%d' is not valid", variant)
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf("%w: variant '%d' is invalid", algorithm.ErrParameterInvalid, variant))
 		}
 	}
 }
@@ -29,19 +31,10 @@ func WithVariantName(identifier string) Opt {
 		variant := NewVariant(identifier)
 
 		if variant == VariantNone {
-			return fmt.Errorf("pbkdf2: variant identifier '%s' is not known", identifier)
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf("%w: variant identifier '%s' is invalid", algorithm.ErrParameterInvalid, identifier))
 		}
 
 		h.variant = variant
-
-		return nil
-	}
-}
-
-// WithoutValidation disables the validation and allows potentially unsafe values. Use at your own risk.
-func WithoutValidation() Opt {
-	return func(h *Hasher) (err error) {
-		h.unsafe = true
 
 		return nil
 	}
@@ -56,33 +49,36 @@ func WithIterations(iterations int) Opt {
 	}
 }
 
-// WithKeyLength adjusts the key size (in bytes) of the resulting Digest. Default is the output length of the
+// WithTagLength adjusts the tag length (in bytes) of the resulting pbkdf2.Digest. Default is the output length of the
 // HMAC digest. Generally it's NOT recommended to change this value at all and let the default values be applied.
-// Longer key lengths technically reduce security by forcing a longer hash calculation for legitimate users but not
-// requiring this for an attacker. In addition most implementations expect the key length to match the output length of
-// the HMAC digest.
-func WithKeyLength(bytes int) Opt {
+// Longer tag lengths technically reduce security by forcing a longer hash calculation for legitimate users but not
+// requiring this for an attacker. In addition most implementations expect the tag length to match the output length of
+// the HMAC digest. This option MUST come after a specific WithVariant.
+func WithTagLength(bytes int) Opt {
 	return func(h *Hasher) (err error) {
-		h.bytesKey = bytes
-
-		return nil
-	}
-}
-
-// WithDefaultKeyLength sets the key length if it's not already set. It's strongly suggested you see WithKeyLength.
-func WithDefaultKeyLength(bytes int) Opt {
-	return func(h *Hasher) (err error) {
-		if h.bytesKey == 0 {
-			h.bytesKey = bytes
+		if h.variant == VariantNone {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf("tag size must not be set before the variant is set"))
 		}
 
+		keySizeMin := h.variant.HashFunc()().Size()
+
+		if h.bytesTag < keySizeMin || h.bytesTag > TagSizeMax {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "tag size", keySizeMin, "", TagSizeMax, h.bytesTag))
+		}
+
+		h.bytesTag = bytes
+
 		return nil
 	}
 }
 
-// WithSaltLength adjusts the salt size (in bytes) of the resulting Digest. Default is 16.
+// WithSaltLength adjusts the salt size (in bytes) of the resulting pbkdf2.Digest. Default is 16.
 func WithSaltLength(bytes int) Opt {
 	return func(h *Hasher) (err error) {
+		if bytes < SaltSizeMin || bytes > SaltSizeMax {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "salt size", SaltSizeMin, "", SaltSizeMax, bytes))
+		}
+
 		h.bytesSalt = bytes
 
 		return nil

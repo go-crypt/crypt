@@ -49,7 +49,7 @@ func (d *Digest) MatchBytes(passwordBytes []byte) (match bool) {
 // MatchAdvanced is the same as Match except if there is an error it returns that as well.
 func (d *Digest) MatchAdvanced(password string) (match bool, err error) {
 	if len(d.key) == 0 {
-		return false, fmt.Errorf("plaintext match error: %w: key has 0 bytes", algorithm.ErrPasswordInvalid)
+		return false, fmt.Errorf(algorithm.ErrFmtDigestMatch, AlgName, fmt.Errorf("%w: key has 0 bytes", algorithm.ErrPasswordInvalid))
 	}
 
 	return d.MatchBytesAdvanced([]byte(password))
@@ -58,7 +58,7 @@ func (d *Digest) MatchAdvanced(password string) (match bool, err error) {
 // MatchBytesAdvanced is the same as MatchBytes except if there is an error it returns that as well.
 func (d *Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
 	if len(d.key) == 0 {
-		return false, fmt.Errorf("plaintext match error: key has 0 bytes")
+		return false, fmt.Errorf(algorithm.ErrFmtDigestMatch, AlgName, fmt.Errorf("%w: key has 0 bytes", algorithm.ErrPasswordInvalid))
 	}
 
 	return subtle.ConstantTimeCompare(d.key, passwordBytes) == 1, nil

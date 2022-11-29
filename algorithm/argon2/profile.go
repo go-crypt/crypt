@@ -15,10 +15,10 @@ const (
 func (p Profile) Hasher() *Hasher {
 	switch p {
 	case ProfileRFC9106LowMemory:
-		return &Hasher{t: 3, p: 4, m: 64 * 1024, k: 32, s: 16}
+		return &Hasher{variant: VariantID, t: 3, p: 4, m: 64 * 1024, k: 32, s: 16}
 	case ProfileRFC9106Recommended:
-		return &Hasher{t: 1, p: 4, m: 2 * 1024 * 1024, k: 32, s: 16}
+		return &Hasher{variant: VariantID, t: 1, p: 4, m: 2 * 1024 * 1024, k: 32, s: 16}
 	default:
-		return &Hasher{t: 1, p: 4, m: 2 * 1024 * 1024, k: 32, s: 16}
+		return ProfileRFC9106Recommended.Hasher()
 	}
 }

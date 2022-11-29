@@ -63,5 +63,9 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 		return nil, fmt.Errorf("%w: %v", algorithm.ErrEncodedHashKeyEncoding, err)
 	}
 
+	if len(decoded.key) == 0 {
+		return nil, fmt.Errorf("%w: key has 0 bytes", algorithm.ErrEncodedHashKeyEncoding)
+	}
+
 	return decoded, nil
 }

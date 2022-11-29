@@ -24,6 +24,10 @@ func New(opts ...Opt) (hasher *Hasher, err error) {
 		return nil, err
 	}
 
+	if err = hasher.Validate(); err != nil {
+		return nil, err
+	}
+
 	return hasher, nil
 }
 
@@ -47,7 +51,7 @@ type Hasher struct {
 
 	cost int
 
-	unsafe bool
+	defaults bool
 }
 
 // WithOptions applies the provided functional options provided as an Opt to the Hasher.
@@ -93,10 +97,6 @@ func (h *Hasher) HashWithSalt(password string, salt []byte) (digest algorithm.Di
 func (h *Hasher) hashWithSalt(password string, salt []byte) (digest algorithm.Digest, err error) {
 	h.setDefaults()
 
-	if err = h.validate(); err != nil {
-		return nil, err
-	}
-
 	d := &Digest{
 		variant: h.variant,
 		cost:    h.cost,
@@ -107,16 +107,14 @@ func (h *Hasher) hashWithSalt(password string, salt []byte) (digest algorithm.Di
 		d.variant = VariantStandard
 	}
 
-	if !h.unsafe {
-		if len(salt) != algorithm.SaltSizeDefault {
-			return nil, fmt.Errorf("%w: salt size must be 16 bytes but it's %d bytes", algorithm.ErrSaltInvalid, len(salt))
-		}
+	if len(salt) != algorithm.SaltSizeDefault {
+		return nil, fmt.Errorf("%w: salt size must be 16 bytes but it's %d bytes", algorithm.ErrSaltInvalid, len(salt))
+	}
 
-		passwordMaxLen := d.variant.PasswordMaxLength()
+	passwordMaxLen := d.variant.PasswordMaxLength()
 
-		if passwordMaxLen != -1 && len(password) > passwordMaxLen {
-			return nil, fmt.Errorf("%w: password must be %d bytes or less but it's %d bytes", algorithm.ErrPasswordInvalid, passwordMaxLen, len(password))
-		}
+	if passwordMaxLen != -1 && len(password) > passwordMaxLen {
+		return nil, fmt.Errorf("%w: password must be %d bytes or less but it's %d bytes", algorithm.ErrPasswordInvalid, passwordMaxLen, len(password))
 	}
 
 	if d.key, err = bcrypt.Key(d.variant.EncodeInput([]byte(password), salt), salt, d.cost); err != nil {
@@ -150,18 +148,16 @@ func (h *Hasher) Validate() (err error) {
 func (h *Hasher) validate() (err error) {
 	h.setDefaults()
 
-	if h.unsafe {
-		return nil
-	}
-
-	if h.cost < CostMinimum || h.cost > CostMaximum {
-		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "cost", CostMinimum, "", CostMaximum, h.cost)
-	}
-
 	return nil
 }
 
 func (h *Hasher) setDefaults() {
+	if h.defaults {
+		return
+	}
+
+	h.defaults = true
+
 	switch h.variant {
 	case VariantNone:
 		h.variant = variantBcryptDefault

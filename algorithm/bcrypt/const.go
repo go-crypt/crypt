@@ -24,6 +24,9 @@ const (
 
 	// AlgIdentifierVerY is the identifier used in this algorithm (version y).
 	AlgIdentifierVerY = "2y"
+
+	// AlgIdentifierUnversioned is the identifier used in this algorithm (no version).
+	AlgIdentifierUnversioned = "2"
 )
 
 // bcrypt constants.

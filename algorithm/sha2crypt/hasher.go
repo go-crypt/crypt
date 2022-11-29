@@ -34,7 +34,7 @@ type Hasher struct {
 
 	rounds, bytesSalt int
 
-	defaults, unsafe bool
+	defaults bool
 }
 
 // NewSHA256 returns a *Hasher with the SHA256 hash.Hash which defaults to 1000000 rounds. These
@@ -102,10 +102,6 @@ func (h *Hasher) hashWithSalt(password string, salt []byte) (digest algorithm.Di
 		return nil, err
 	}
 
-	if err = h.validate(); err != nil {
-		return nil, err
-	}
-
 	d := &Digest{
 		variant: h.variant,
 		rounds:  h.rounds,
@@ -141,26 +137,10 @@ func (h *Hasher) Validate() (err error) {
 func (h *Hasher) validate() (err error) {
 	h.setDefaults()
 
-	if h.unsafe {
-		return nil
-	}
-
-	if h.rounds < IterationsMin || h.rounds > IterationsMax {
-		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "rounds", IterationsMin, "", IterationsMax, h.rounds)
-	}
-
-	if h.bytesSalt < SaltSizeMin || h.bytesSalt > SaltSizeMax {
-		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "salt length", SaltSizeMin, "", SaltSizeMax, h.bytesSalt)
-	}
-
 	return nil
 }
 
 func (h *Hasher) validateSalt(salt []byte) (err error) {
-	if h.unsafe {
-		return nil
-	}
-
 	if len(salt) < SaltSizeMin || len(salt) > SaltSizeMax {
 		return fmt.Errorf("%w: salt must be between %d and %d bytes but is %d bytes", algorithm.ErrSaltInvalid, SaltSizeMin, SaltSizeMax, len(salt))
 	}

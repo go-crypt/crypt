@@ -2,6 +2,8 @@ package argon2
 
 import (
 	"fmt"
+
+	"github.com/go-crypt/crypt/algorithm"
 )
 
 // Opt describes the functional option pattern for the argon2.Hasher.
@@ -16,7 +18,7 @@ func WithVariant(variant Variant) Opt {
 
 			return nil
 		default:
-			return fmt.Errorf("argon2 variant error: variant with id '%d' is not valid", variant)
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf("%w: variant '%d' is invalid", algorithm.ErrParameterInvalid, variant))
 		}
 	}
 }
@@ -27,7 +29,7 @@ func WithVariantName(identifier string) Opt {
 		variant := NewVariant(identifier)
 
 		if variant == VariantNone {
-			return fmt.Errorf("argon2: variant identifier '%s' is not known", identifier)
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf("%w: variant identifier '%s' is invalid", algorithm.ErrParameterInvalid, identifier))
 		}
 
 		h.variant = variant
@@ -71,6 +73,10 @@ func WithVariantD() Opt {
 // RFC9106 section 3.1 "Argon2 Inputs and Outputs" https://www.rfc-editor.org/rfc/rfc9106.html#name-argon2-inputs-and-outputs.
 func WithP(p int) Opt {
 	return func(h *Hasher) (err error) {
+		if p < ParallelismMin || p > ParallelismMax {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "p", ParallelismMin, "", ParallelismMax, p))
+		}
+
 		h.p = p
 
 		return nil
@@ -108,6 +114,10 @@ func WithMemoryInKiB(m int) Opt {
 // RFC9106 section 3.1 "Argon2 Inputs and Outputs" https://www.rfc-editor.org/rfc/rfc9106.html#name-argon2-inputs-and-outputs.
 func WithT(t int) Opt {
 	return func(h *Hasher) (err error) {
+		if t < PassesMin || t > PassesMax {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "t", PassesMin, "", PassesMax, t))
+		}
+
 		h.t = t
 
 		return nil
@@ -126,6 +136,10 @@ func WithIterations(t int) Opt {
 // RFC9106 section 3.1 "Argon2 Inputs and Outputs" https://www.rfc-editor.org/rfc/rfc9106.html#name-argon2-inputs-and-outputs.
 func WithK(k int) Opt {
 	return func(h *Hasher) (err error) {
+		if k < TagLengthMin || k > TagLengthMax {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "k", TagLengthMin, "", TagLengthMax, k))
+		}
+
 		h.k = k
 
 		return nil
@@ -150,6 +164,10 @@ func WithKeyLength(k int) Opt {
 // RFC9106 section 3.1 "Argon2 Inputs and Outputs" https://www.rfc-editor.org/rfc/rfc9106.html#name-argon2-inputs-and-outputs.
 func WithS(s int) Opt {
 	return func(h *Hasher) (err error) {
+		if s < SaltSizeMin || s > SaltSizeMax {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "s", SaltSizeMin, "", SaltSizeMax, s))
+		}
+
 		h.s = s
 
 		return nil
@@ -159,24 +177,6 @@ func WithS(s int) Opt {
 // WithSaltLength is an alias for WithS.
 func WithSaltLength(s int) Opt {
 	return WithS(s)
-}
-
-// WithUnsafe allows several unsafe values.
-func WithUnsafe() Opt {
-	return func(h *Hasher) (err error) {
-		h.unsafe = true
-
-		return nil
-	}
-}
-
-// WithSafe disallows several unsafe values. This is the default.
-func WithSafe() Opt {
-	return func(h *Hasher) (err error) {
-		h.unsafe = false
-
-		return nil
-	}
 }
 
 // WithProfileRFC9106Recommended is the recommended standard RFC9106 profile.

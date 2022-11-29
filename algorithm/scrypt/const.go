@@ -38,6 +38,17 @@ const (
 	// ParallelismMin is the minimum parallelism factor accepted.
 	ParallelismMin = 1
 
+	// ParallelismMax is the maximum parallelism factor accepted.
+	//
+	// Equation is based on the following text from RFC:
+	//
+	//   The parallelization parameter p
+	//   ("parallelizationParameter") is a positive integer less than or equal
+	//   to ((2^32-1) * 32) / (128 * r).
+	//
+	//   When r has a minimum of 1, this makes the equation ((2^32-1) * 32) / 128.
+	ParallelismMax = 1073741823
+
 	// ParallelismDefault is the default parallelism factor.
 	ParallelismDefault = ParallelismMin
 )
