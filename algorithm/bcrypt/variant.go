@@ -41,7 +41,7 @@ func (v Variant) PasswordMaxLength() int {
 	case VariantSHA256:
 		return -1
 	default:
-		return PasswordInputSizeMaximum
+		return PasswordInputSizeMax
 	}
 }
 

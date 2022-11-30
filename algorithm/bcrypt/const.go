@@ -31,17 +31,17 @@ const (
 
 // bcrypt constants.
 const (
-	// CostMinimum is the minimum cost accepted.
-	CostMinimum = 10
+	// CostMin is the minimum cost accepted.
+	CostMin = 10
 
-	// CostMaximum is the maximum cost accepted.
-	CostMaximum = 31
+	// CostMax is the maximum cost accepted.
+	CostMax = 31
 
 	// CostDefault is the default cost.
 	CostDefault = 13
 
-	// PasswordInputSizeMaximum is the maximum password input size accepted.
-	PasswordInputSizeMaximum = 72
+	// PasswordInputSizeMax is the maximum password input size accepted.
+	PasswordInputSizeMax = 72
 
 	variantBcryptDefault = VariantStandard
 )

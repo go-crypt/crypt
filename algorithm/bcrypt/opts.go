@@ -41,8 +41,8 @@ func WithVariantName(identifier string) Opt {
 // WithCost sets the cost parameter of the resulting Bcrypt hash. Default is 12.
 func WithCost(cost int) Opt {
 	return func(h *Hasher) (err error) {
-		if cost < CostMinimum || cost > CostMaximum {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "cost", CostMinimum, "", CostMaximum, cost))
+		if cost < CostMin || cost > CostMax {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "cost", CostMin, "", CostMax, cost))
 		}
 
 		h.cost = cost
