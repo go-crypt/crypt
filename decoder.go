@@ -75,7 +75,7 @@ func (d *Decoder) RegisterDecodeFunc(identifier string, decoder algorithm.Decode
 // Decode an encoded digest into a algorithm.Digest.
 func (d *Decoder) Decode(encodedDigest string) (digest algorithm.Digest, err error) {
 	if digest, err = d.decode(encodedDigest); err != nil {
-		return nil, fmt.Errorf("decoder error: %w", err)
+		return nil, err
 	}
 
 	return digest, nil

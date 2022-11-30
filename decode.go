@@ -1,8 +1,6 @@
 package crypt
 
 import (
-	"fmt"
-
 	"github.com/go-crypt/crypt/algorithm"
 )
 
@@ -13,7 +11,7 @@ var gdecoder *Decoder
 // instead via NewDecoder or NewDefaultDecoder.
 func Decode(encodedDigest string) (digest algorithm.Digest, err error) {
 	if digest, err = decode(encodedDigest); err != nil {
-		return nil, fmt.Errorf("decode error: %w", err)
+		return nil, err
 	}
 
 	return digest, nil
