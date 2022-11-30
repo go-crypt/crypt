@@ -7,13 +7,13 @@ import (
 	"github.com/go-crypt/crypt/internal/encoding"
 )
 
-// Register the decoder with the algorithm.DecoderRegister.
-func Register(r algorithm.DecoderRegister) (err error) {
-	if err = r.Register(AlgIdentifierPlainText, Decode); err != nil {
+// RegisterDecoder the decoder with the algorithm.DecoderRegister.
+func RegisterDecoder(r algorithm.DecoderRegister) (err error) {
+	if err = r.RegisterDecodeFunc(AlgIdentifierPlainText, Decode); err != nil {
 		return err
 	}
 
-	if err = r.Register(AlgIdentifierBase64, Decode); err != nil {
+	if err = r.RegisterDecodeFunc(AlgIdentifierBase64, Decode); err != nil {
 		return err
 	}
 

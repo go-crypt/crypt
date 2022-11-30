@@ -8,9 +8,9 @@ import (
 	"github.com/go-crypt/crypt/internal/encoding"
 )
 
-// Register the decoder with the algorithm.DecoderRegister.
-func Register(r algorithm.DecoderRegister) (err error) {
-	if err = r.Register(AlgName, Decode); err != nil {
+// RegisterDecoder the decoder with the algorithm.DecoderRegister.
+func RegisterDecoder(r algorithm.DecoderRegister) (err error) {
+	if err = r.RegisterDecodeFunc(AlgName, Decode); err != nil {
 		return err
 	}
 

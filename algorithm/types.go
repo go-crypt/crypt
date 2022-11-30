@@ -46,7 +46,12 @@ type DecodeFunc func(encodedDigest string) (digest Digest, err error)
 
 // DecoderRegister describes an implementation that allows registering DecodeFunc's.
 type DecoderRegister interface {
-	Register(prefix string, decoder DecodeFunc) (err error)
+	RegisterDecodeFunc(prefix string, decoder DecodeFunc) (err error)
+}
+
+// Decoder is a representation of a implementation that performs generic decoding.
+type Decoder interface {
+	Decode(encodedDigest string) (digest Digest, err error)
 }
 
 // HashFunc is a function which returns a hash.Hash.

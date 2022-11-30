@@ -44,7 +44,7 @@ func NewDecoderAll() (d *Decoder, err error) {
 		return nil, err
 	}
 
-	if err = plaintext.Register(d); err != nil {
+	if err = plaintext.RegisterDecoder(d); err != nil {
 		return nil, fmt.Errorf("could not register the plaintext decoder: %w", err)
 	}
 
@@ -57,8 +57,8 @@ type Decoder struct {
 	decoders map[string]algorithm.DecodeFunc
 }
 
-// Register a new decoders algorithm.DecodeFunc against a specific identifier.
-func (d *Decoder) Register(identifier string, decoder algorithm.DecodeFunc) (err error) {
+// RegisterDecodeFunc registers a new algorithm.DecodeFunc with this Decoder against a specific identifier.
+func (d *Decoder) RegisterDecodeFunc(identifier string, decoder algorithm.DecodeFunc) (err error) {
 	if d.decoders == nil {
 		d.decoders = map[string]algorithm.DecodeFunc{}
 	}
@@ -107,23 +107,23 @@ func (d *Decoder) decode(encodedDigest string) (digest algorithm.Digest, err err
 }
 
 func decoderProfileDefault(decoder *Decoder) (err error) {
-	if err = argon2.Register(decoder); err != nil {
+	if err = argon2.RegisterDecoder(decoder); err != nil {
 		return fmt.Errorf("could not register the argon2 decoder: %w", err)
 	}
 
-	if err = bcrypt.Register(decoder); err != nil {
+	if err = bcrypt.RegisterDecoder(decoder); err != nil {
 		return fmt.Errorf("could not register the bcrypt decoder: %w", err)
 	}
 
-	if err = pbkdf2.Register(decoder); err != nil {
+	if err = pbkdf2.RegisterDecoder(decoder); err != nil {
 		return fmt.Errorf("could not register the pbkdf2 decoder: %w", err)
 	}
 
-	if err = scrypt.Register(decoder); err != nil {
+	if err = scrypt.RegisterDecoder(decoder); err != nil {
 		return fmt.Errorf("could not register the scrypt decoder: %w", err)
 	}
 
-	if err = sha2crypt.Register(decoder); err != nil {
+	if err = sha2crypt.RegisterDecoder(decoder); err != nil {
 		return fmt.Errorf("could not register the sha2crypt decoder: %w", err)
 	}
 

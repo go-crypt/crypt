@@ -8,13 +8,13 @@ import (
 	"github.com/go-crypt/crypt/internal/encoding"
 )
 
-// Register the decoder with the algorithm.DecoderRegister.
-func Register(reg algorithm.DecoderRegister) (err error) {
-	if err = reg.Register(AlgIdentifierSHA256, Decode); err != nil {
+// RegisterDecoder the decoder with the algorithm.DecoderRegister.
+func RegisterDecoder(reg algorithm.DecoderRegister) (err error) {
+	if err = reg.RegisterDecodeFunc(AlgIdentifierSHA256, Decode); err != nil {
 		return err
 	}
 
-	if err = reg.Register(AlgIdentifierSHA512, Decode); err != nil {
+	if err = reg.RegisterDecodeFunc(AlgIdentifierSHA512, Decode); err != nil {
 		return err
 	}
 
