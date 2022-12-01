@@ -11,7 +11,7 @@ This library aims to provide a convenient layer over the go password hashing cry
 
 ## Tasks
 
-A list of tasks that need to be accomplished are listed in the 
+A list of tasks that need to be accomplished are listed in the  
 [General Project](https://github.com/orgs/go-crypt/projects/1).
 
 ## Algorithms
@@ -217,19 +217,24 @@ package main
 import (
 	"fmt"
 
+	"github.com/go-crypt/crypt/algorithm"
 	"github.com/go-crypt/crypt/algorithm/argon2"
 )
 
 func main() {
-	hasher, err := argon2.New(
+	var (
+		hasher *argon2.Hasher
+		err error
+		digest algorithm.Digest
+    )
+	
+	if hasher, err = argon2.New(
 		argon2.WithProfileRFC9106LowMemory(),
-	)
-	if err != nil {
+	); err != nil {
 		panic(err)
 	}
 
-	digest, err := hasher.Hash("example")
-	if err != nil {
+	if digest, err = hasher.Hash("example"); err != nil {
 		panic(err)
 	}
     
