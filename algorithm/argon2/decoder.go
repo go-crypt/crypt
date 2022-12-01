@@ -13,15 +13,42 @@ import (
 
 // RegisterDecoder the decoder with the algorithm.DecoderRegister.
 func RegisterDecoder(r algorithm.DecoderRegister) (err error) {
-	if err = r.RegisterDecodeFunc(AlgIdentifierVariantID, Decode); err != nil {
+	if err = RegisterDecoderArgon2id(r); err != nil {
 		return err
 	}
 
-	if err = r.RegisterDecodeFunc(AlgIdentifierVariantI, Decode); err != nil {
+	if err = RegisterDecoderArgon2i(r); err != nil {
 		return err
 	}
 
-	if err = r.RegisterDecodeFunc(AlgIdentifierVariantD, Decode); err != nil {
+	if err = RegisterDecoderArgon2d(r); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// RegisterDecoderArgon2id registers specifically the argon2id decoder variant with the algorithm.DecoderRegister.
+func RegisterDecoderArgon2id(r algorithm.DecoderRegister) (err error) {
+	if err = r.RegisterDecodeFunc(VariantID.Prefix(), DecodeVariant(VariantID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// RegisterDecoderArgon2i registers specifically the argon2i decoder variant with the algorithm.DecoderRegister.
+func RegisterDecoderArgon2i(r algorithm.DecoderRegister) (err error) {
+	if err = r.RegisterDecodeFunc(VariantI.Prefix(), DecodeVariant(VariantI)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// RegisterDecoderArgon2d registers specifically the argon2d decoder variant with the algorithm.DecoderRegister.
+func RegisterDecoderArgon2d(r algorithm.DecoderRegister) (err error) {
+	if err = r.RegisterDecodeFunc(VariantD.Prefix(), DecodeVariant(VariantD)); err != nil {
 		return err
 	}
 
@@ -30,20 +57,32 @@ func RegisterDecoder(r algorithm.DecoderRegister) (err error) {
 
 // Decode the encoded digest into a algorithm.Digest.
 func Decode(encodedDigest string) (digest algorithm.Digest, err error) {
-	var (
-		parts   []string
-		variant Variant
-	)
+	return DecodeVariant(VariantNone)(encodedDigest)
+}
 
-	if variant, parts, err = decoderParts(encodedDigest); err != nil {
-		return nil, fmt.Errorf(algorithm.ErrFmtDigestDecode, AlgName, err)
+// DecodeVariant the encoded digest into a algorithm.Digest provided it matches the provided Variant. If VariantNone is
+// used all variants can be decoded.
+func DecodeVariant(v Variant) func(encodedDigest string) (digest algorithm.Digest, err error) {
+	return func(encodedDigest string) (digest algorithm.Digest, err error) {
+		var (
+			parts   []string
+			variant Variant
+		)
+
+		if variant, parts, err = decoderParts(encodedDigest); err != nil {
+			return nil, fmt.Errorf(algorithm.ErrFmtDigestDecode, AlgName, err)
+		}
+
+		if v != VariantNone && v != variant {
+			return nil, fmt.Errorf(algorithm.ErrFmtDigestDecode, AlgName, fmt.Errorf("the '%s' variant cannot be decoded only the '%s' variant can be", variant.String(), v.String()))
+		}
+
+		if digest, err = decode(variant, parts); err != nil {
+			return nil, fmt.Errorf(algorithm.ErrFmtDigestDecode, AlgName, err)
+		}
+
+		return digest, nil
 	}
-
-	if digest, err = decode(variant, parts); err != nil {
-		return nil, fmt.Errorf(algorithm.ErrFmtDigestDecode, AlgName, err)
-	}
-
-	return digest, nil
 }
 
 func decoderParts(encodedDigest string) (variant Variant, parts []string, err error) {

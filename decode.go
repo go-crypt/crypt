@@ -9,6 +9,10 @@ var gdecoder *Decoder
 
 // Decode is a convenience function which wraps the Decoder functionality. It's recommended to create your own decoder
 // instead via NewDecoder or NewDefaultDecoder.
+//
+// CRITICAL STABILITY NOTE: the decoders loaded via this function are not guaranteed to remain the same. It is strongly
+// recommended that users implementing this library use the NewDecoder function and explicitly register each decoder
+// which they wish to support.
 func Decode(encodedDigest string) (digest algorithm.Digest, err error) {
 	if digest, err = decode(encodedDigest); err != nil {
 		return nil, err

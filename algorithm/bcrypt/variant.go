@@ -7,6 +7,8 @@ import (
 	"fmt"
 
 	"github.com/go-crypt/x/bcrypt"
+
+	"github.com/go-crypt/crypt/algorithm"
 )
 
 // NewVariant converts an identifier string to a Argon2Variant.
@@ -14,7 +16,7 @@ func NewVariant(identifier string) (variant Variant) {
 	switch identifier {
 	case AlgIdentifier, AlgIdentifierVerA, AlgIdentifierVerX, AlgIdentifierVerY, "", "standard", "common":
 		return VariantStandard
-	case AlgIdentifierVariantSHA256, "sha256":
+	case AlgIdentifierVariantSHA256, algorithm.DigestSHA256:
 		return VariantSHA256
 	default:
 		return VariantNone
@@ -42,6 +44,17 @@ func (v Variant) PasswordMaxLength() int {
 		return -1
 	default:
 		return PasswordInputSizeMax
+	}
+}
+
+func (v Variant) String() (name string) {
+	switch v {
+	case VariantStandard:
+		return "standard"
+	case VariantSHA256:
+		return algorithm.DigestSHA256
+	default:
+		return
 	}
 }
 

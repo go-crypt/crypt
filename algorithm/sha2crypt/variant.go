@@ -33,6 +33,17 @@ const (
 	VariantSHA512
 )
 
+func (v Variant) String() (identifier string) {
+	switch v {
+	case VariantSHA256:
+		return algorithm.DigestSHA256
+	case VariantSHA512:
+		return algorithm.DigestSHA512
+	default:
+		return
+	}
+}
+
 // Prefix returns the Variant prefix identifier.
 func (v Variant) Prefix() (prefix string) {
 	switch v {

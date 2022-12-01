@@ -49,6 +49,24 @@ const (
 	VariantSHA512
 )
 
+// String returns the name of this variant.
+func (v Variant) String() (variant string) {
+	switch v {
+	case VariantSHA1:
+		return algorithm.DigestSHA1
+	case VariantSHA224:
+		return algorithm.DigestSHA224
+	case VariantSHA256:
+		return algorithm.DigestSHA256
+	case VariantSHA384:
+		return algorithm.DigestSHA384
+	case VariantSHA512:
+		return algorithm.DigestSHA512
+	default:
+		return
+	}
+}
+
 // Prefix returns the PlainTextVariant prefix identifier.
 func (v Variant) Prefix() (prefix string) {
 	switch v {

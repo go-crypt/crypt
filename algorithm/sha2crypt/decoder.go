@@ -9,12 +9,30 @@ import (
 )
 
 // RegisterDecoder the decoder with the algorithm.DecoderRegister.
-func RegisterDecoder(reg algorithm.DecoderRegister) (err error) {
-	if err = reg.RegisterDecodeFunc(AlgIdentifierSHA256, Decode); err != nil {
+func RegisterDecoder(r algorithm.DecoderRegister) (err error) {
+	if err = RegisterDecoderSHA256(r); err != nil {
 		return err
 	}
 
-	if err = reg.RegisterDecodeFunc(AlgIdentifierSHA512, Decode); err != nil {
+	if err = RegisterDecoderSHA512(r); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// RegisterDecoderSHA256 registers specifically the sha256 decoder variant with the algorithm.DecoderRegister.
+func RegisterDecoderSHA256(r algorithm.DecoderRegister) (err error) {
+	if err = r.RegisterDecodeFunc(VariantSHA256.Prefix(), DecodeVariant(VariantSHA256)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// RegisterDecoderSHA512 registers specifically the sha512 decoder variant with the algorithm.DecoderRegister.
+func RegisterDecoderSHA512(r algorithm.DecoderRegister) (err error) {
+	if err = r.RegisterDecodeFunc(VariantSHA512.Prefix(), DecodeVariant(VariantSHA512)); err != nil {
 		return err
 	}
 
@@ -23,20 +41,32 @@ func RegisterDecoder(reg algorithm.DecoderRegister) (err error) {
 
 // Decode the encoded digest into a algorithm.Digest.
 func Decode(encodedDigest string) (digest algorithm.Digest, err error) {
-	var (
-		parts   []string
-		variant Variant
-	)
+	return DecodeVariant(VariantNone)(encodedDigest)
+}
 
-	if variant, parts, err = decoderParts(encodedDigest); err != nil {
-		return nil, fmt.Errorf(algorithm.ErrFmtDigestDecode, AlgName, err)
+// DecodeVariant the encoded digest into a algorithm.Digest provided it matches the provided Variant. If VariantNone is
+// used all variants can be decoded.
+func DecodeVariant(v Variant) func(encodedDigest string) (digest algorithm.Digest, err error) {
+	return func(encodedDigest string) (digest algorithm.Digest, err error) {
+		var (
+			parts   []string
+			variant Variant
+		)
+
+		if variant, parts, err = decoderParts(encodedDigest); err != nil {
+			return nil, fmt.Errorf(algorithm.ErrFmtDigestDecode, AlgName, err)
+		}
+
+		if v != VariantNone && v != variant {
+			return nil, fmt.Errorf(algorithm.ErrFmtDigestDecode, AlgName, fmt.Errorf("the '%s' variant cannot be decoded only the '%s' variant can be", variant.String(), v.String()))
+		}
+
+		if digest, err = decode(variant, parts); err != nil {
+			return nil, fmt.Errorf(algorithm.ErrFmtDigestDecode, AlgName, err)
+		}
+
+		return digest, nil
 	}
-
-	if digest, err = decode(variant, parts); err != nil {
-		return nil, fmt.Errorf(algorithm.ErrFmtDigestDecode, AlgName, err)
-	}
-
-	return digest, nil
 }
 
 func decoderParts(encodedDigest string) (variant Variant, parts []string, err error) {

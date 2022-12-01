@@ -18,14 +18,24 @@ import (
 //
 // See Also: NewDefaultDecoder and NewDecoderAll.
 func NewDecoder() *Decoder {
-	return &Decoder{}
+	return &Decoder{
+		decoders: map[string]algorithm.DecodeFunc{},
+	}
 }
 
 // NewDefaultDecoder returns the default decoder recommended for new implementations.
 //
 // Loaded Decoders: argon2, bcrypt, pbkdf2, scrypt, sha2crypt.
+//
+// CRITICAL STABILITY NOTE: the decoders loaded via this function are not guaranteed to remain the same. It is strongly
+// recommended that users implementing this library use this or NewDecodersAll only as an example for building their own
+// decoder via NewDecoder instead which returns an empty decoder. It is much safer for security and stability to be
+// explicit in harmony with your specific use case. It is the responsibility of the implementer to determine which
+// password algorithms are sufficiently safe for their particular use case.
 func NewDefaultDecoder() (d *Decoder, err error) {
-	d = &Decoder{}
+	d = &Decoder{
+		decoders: map[string]algorithm.DecodeFunc{},
+	}
 
 	if err = decoderProfileDefault(d); err != nil {
 		return nil, err
@@ -37,8 +47,16 @@ func NewDefaultDecoder() (d *Decoder, err error) {
 // NewDecoderAll is the same as NewDefaultDecoder but it also adds legacy and/or insecure decoders.
 //
 // Loaded Decoders (in addition to NewDefaultDecoder): plaintext.
+//
+// CRITICAL STABILITY NOTE: the decoders loaded via this function are not guaranteed to remain the same. It is strongly
+// recommended that users implementing this library use this or NewDecodersAll only as an example for building their own
+// decoder via NewDecoder instead which returns an empty decoder. It is much safer for security and stability to be
+// explicit in harmony with your specific use case. It is the responsibility of the implementer to determine which
+// password algorithms are sufficiently safe for their particular use case.
 func NewDecoderAll() (d *Decoder, err error) {
-	d = &Decoder{}
+	d = &Decoder{
+		decoders: map[string]algorithm.DecodeFunc{},
+	}
 
 	if err = decoderProfileDefault(d); err != nil {
 		return nil, err

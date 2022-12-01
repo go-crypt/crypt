@@ -16,6 +16,8 @@ A list of tasks that need to be accomplished are listed in the
 
 ## Algorithms
 
+### Supported
+
 |                                 Algorithm                                  |               Variants               |                                         Identifiers                                         |
 |:--------------------------------------------------------------------------:|:------------------------------------:|:-------------------------------------------------------------------------------------------:|
 |           [Argon2](https://www.rfc-editor.org/rfc/rfc9106.html)            |      Argon2id, Argon2i, Argon2d      |                              `argon2id`, `argon2i`, `argon2d`                               |
@@ -25,7 +27,7 @@ A list of tasks that need to be accomplished are listed in the
 |           [scrypt](https://www.rfc-editor.org/rfc/rfc7914.html)            |                scrypt                |                                          `scrypt`                                           |
 |                      [PlainText](#plain-text-format)                       |          plaintext, base64           |                                    `plaintext`, `base64`                                    |
 
-### Plain Text Format
+#### Plain Text Format
 
 In addition to the standard crypt functions we also support a plain text storage format which has a regular plain text
 variant and a Base64 format (for storage, not security).
@@ -39,7 +41,7 @@ $<id>$<data>
 Where `id` is either `plaintext` or `base64`, and `data` is either the password string or the
 [Base64 (Adapted)](#base64-adapted) encoded string.
 
-### bcrypt-sha256
+#### bcrypt-sha256
 
 This algorithm was thought of by the developers of [Passlib]. It circumvents the issue in bcrypt where the maximum
 password length is effectively 72 bytes by passing the password via a HMAC-SHA-256 function which uses the salt bytes as
@@ -53,6 +55,20 @@ a HMAC-SHA-256 function the salt as the key is supported. The bcrypt-sha256 vers
 [PHC string format]: https://github.com/P-H-C/phc-string-format/blob/master/phc-sf-spec.md
 [Modular Crypt Format]: https://passlib.readthedocs.io/en/stable/modular_crypt_format.html
 
+### Possible Future Support
+
+|    Algorithm    |            Reasoning             |
+|:---------------:|:--------------------------------:|
+|       MD5       | Explicit Backwards Compatibility |
+|     Sun MD5     | Explicit Backwards Compatibility |
+| Type 7 (cisco)  | Explicit Backwards Compatibility |
+| Type 8 (cisco)  | Explicit Backwards Compatibility |
+| Type 9 (cisco)  | Explicit Backwards Compatibility |
+| Type 10 (cisco) | Explicit Backwards Compatibility |
+
+Additional support for LDAP specific formats is also very likely, either via normalization and encoding options or via
+explicit algorithm variants and/or specific algorithms.
+
 ## Base64 (Adapted)
 
 Many password storage formats use Base64 with an Adapted charset to store the bytes of the salt or hash key. This uses
@@ -60,15 +76,73 @@ the standard Base64 encoding without padding as per [RFC4648 section 4] but repl
 
 [RFC4648 section 4]: https://datatracker.ietf.org/doc/html/rfc4648#section-4
 
+## Installation
+
+Use `go get` to add this module to your project with `go get github.com/go-crypt/crypt`.
+
+### Requirements
+
+- go 1.18+
+
 ## Usage
 
 The following examples show how easy it is to interact with the argon2 algorithm. Most other algorithm implementations
 are relatively similar.
 
+### Creating a Decoder
+
+While several convenience functions exist for building password decoders and checking individual passwords it is 
+*__STRONGLY RECOMMENDED__* that users implementing this library explicitly create a decoder that fits their particular
+use case after sufficiently researching each algorithm and their benefits. At the time of this writing we strongly
+recommend the `argon2id` variant of `argon2`.
+
+This can be done via the `crypt.NewDecoder` function as shown below.
+
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/go-crypt/crypt"
+	"github.com/go-crypt/crypt/algorithm"
+	"github.com/go-crypt/crypt/algorithm/argon2"
+)
+func main() {
+	var (
+		decoder *crypt.Decoder
+		err    error
+		digest algorithm.Digest
+	)
+	
+	if decoder, err = NewDecoderArgon2idOnly(); err != nil {
+		panic(err)
+    }
+	
+	if digest, err = decoder.Decode("$argon2id$v=19$m=2097152,t=1,p=4$BjVeoTI4ntTQc0WkFQdLWg$OAUnkkyx5STI0Ixl+OSpv4JnI6J1TYWKuCuvIbUGHTY"); err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Digest Matches Password 'example': %t\n", digest.Match("example"))
+	fmt.Printf("Digest Matches Password 'invalid': %t\n", digest.Match("invalid"))
+}
+
+
+// NewDecoderArgon2idOnly returns a decoder which can only decode argon2id encoded digests.
+func NewDecoderArgon2idOnly() (decoder *crypt.Decoder, err error) {
+	decoder = crypt.NewDecoder()
+
+	if err = argon2.RegisterDecoderArgon2id(decoder); err != nil {
+		return nil, err
+	}
+	
+	return decoder, nil
+}
+```
 ### Decoding a Password and Validating It
 
 This method of checking passwords is recommended if you have a database of hashes which are going to live in memory. The
-`crypt.Digest` and `crypt.NullDigest` types provide helpful interface implementations to simplify Marhsal/Unmarshal and
+`crypt.Digest` and `crypt.NullDigest` types provide helpful interface implementations to simplify Marshal/Unmarshal and
 database operations.
 
 ```go
@@ -78,16 +152,21 @@ import (
 	"fmt"
 
 	"github.com/go-crypt/crypt"
+	"github.com/go-crypt/crypt/algorithm"
 )
 
 func main() {
-	decoder, err := crypt.NewDefaultDecoder()
-	if err != nil {
+	var (
+		decoder *crypt.Decoder
+		err error
+		digest algorithm.Digest
+    )
+	
+	if decoder, err = crypt.NewDefaultDecoder(); err != nil {
 		panic(err)
 	}
 	
-	digest, err := decoder.Decode("$argon2id$v=19$m=2097152,t=1,p=4$BjVeoTI4ntTQc0WkFQdLWg$OAUnkkyx5STI0Ixl+OSpv4JnI6J1TYWKuCuvIbUGHTY")
-	if err != nil {
+	if digest, err = decoder.Decode("$argon2id$v=19$m=2097152,t=1,p=4$BjVeoTI4ntTQc0WkFQdLWg$OAUnkkyx5STI0Ixl+OSpv4JnI6J1TYWKuCuvIbUGHTY"); err != nil {
 		panic(err)
 	}
     

@@ -9,6 +9,10 @@ import (
 // it returns the result of MatchAdvanced(). This is just a helper function and implementers can manually invoke this
 // process themselves in situations where they may want to store the Digest to perform matches at a later date to avoid
 // decoding multiple times for example.
+//
+// CRITICAL STABILITY NOTE: the decoders loaded via this function are not guaranteed to remain the same. It is strongly
+// recommended that users implementing this library use the NewDecoder function and explicitly register each decoder
+// which they wish to support.
 func CheckPassword(password, encodedDigest string) (valid bool, err error) {
 	var digest algorithm.Digest
 
@@ -19,7 +23,11 @@ func CheckPassword(password, encodedDigest string) (valid bool, err error) {
 	return digest.MatchAdvanced(password)
 }
 
-// CheckPasswordWithPlainText is the same as CheckPassword however it uses DecodeWithPlainText instead.
+// CheckPasswordWithPlainText is the same as CheckPassword however it also allows the plaintext passwords.
+//
+// CRITICAL STABILITY NOTE: the decoders loaded via this function are not guaranteed to remain the same. It is strongly
+// recommended that users implementing this library use the NewDecoder function and explicitly register each decoder
+// which they wish to support.
 func CheckPasswordWithPlainText(password, encodedDigest string) (valid bool, err error) {
 	var (
 		digest  algorithm.Digest
