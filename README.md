@@ -67,6 +67,10 @@ are relatively similar.
 
 ### Decoding a Password and Validating It
 
+This method of checking passwords is recommended if you have a database of hashes which are going to live in memory. The
+`crypt.Digest` and `crypt.NullDigest` types provide helpful interface implementations to simplify Marhsal/Unmarshal and
+database operations.
+
 ```go
 package main
 
@@ -92,6 +96,39 @@ func main() {
 }
 ```
 
+### Checking a Password Against a Hash
+
+This method of checking passwords is quick and dirty and most useful when users are providing the hash as the input such
+as in situations where you are allowing them to check a password themselves via a CLI or otherwise.
+
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/go-crypt/crypt"
+)
+
+func main() {
+	var (
+		valid bool
+		err error
+    )
+	
+	if valid, err = crypt.CheckPassword("example","$argon2id$v=19$m=2097152,t=1,p=4$BjVeoTI4ntTQc0WkFQdLWg$OAUnkkyx5STI0Ixl+OSpv4JnI6J1TYWKuCuvIbUGHTY"); err != nil {
+		panic(err)
+    }
+	
+    fmt.Printf("Digest Matches Password 'example': %t\n", valid)
+
+	if valid, err = crypt.CheckPassword("invalid","$argon2id$v=19$m=2097152,t=1,p=4$BjVeoTI4ntTQc0WkFQdLWg$OAUnkkyx5STI0Ixl+OSpv4JnI6J1TYWKuCuvIbUGHTY"); err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Digest Matches Password 'invalid': %t\n", valid)
+}
+```
 
 ### Generating an Encoded Digest from a Password
 

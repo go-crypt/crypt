@@ -85,13 +85,13 @@ func (d *Decoder) decode(encodedDigest string) (digest algorithm.Digest, err err
 	encodedDigest = Normalize(encodedDigest)
 
 	if len(encodedDigest) == 0 || rune(encodedDigest[0]) != encoding.Delimiter {
-		return nil, fmt.Errorf("%w: the hash doesn't begin with the delimiter %s and is not one of the other understood formats", algorithm.ErrEncodedHashInvalidFormat, strconv.QuoteRune(encoding.Delimiter))
+		return nil, fmt.Errorf("%w: the digest doesn't begin with the delimiter %s and is not one of the other understood formats", algorithm.ErrEncodedHashInvalidFormat, strconv.QuoteRune(encoding.Delimiter))
 	}
 
 	parts := encoding.Split(encodedDigest, 3)
 
 	if len(parts) != 3 {
-		return nil, fmt.Errorf("%w: the hash doesn't have the minimum number of parts for it to be considered an encoded digest", algorithm.ErrEncodedHashInvalidFormat)
+		return nil, fmt.Errorf("%w: the digest doesn't have the minimum number of parts for it to be considered an encoded digest", algorithm.ErrEncodedHashInvalidFormat)
 	}
 
 	if decodeFunc, ok := d.decoders[parts[1]]; ok {
