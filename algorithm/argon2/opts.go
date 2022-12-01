@@ -26,6 +26,10 @@ func WithVariant(variant Variant) Opt {
 // WithVariantName satisfies the argon2.Opt type and sets the variant by name.
 func WithVariantName(identifier string) Opt {
 	return func(h *Hasher) (err error) {
+		if identifier == "" {
+			return nil
+		}
+
 		variant := NewVariant(identifier)
 
 		if variant == VariantNone {
