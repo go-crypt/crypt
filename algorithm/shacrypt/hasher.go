@@ -1,4 +1,4 @@
-package sha2crypt
+package shacrypt
 
 import (
 	"fmt"
@@ -108,7 +108,7 @@ func (h *Hasher) hashWithSalt(password string, salt []byte) (digest algorithm.Di
 		salt:    salt,
 	}
 
-	d.key = xcrypt.Key(d.variant.HashFunc(), []byte(password), d.salt, d.rounds)
+	d.key = xcrypt.KeySHACrypt(d.variant.HashFunc(), []byte(password), d.salt, d.rounds)
 
 	return d, nil
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/go-crypt/crypt/algorithm/pbkdf2"
 	"github.com/go-crypt/crypt/algorithm/plaintext"
 	"github.com/go-crypt/crypt/algorithm/scrypt"
-	"github.com/go-crypt/crypt/algorithm/sha2crypt"
+	"github.com/go-crypt/crypt/algorithm/shacrypt"
 	"github.com/go-crypt/crypt/internal/encoding"
 )
 
@@ -25,7 +25,7 @@ func NewDecoder() *Decoder {
 
 // NewDefaultDecoder returns the default decoder recommended for new implementations.
 //
-// Loaded Decoders: argon2, bcrypt, pbkdf2, scrypt, sha2crypt.
+// Loaded Decoders: argon2, bcrypt, pbkdf2, scrypt, shacrypt.
 //
 // CRITICAL STABILITY NOTE: the decoders loaded via this function are not guaranteed to remain the same. It is strongly
 // recommended that users implementing this library use this or NewDecodersAll only as an example for building their own
@@ -141,8 +141,8 @@ func decoderProfileDefault(decoder *Decoder) (err error) {
 		return fmt.Errorf("could not register the scrypt decoder: %w", err)
 	}
 
-	if err = sha2crypt.RegisterDecoder(decoder); err != nil {
-		return fmt.Errorf("could not register the sha2crypt decoder: %w", err)
+	if err = shacrypt.RegisterDecoder(decoder); err != nil {
+		return fmt.Errorf("could not register the shacrypt decoder: %w", err)
 	}
 
 	return nil

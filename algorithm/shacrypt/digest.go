@@ -1,4 +1,4 @@
-package sha2crypt
+package shacrypt
 
 import (
 	"crypto/subtle"
@@ -45,7 +45,7 @@ func (d *Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error
 		return false, fmt.Errorf("%w: key has 0 bytes", algorithm.ErrPasswordInvalid)
 	}
 
-	return subtle.ConstantTimeCompare(d.key, xcrypt.Key(d.variant.HashFunc(), passwordBytes, d.salt, d.rounds)) == 1, nil
+	return subtle.ConstantTimeCompare(d.key, xcrypt.KeySHACrypt(d.variant.HashFunc(), passwordBytes, d.salt, d.rounds)) == 1, nil
 }
 
 // Encode this Digest as a string for storage.

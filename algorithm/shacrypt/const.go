@@ -1,11 +1,11 @@
-package sha2crypt
+package shacrypt
 
 const (
 	// EncodingFmt is the encoding format for this algorithm.
 	EncodingFmt = "$%s$rounds=%d$%s$%s"
 
 	// AlgName is the name for this algorithm.
-	AlgName = "sha2crypt"
+	AlgName = "shacrypt"
 
 	// AlgIdentifierSHA256 is the identifier used in encoded SHA256 variants of this algorithm.
 	AlgIdentifierSHA256 = "5"
