@@ -48,11 +48,11 @@ func WithSaltLength(s int) Opt {
 }
 
 // WithLN sets the ln parameter (logN) of the resulting scrypt.Digest.
-// Minimum is 1. Default is 16.
+// Minimum is 1, Maximum is 58. Default is 16.
 func WithLN(ln int) Opt {
 	return func(h *Hasher) (err error) {
-		if ln < IterationsMin {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf("%w: parameter 'ln' must be more than %d but is set to '%d'", algorithm.ErrParameterInvalid, IterationsMin, ln))
+		if ln < IterationsMin || ln > IterationsMax {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "iterations", IterationsMin, "", IterationsMax, ln))
 		}
 
 		h.ln = ln

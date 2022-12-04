@@ -23,6 +23,9 @@ const (
 	// IterationsMin is the minimum number of iterations accepted.
 	IterationsMin = 1
 
+	// IterationsMax is the maximum number of iterations accepted.
+	IterationsMax = 58
+
 	// IterationsDefault is the default number of iterations.
 	IterationsDefault = 16
 
