@@ -12,6 +12,7 @@ import (
 	"github.com/go-crypt/crypt/algorithm/pbkdf2"
 	"github.com/go-crypt/crypt/algorithm/plaintext"
 	"github.com/go-crypt/crypt/algorithm/scrypt"
+	"github.com/go-crypt/crypt/algorithm/sha1crypt"
 	"github.com/go-crypt/crypt/algorithm/shacrypt"
 	"github.com/go-crypt/crypt/internal/encoding"
 )
@@ -50,7 +51,7 @@ func NewDefaultDecoder() (d *Decoder, err error) {
 
 // NewDecoderAll is the same as NewDefaultDecoder but it also adds legacy and/or insecure decoders.
 //
-// Loaded Decoders (in addition to NewDefaultDecoder): plaintext, md5crypt.
+// Loaded Decoders (in addition to NewDefaultDecoder): plaintext, md5crypt, sha1crypt.
 //
 // CRITICAL STABILITY NOTE: the decoders loaded via this function are not guaranteed to remain the same. It is strongly
 // recommended that users implementing this library use this or NewDecodersAll only as an example for building their own
@@ -73,6 +74,10 @@ func NewDecoderAll() (d *Decoder, err error) {
 
 	if err = md5crypt.RegisterDecoder(d); err != nil {
 		return nil, fmt.Errorf("could not register the md5crypt decoder: %w", err)
+	}
+
+	if err = sha1crypt.RegisterDecoder(d); err != nil {
+		return nil, fmt.Errorf("could not register the sha1crypt decoder: %w", err)
 	}
 
 	return d, nil

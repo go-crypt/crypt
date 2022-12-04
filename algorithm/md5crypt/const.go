@@ -44,11 +44,11 @@ const (
 	// IterationsMin is the minimum iterations accepted.
 	IterationsMin = 0
 
-	// IterationsDefault is the default iterations.
-	IterationsDefault = 34000
-
 	// IterationsMax is the maximum iterations accepted.
 	IterationsMax uint32 = math.MaxUint32
+
+	// IterationsDefault is the default iterations.
+	IterationsDefault = 34000
 )
 
 const (
