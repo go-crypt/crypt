@@ -10,7 +10,7 @@ import (
 	"github.com/go-crypt/crypt/algorithm"
 )
 
-// Digest is a digest which handles sha-crypt hashes like SHA256 or SHA512.
+// Digest is a digest which handles SHA-crypt. hashes like SHA256 or SHA512.
 type Digest struct {
 	variant Variant
 
