@@ -9,7 +9,7 @@ import (
 
 // New returns a new argon2.Hasher with the provided functional options applied.
 func New(opts ...Opt) (hasher *Hasher, err error) {
-	hasher = ProfileRFC9106Recommended.Hasher()
+	hasher = &Hasher{}
 
 	if err = hasher.WithOptions(opts...); err != nil {
 		return nil, err

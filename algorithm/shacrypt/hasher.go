@@ -14,14 +14,6 @@ import (
 func New(opts ...Opt) (hasher *Hasher, err error) {
 	hasher = &Hasher{}
 
-	if err = hasher.WithOptions(
-		WithVariant(VariantSHA512),
-		WithIterations(VariantSHA512.DefaultIterations()),
-		WithSaltLength(algorithm.SaltLengthDefault),
-	); err != nil {
-		return nil, err
-	}
-
 	if err = hasher.WithOptions(opts...); err != nil {
 		return nil, err
 	}

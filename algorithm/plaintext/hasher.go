@@ -8,10 +8,6 @@ import (
 func New(opts ...Opt) (hasher *Hasher, err error) {
 	hasher = &Hasher{}
 
-	if err = hasher.WithOptions(WithVariant(VariantPlainText)); err != nil {
-		return nil, err
-	}
-
 	if err = hasher.WithOptions(opts...); err != nil {
 		return nil, err
 	}

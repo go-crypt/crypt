@@ -16,16 +16,6 @@ import (
 func New(opts ...Opt) (hasher *Hasher, err error) {
 	hasher = &Hasher{}
 
-	if err = hasher.WithOptions(
-		WithLN(IterationsDefault),
-		WithR(BlockSizeDefault),
-		WithP(ParallelismDefault),
-		WithKeyLength(algorithm.KeyLengthDefault),
-		WithSaltLength(algorithm.SaltLengthDefault),
-	); err != nil {
-		return nil, err
-	}
-
 	if err = hasher.WithOptions(opts...); err != nil {
 		return nil, err
 	}
@@ -141,26 +131,30 @@ func (h *Hasher) validate() (err error) {
 		return fmt.Errorf("%w: parameters 'r' and 'p' must be less than %d when multiplied but they are '%d'", algorithm.ErrParameterInvalid, 1<<30, rp)
 	}
 
-	mp := KeyLengthMax / (128 * h.r)
+	if h.r > 0 {
+		mp := KeyLengthMax / (128 * h.r)
 
-	if h.p < ParallelismMin || h.p > mp {
-		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "p", ParallelismMin, "", mp, h.p)
-	}
+		if h.p < ParallelismMin || h.p > mp {
+			return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "p", ParallelismMin, "", mp, h.p)
+		}
 
-	pr := math.MaxInt / 128 / h.p
+		nr := math.MaxInt / 128 / h.r
 
-	if pr < BlockSizeMax {
-		if h.r > pr {
-			return fmt.Errorf("%w: parameter 'r' when parameter 'p' is %d must be less than %d (%d / p) but it is set to '%d'", algorithm.ErrParameterInvalid, h.p, pr, math.MaxInt/128, h.r)
+		N := 1 << h.ln
+
+		if N > nr {
+			return fmt.Errorf("%w: parameter 'ln' when raised to the power of 2 must be less than or equal to %d (%d / r) but it is set to '%d' which is equal to '%d'", algorithm.ErrParameterInvalid, nr, math.MaxInt/128, h.ln, N)
 		}
 	}
 
-	nr := math.MaxInt / 128 / h.r
+	if h.p > 0 {
+		pr := math.MaxInt / 128 / h.p
 
-	N := 1 << h.ln
-
-	if N > nr {
-		return fmt.Errorf("%w: parameter 'ln' when raised to the power of 2 must be less than or equal to %d (%d / r) but it is set to '%d' which is equal to '%d'", algorithm.ErrParameterInvalid, nr, math.MaxInt/128, h.ln, N)
+		if pr < BlockSizeMax {
+			if h.r > pr {
+				return fmt.Errorf("%w: parameter 'r' when parameter 'p' is %d must be less than %d (%d / p) but it is set to '%d'", algorithm.ErrParameterInvalid, h.p, pr, math.MaxInt/128, h.r)
+			}
+		}
 	}
 
 	return nil
