@@ -6,10 +6,11 @@ import (
 	"github.com/go-crypt/crypt/algorithm"
 )
 
-// Opt describes the functional option pattern for the pbkdf2.Hasher.
+// Opt describes the functional option pattern for the plaintext.Hasher.
 type Opt func(h *Hasher) (err error)
 
-// WithVariant adjusts the variant of the bcrypt.Digest algorithm.
+// WithVariant configures the plaintext.Variant of the resulting plaintext.Digest.
+// Default is plaintext.VariantPlainText.
 func WithVariant(variant Variant) Opt {
 	return func(h *Hasher) (err error) {
 		switch variant {
@@ -23,7 +24,8 @@ func WithVariant(variant Variant) Opt {
 	}
 }
 
-// WithVariantName uses the variant name set the variant.
+// WithVariantName uses the variant name or identifier to configure the plaintext.Variant of the resulting plaintext.Digest.
+// Default is plaintext.VariantPlainText.
 func WithVariantName(identifier string) Opt {
 	return func(h *Hasher) (err error) {
 		if identifier == "" {

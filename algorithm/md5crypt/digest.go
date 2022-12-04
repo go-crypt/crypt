@@ -1,30 +1,28 @@
-package pbkdf2
+package md5crypt
 
 import (
 	"crypto/subtle"
 	"fmt"
 
-	"github.com/go-crypt/x/pbkdf2"
+	"github.com/go-crypt/x/crypt"
 
 	"github.com/go-crypt/crypt/algorithm"
-	"github.com/go-crypt/crypt/internal/encoding"
 )
 
-// Digest is a pbkdf2.Digest which handles PBKDF2 hashes.
+// Digest is a algorithm.Digest which handles md5crypt hashes.
 type Digest struct {
 	variant Variant
 
 	iterations int
-	t          int
 	salt, key  []byte
 }
 
-// Match returns true if the string password matches the current pbkdf2.Digest.
+// Match returns true if the string password matches the current md5crypt.Digest.
 func (d *Digest) Match(password string) (match bool) {
 	return d.MatchBytes([]byte(password))
 }
 
-// MatchBytes returns true if the []byte passwordBytes matches the current pbkdf2.Digest.
+// MatchBytes returns true if the []byte passwordBytes matches the current md5crypt.Digest.
 func (d *Digest) MatchBytes(passwordBytes []byte) (match bool) {
 	match, _ = d.MatchBytesAdvanced(passwordBytes)
 
@@ -42,32 +40,46 @@ func (d *Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error
 		return false, fmt.Errorf(algorithm.ErrFmtDigestMatch, AlgName, fmt.Errorf("%w: key has 0 bytes", algorithm.ErrPasswordInvalid))
 	}
 
-	return subtle.ConstantTimeCompare(d.key, pbkdf2.Key(passwordBytes, d.salt, d.iterations, d.t, d.variant.HashFunc())) == 1, nil
+	switch d.variant {
+	case VariantSun:
+		return subtle.ConstantTimeCompare(d.key, crypt.KeyMD5CryptSun(passwordBytes, d.salt, d.iterations)) == 1, nil
+	default:
+		return subtle.ConstantTimeCompare(d.key, crypt.KeyMD5Crypt(passwordBytes, d.salt)) == 1, nil
+	}
 }
 
-// Encode returns the encoded form of this pbkdf2.Digest.
+// Encode returns the encoded form of this md5crypt.Digest.
 func (d *Digest) Encode() string {
-	return fmt.Sprintf(EncodingFmt,
-		d.variant.Prefix(),
-		d.iterations,
-		encoding.Base64RawAdaptedEncoding.EncodeToString(d.salt), encoding.Base64RawAdaptedEncoding.EncodeToString(d.key),
-	)
+	switch {
+	case d.variant == VariantSun && d.iterations > 0:
+		return fmt.Sprintf(EncodingFmtSunIterations,
+			d.iterations, d.salt, d.key,
+		)
+	case d.variant == VariantSun:
+		return fmt.Sprintf(EncodingFmtSun,
+			d.salt, d.key,
+		)
+	default:
+		return fmt.Sprintf(EncodingFmt,
+			d.salt, d.key,
+		)
+	}
 }
 
-// String returns the storable format of the pbkdf2.Digest encoded hash.
+// String returns the storable format of the md5crypt.Digest encoded hash.
 func (d *Digest) String() string {
 	return d.Encode()
 }
 
 func (d *Digest) defaults() {
 	switch d.variant {
-	case VariantSHA1, VariantSHA224, VariantSHA256, VariantSHA384, VariantSHA512:
+	case VariantStandard, VariantSun:
 		break
 	default:
 		d.variant = variantDefault
 	}
 
 	if d.iterations < IterationsMin {
-		d.iterations = d.variant.DefaultIterations()
+		d.iterations = IterationsDefault
 	}
 }

@@ -10,19 +10,19 @@ import (
 	"github.com/go-crypt/crypt/algorithm"
 )
 
-// Digest is a Digest which handles scrypt hashes.
+// Digest is a scrypt.Digest which handles scrypt hashes.
 type Digest struct {
 	ln, r, p int
 
 	salt, key []byte
 }
 
-// Match returns true if the string password matches the current Digest.
+// Match returns true if the string password matches the current scrypt.Digest.
 func (d *Digest) Match(password string) (match bool) {
 	return d.MatchBytes([]byte(password))
 }
 
-// MatchBytes returns true if the []byte passwordBytes matches the current Digest.
+// MatchBytes returns true if the []byte passwordBytes matches the current scrypt.Digest.
 func (d *Digest) MatchBytes(passwordBytes []byte) (match bool) {
 	match, _ = d.MatchBytesAdvanced(passwordBytes)
 
@@ -53,14 +53,14 @@ func (d *Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error
 	return subtle.ConstantTimeCompare(d.key, key) == 1, nil
 }
 
-// Encode returns the encoded form of this Digest.
+// Encode returns the encoded form of this scrypt.Digest.
 func (d *Digest) Encode() string {
 	return fmt.Sprintf(EncodingFormat, AlgName,
 		d.ln, d.r, d.p, base64.RawStdEncoding.EncodeToString(d.salt), base64.RawStdEncoding.EncodeToString(d.key),
 	)
 }
 
-// String returns the storable format of the Digest encoded hash.
+// String returns the storable format of the scrypt.Digest encoded hash.
 func (d *Digest) String() string {
 	return d.Encode()
 }
@@ -68,4 +68,18 @@ func (d *Digest) String() string {
 // n returns 2 to the power of log N i.e d.ln.
 func (d *Digest) n() (n int) {
 	return 1 << d.ln
+}
+
+func (d *Digest) defaults() {
+	if d.ln < IterationsMin {
+		d.ln = IterationsDefault
+	}
+
+	if d.r < BlockSizeMin {
+		d.r = BlockSizeDefault
+	}
+
+	if d.p < ParallelismMin {
+		d.p = ParallelismDefault
+	}
 }

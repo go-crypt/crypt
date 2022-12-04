@@ -20,8 +20,8 @@ func New(opts ...Opt) (hasher *Hasher, err error) {
 		WithLN(IterationsDefault),
 		WithR(BlockSizeDefault),
 		WithP(ParallelismDefault),
-		WithKeySize(algorithm.KeySizeDefault),
-		WithSaltSize(algorithm.SaltSizeDefault),
+		WithKeyLength(algorithm.KeyLengthDefault),
+		WithSaltLength(algorithm.SaltLengthDefault),
 	); err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func New(opts ...Opt) (hasher *Hasher, err error) {
 type Hasher struct {
 	ln, r, k, p, bytesSalt int
 
-	defaults bool
+	d bool
 }
 
 // WithOptions defines the options for this scrypt.Hasher.
@@ -57,6 +57,8 @@ func (h *Hasher) WithOptions(opts ...Opt) (err error) {
 
 // Hash performs the hashing operation and returns either a Digest or an error.
 func (h *Hasher) Hash(password string) (digest algorithm.Digest, err error) {
+	h.defaults()
+
 	if digest, err = h.hash(password); err != nil {
 		return nil, fmt.Errorf(algorithm.ErrFmtHasherHash, AlgName, err)
 	}
@@ -65,7 +67,7 @@ func (h *Hasher) Hash(password string) (digest algorithm.Digest, err error) {
 }
 
 func (h *Hasher) hash(password string) (digest algorithm.Digest, err error) {
-	h.setDefaults()
+	h.defaults()
 
 	var salt []byte
 
@@ -79,6 +81,8 @@ func (h *Hasher) hash(password string) (digest algorithm.Digest, err error) {
 // HashWithSalt overloads the Hash method allowing the user to provide a salt. It's recommended instead to configure the
 // salt size and let this be a random value generated using crypto/rand.
 func (h *Hasher) HashWithSalt(password string, salt []byte) (digest algorithm.Digest, err error) {
+	h.defaults()
+
 	if digest, err = h.hashWithSalt(password, salt); err != nil {
 		return nil, fmt.Errorf(algorithm.ErrFmtHasherHash, AlgName, err)
 	}
@@ -87,12 +91,18 @@ func (h *Hasher) HashWithSalt(password string, salt []byte) (digest algorithm.Di
 }
 
 func (h *Hasher) hashWithSalt(password string, salt []byte) (digest algorithm.Digest, err error) {
+	if s := len(salt); s > SaltLengthMax || s < SaltLengthMin {
+		return nil, fmt.Errorf("%w: salt bytes must have a length of between %d and %d but has a length of %d", algorithm.ErrSaltInvalid, SaltLengthMin, SaltLengthMax, len(salt))
+	}
+
 	d := &Digest{
 		ln:   h.ln,
 		r:    h.r,
 		p:    h.p,
 		salt: salt,
 	}
+
+	d.defaults()
 
 	if d.key, err = scrypt.Key([]byte(password), d.salt, d.n(), d.r, d.p, h.k); err != nil {
 		return nil, fmt.Errorf("%w: %v", algorithm.ErrKeyDerivation, err)
@@ -115,6 +125,8 @@ func (h *Hasher) MustHash(password string) (digest algorithm.Digest) {
 
 // Validate checks the settings/parameters for this Hash and returns an error.
 func (h *Hasher) Validate() (err error) {
+	h.defaults()
+
 	if err = h.validate(); err != nil {
 		return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, err)
 	}
@@ -123,15 +135,13 @@ func (h *Hasher) Validate() (err error) {
 }
 
 func (h *Hasher) validate() (err error) {
-	h.setDefaults()
-
 	rp := uint64(h.r) * uint64(h.p)
 
 	if rp >= 1<<30 {
 		return fmt.Errorf("%w: parameters 'r' and 'p' must be less than %d when multiplied but they are '%d'", algorithm.ErrParameterInvalid, 1<<30, rp)
 	}
 
-	mp := KeySizeMax / (128 * h.r)
+	mp := KeyLengthMax / (128 * h.r)
 
 	if h.p < ParallelismMin || h.p > mp {
 		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "p", ParallelismMin, "", mp, h.p)
@@ -156,30 +166,18 @@ func (h *Hasher) validate() (err error) {
 	return nil
 }
 
-func (h *Hasher) setDefaults() {
-	if h.defaults {
+func (h *Hasher) defaults() {
+	if h.d {
 		return
 	}
 
-	h.defaults = true
+	h.d = true
 
 	if h.k == 0 {
-		h.k = algorithm.KeySizeDefault
+		h.k = algorithm.KeyLengthDefault
 	}
 
 	if h.bytesSalt == 0 {
-		h.bytesSalt = algorithm.SaltSizeDefault
-	}
-
-	if h.ln == 0 {
-		h.ln = IterationsDefault
-	}
-
-	if h.r == 0 {
-		h.r = BlockSizeDefault
-	}
-
-	if h.p == 0 {
-		h.p = ParallelismDefault
+		h.bytesSalt = algorithm.SaltLengthDefault
 	}
 }

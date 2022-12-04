@@ -3,10 +3,12 @@ package crypt
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/go-crypt/crypt/algorithm"
 	"github.com/go-crypt/crypt/algorithm/argon2"
 	"github.com/go-crypt/crypt/algorithm/bcrypt"
+	"github.com/go-crypt/crypt/algorithm/md5crypt"
 	"github.com/go-crypt/crypt/algorithm/pbkdf2"
 	"github.com/go-crypt/crypt/algorithm/plaintext"
 	"github.com/go-crypt/crypt/algorithm/scrypt"
@@ -20,6 +22,7 @@ import (
 func NewDecoder() *Decoder {
 	return &Decoder{
 		decoders: map[string]algorithm.DecodeFunc{},
+		prefixes: map[string]string{},
 	}
 }
 
@@ -35,6 +38,7 @@ func NewDecoder() *Decoder {
 func NewDefaultDecoder() (d *Decoder, err error) {
 	d = &Decoder{
 		decoders: map[string]algorithm.DecodeFunc{},
+		prefixes: map[string]string{},
 	}
 
 	if err = decoderProfileDefault(d); err != nil {
@@ -46,7 +50,7 @@ func NewDefaultDecoder() (d *Decoder, err error) {
 
 // NewDecoderAll is the same as NewDefaultDecoder but it also adds legacy and/or insecure decoders.
 //
-// Loaded Decoders (in addition to NewDefaultDecoder): plaintext.
+// Loaded Decoders (in addition to NewDefaultDecoder): plaintext, md5crypt.
 //
 // CRITICAL STABILITY NOTE: the decoders loaded via this function are not guaranteed to remain the same. It is strongly
 // recommended that users implementing this library use this or NewDecodersAll only as an example for building their own
@@ -56,6 +60,7 @@ func NewDefaultDecoder() (d *Decoder, err error) {
 func NewDecoderAll() (d *Decoder, err error) {
 	d = &Decoder{
 		decoders: map[string]algorithm.DecodeFunc{},
+		prefixes: map[string]string{},
 	}
 
 	if err = decoderProfileDefault(d); err != nil {
@@ -66,6 +71,10 @@ func NewDecoderAll() (d *Decoder, err error) {
 		return nil, fmt.Errorf("could not register the plaintext decoder: %w", err)
 	}
 
+	if err = md5crypt.RegisterDecoder(d); err != nil {
+		return nil, fmt.Errorf("could not register the md5crypt decoder: %w", err)
+	}
+
 	return d, nil
 }
 
@@ -73,6 +82,7 @@ func NewDecoderAll() (d *Decoder, err error) {
 // encoded digest with them.
 type Decoder struct {
 	decoders map[string]algorithm.DecodeFunc
+	prefixes map[string]string
 }
 
 // RegisterDecodeFunc registers a new algorithm.DecodeFunc with this Decoder against a specific identifier.
@@ -90,6 +100,25 @@ func (d *Decoder) RegisterDecodeFunc(identifier string, decoder algorithm.Decode
 	return nil
 }
 
+// RegisterDecodePrefix registers a prefix which is matched by strings.HasPrefix.
+func (d *Decoder) RegisterDecodePrefix(prefix, identifier string) (err error) {
+	if d.decoders == nil {
+		return fmt.Errorf("no decoders are registered")
+	}
+
+	if d.prefixes == nil {
+		d.prefixes = map[string]string{}
+	}
+
+	if _, ok := d.decoders[identifier]; !ok {
+		return fmt.Errorf("decoder isn't registered for dentifier '%s'", identifier)
+	}
+
+	d.prefixes[prefix] = identifier
+
+	return nil
+}
+
 // Decode an encoded digest into a algorithm.Digest.
 func (d *Decoder) Decode(encodedDigest string) (digest algorithm.Digest, err error) {
 	if digest, err = d.decode(encodedDigest); err != nil {
@@ -100,6 +129,12 @@ func (d *Decoder) Decode(encodedDigest string) (digest algorithm.Digest, err err
 }
 
 func (d *Decoder) decode(encodedDigest string) (digest algorithm.Digest, err error) {
+	for prefix, key := range d.prefixes {
+		if strings.HasPrefix(encodedDigest, prefix) {
+			return d.decoders[key](encodedDigest)
+		}
+	}
+
 	encodedDigest = Normalize(encodedDigest)
 
 	if len(encodedDigest) == 0 || rune(encodedDigest[0]) != encoding.Delimiter {

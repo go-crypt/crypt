@@ -26,29 +26,38 @@ const (
 	// AlgIdentifierVariantID is the identifier used in encoded argon2id variants of this algorithm.
 	AlgIdentifierVariantID = argon2id
 
-	// TagLengthMin is the minimum tag length output.
-	TagLengthMin = 4
+	// KeyLengthMin is the minimum tag length output.
+	KeyLengthMin = 4
 
-	// TagLengthMax is the maximum tag length output.
-	TagLengthMax = math.MaxInt32
+	// KeyLengthMax is the maximum tag length output.
+	KeyLengthMax = math.MaxInt32
 
-	// SaltSizeMin is the minimum salt length input/output.
-	SaltSizeMin = 1
+	// KeyLengthDefault is the default key length.
+	KeyLengthDefault = 32
 
-	// SaltSizeMax is the maximum salt length input/output.
-	SaltSizeMax = math.MaxInt32
+	// SaltLengthMin is the minimum salt length input/output.
+	SaltLengthMin = 1
 
-	// PassesMin is the minimum number of passes input.
-	PassesMin = 1
+	// SaltLengthMax is the maximum salt length input/output.
+	SaltLengthMax = math.MaxInt32
 
-	// PassesMax is the maximum number of passes input.
-	PassesMax = math.MaxInt32
+	// IterationsMin is the minimum number of passes input.
+	IterationsMin = 1
+
+	// IterationsMax is the maximum number of passes input.
+	IterationsMax = math.MaxInt32
+
+	// IterationsDefault is the default number of passes.
+	IterationsDefault = IterationsMin
 
 	// ParallelismMin is the minimum parallelism factor input.
 	ParallelismMin = 1
 
 	// ParallelismMax is the maximum parallelism factor input.
 	ParallelismMax = 16777215
+
+	// ParallelismDefault is the default parallelism factor.
+	ParallelismDefault = 4
 
 	// MemoryMinParallelismMultiplier is the parallelism multiplier which determines the minimum memory.
 	MemoryMinParallelismMultiplier = 8
@@ -57,16 +66,22 @@ const (
 	// value is the closest multiple of this multiplied by the parallelism input.
 	MemoryRoundingParallelismMultiplier = 4
 
+	// MemoryMin is the minimum input for memory.
+	MemoryMin = ParallelismMin * MemoryMinParallelismMultiplier
+
 	// MemoryMax is the maximum input for memory.
 	MemoryMax = math.MaxInt32
 
+	// MemoryDefault represents the default memory value.
+	MemoryDefault = 2 * 1024 * 1024
+
 	// PasswordInputSizeMax is the maximum input for the password content.
 	PasswordInputSizeMax = math.MaxInt32
-
-	variantArgon2Default = VariantID
 )
 
 const (
+	variantDefault = VariantID
+
 	oV = "v"
 	oK = "k"
 	oM = "m"

@@ -25,12 +25,16 @@ const (
 	// IterationsDefaultSHA512 is the default number of iterations for SHA512.
 	IterationsDefaultSHA512 = 500000
 
-	// SaltSizeMin is the minimum salt length.
-	SaltSizeMin = 1
+	// SaltLengthMin is the minimum salt length.
+	SaltLengthMin = 1
 
-	// SaltSizeMax is the maximum salt length.
-	SaltSizeMax = 16
+	// SaltLengthMax is the maximum salt length.
+	SaltLengthMax = 16
 
 	// SaltCharSet are the valid characters for the salt.
 	SaltCharSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789./"
+)
+
+const (
+	variantDefault = VariantSHA512
 )

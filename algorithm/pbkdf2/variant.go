@@ -8,7 +8,7 @@ import (
 	"github.com/go-crypt/crypt/algorithm"
 )
 
-// NewVariant converts an identifier string to a Variant.
+// NewVariant converts an identifier string to a pbkdf2.Variant.
 func NewVariant(identifier string) (variant Variant) {
 	switch identifier {
 	case AlgIdentifier, AlgIdentifierSHA1, algorithm.DigestSHA1:
@@ -26,30 +26,30 @@ func NewVariant(identifier string) (variant Variant) {
 	}
 }
 
-// Variant is a variant of the Digest.
+// Variant is a variant of the pbkdf2.Digest.
 type Variant int
 
 const (
-	// VariantNone is a variant of the Digest which is unknown.
+	// VariantNone is a variant of the pbkdf2.Digest which is unknown.
 	VariantNone Variant = iota
 
-	// VariantSHA1 is a variant of the Digest which uses HMAC-SHA-1.
+	// VariantSHA1 is a variant of the pbkdf2.Digest which uses HMAC-SHA-1.
 	VariantSHA1
 
-	// VariantSHA224 is a variant of the Digest which uses HMAC-SHA-224.
+	// VariantSHA224 is a variant of the pbkdf2.Digest which uses HMAC-SHA-224.
 	VariantSHA224
 
-	// VariantSHA256 is a variant of the Digest which uses HMAC-SHA-256.
+	// VariantSHA256 is a variant of the pbkdf2.Digest which uses HMAC-SHA-256.
 	VariantSHA256
 
-	// VariantSHA384 is a variant of the Digest which uses HMAC-SHA-384.
+	// VariantSHA384 is a variant of the pbkdf2.Digest which uses HMAC-SHA-384.
 	VariantSHA384
 
-	// VariantSHA512 is a variant of the Digest which uses HMAC-SHA-512.
+	// VariantSHA512 is a variant of the pbkdf2.Digest which uses HMAC-SHA-512.
 	VariantSHA512
 )
 
-// String returns the name of this variant.
+// String implements the fmt.Stringer returning a string representation of the pbkdf2.Variant.
 func (v Variant) String() (variant string) {
 	switch v {
 	case VariantSHA1:
@@ -67,7 +67,7 @@ func (v Variant) String() (variant string) {
 	}
 }
 
-// Prefix returns the PlainTextVariant prefix identifier.
+// Prefix returns the pbkdf2.Variant prefix identifier.
 func (v Variant) Prefix() (prefix string) {
 	switch v {
 	case VariantSHA1:
@@ -85,7 +85,7 @@ func (v Variant) Prefix() (prefix string) {
 	}
 }
 
-// HashFunc returns the internal HMAC HashFunc.
+// HashFunc returns the internal HMAC algorithm.HashFunc.
 func (v Variant) HashFunc() algorithm.HashFunc {
 	switch v {
 	case VariantSHA1:
