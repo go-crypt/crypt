@@ -21,7 +21,7 @@ func New(opts ...Opt) (hasher *Hasher, err error) {
 	return hasher, nil
 }
 
-// Hasher is a algorithm.Hash for SHA-crypt. which can be initialized via shacrypt.New using a functional options pattern.
+// Hasher is a algorithm.Hash for SHA-crypt which can be initialized via shacrypt.New using a functional options pattern.
 type Hasher struct {
 	variant Variant
 
