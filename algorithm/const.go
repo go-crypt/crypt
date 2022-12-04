@@ -18,9 +18,9 @@ const (
 )
 
 const (
-	// SaltSizeDefault is the default salt size for most implementations.
-	SaltSizeDefault = 16
+	// SaltLengthDefault is the default salt size for most implementations.
+	SaltLengthDefault = 16
 
-	// KeySizeDefault is the default key size for most implementations.
-	KeySizeDefault = 32
+	// KeyLengthDefault is the default key size for most implementations.
+	KeyLengthDefault = 32
 )

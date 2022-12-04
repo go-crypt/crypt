@@ -7,7 +7,7 @@ import (
 	"github.com/go-crypt/crypt/algorithm"
 )
 
-// NewDigest creates a new plaintext.Digest using the PlainText Variant.
+// NewDigest creates a new plaintext.Digest using the plaintext.Variant.
 func NewDigest(password string) (digest Digest) {
 	digest = Digest{
 		variant: VariantPlainText,
@@ -17,7 +17,7 @@ func NewDigest(password string) (digest Digest) {
 	return digest
 }
 
-// NewBase64Digest creates a new Digest using the Base64 Variant.
+// NewBase64Digest creates a new plaintext.Digest using the Base64 plaintext.Variant.
 func NewBase64Digest(password string) (digest Digest) {
 	digest = Digest{
 		variant: VariantBase64,
@@ -27,19 +27,19 @@ func NewBase64Digest(password string) (digest Digest) {
 	return digest
 }
 
-// Digest is a Digest which handles plain text matching.
+// Digest is an algorithm.Digest which handles plaintext matching.
 type Digest struct {
 	variant Variant
 
 	key []byte
 }
 
-// Match returns true if the string password matches the current Digest.
+// Match returns true if the string password matches the current plaintext.Digest.
 func (d *Digest) Match(password string) (match bool) {
 	return d.MatchBytes([]byte(password))
 }
 
-// MatchBytes returns true if the []byte passwordBytes matches the current Digest.
+// MatchBytes returns true if the []byte passwordBytes matches the current plaintext.Digest.
 func (d *Digest) MatchBytes(passwordBytes []byte) (match bool) {
 	match, _ = d.MatchBytesAdvanced(passwordBytes)
 
@@ -64,12 +64,21 @@ func (d *Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error
 	return subtle.ConstantTimeCompare(d.key, passwordBytes) == 1, nil
 }
 
-// Encode returns the encoded form of this digest.
+// Encode returns the encoded form of this plaintext.Digest.
 func (d *Digest) Encode() string {
 	return fmt.Sprintf(EncodingFmt, d.variant.Prefix(), d.variant.Encode(d.key))
 }
 
-// String returns the storable format of the Digest encoded hash.
+// String returns the storable format of the plaintext.Digest encoded hash.
 func (d *Digest) String() string {
 	return d.Encode()
+}
+
+func (d *Digest) defaults() {
+	switch d.variant {
+	case VariantPlainText, VariantBase64:
+		break
+	default:
+		d.variant = VariantPlainText
+	}
 }

@@ -18,11 +18,11 @@ func NewVariant(identifier string) (variant Variant) {
 	}
 }
 
-// Variant is a variant of the Digest.
+// Variant is a variant of the argon2.Digest.
 type Variant int
 
 const (
-	// VariantNone is a variant of the argon2.Digest which is not set.
+	// VariantNone is a variant of the argon2.Digest which is unknown.
 	VariantNone Variant = iota
 
 	// VariantD is the argon2d variant of the argon2.Digest.

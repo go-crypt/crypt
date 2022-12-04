@@ -4,7 +4,7 @@ import (
 	"github.com/go-crypt/crypt/internal/encoding"
 )
 
-// NewVariant converts an identifier string to a Variant.
+// NewVariant converts an identifier string to a plaintext.Variant.
 func NewVariant(identifier string) (variant Variant) {
 	switch identifier {
 	case AlgIdentifierPlainText:
@@ -16,21 +16,21 @@ func NewVariant(identifier string) (variant Variant) {
 	}
 }
 
-// Variant is a variant of the Digest.
+// Variant is a variant of the plaintext.Digest.
 type Variant int
 
 const (
-	// VariantNone is a variant of the Digest which is unknown.
+	// VariantNone is a variant of the plaintext.Digest which is unknown.
 	VariantNone Variant = iota
 
-	// VariantPlainText is a variant of the Digest which stores the key as plain text.
+	// VariantPlainText is a variant of the plaintext.Digest which stores the key as plain text.
 	VariantPlainText
 
-	// VariantBase64 is a variant of the Digest which stores the key as a base64 string.
+	// VariantBase64 is a variant of the plaintext.Digest which stores the key as a base64 string.
 	VariantBase64
 )
 
-// Prefix returns the Variant prefix identifier.
+// Prefix returns the plaintext.Variant prefix identifier.
 func (v Variant) Prefix() (prefix string) {
 	switch v {
 	case VariantPlainText:
@@ -42,7 +42,7 @@ func (v Variant) Prefix() (prefix string) {
 	}
 }
 
-// Decode performs the decode operation for this Variant.
+// Decode performs the decode operation for this plaintext.Variant.
 func (v Variant) Decode(src string) (dst []byte, err error) {
 	switch v {
 	case VariantBase64:
@@ -52,7 +52,7 @@ func (v Variant) Decode(src string) (dst []byte, err error) {
 	}
 }
 
-// Encode performs the encode operation for this Variant.
+// Encode performs the encode operation for this plaintext.Variant.
 func (v Variant) Encode(src []byte) (dst string) {
 	switch v {
 	case VariantBase64:

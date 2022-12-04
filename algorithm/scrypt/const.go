@@ -11,14 +11,14 @@ const (
 	// AlgName is the name for this algorithm.
 	AlgName = "scrypt"
 
-	// KeySizeMin is the minimum key length accepted.
-	KeySizeMin = 1
+	// KeyLengthMin is the minimum key length accepted.
+	KeyLengthMin = 1
 
-	// SaltSizeMin is the minimum salt length accepted.
-	SaltSizeMin = 8
+	// SaltLengthMin is the minimum salt length accepted.
+	SaltLengthMin = 8
 
-	// SaltSizeMax is the maximum salt length accepted.
-	SaltSizeMax = 1024
+	// SaltLengthMax is the maximum salt length accepted.
+	SaltLengthMax = 1024
 
 	// IterationsMin is the minimum number of iterations accepted.
 	IterationsMin = 1

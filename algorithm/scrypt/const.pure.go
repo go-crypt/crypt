@@ -7,6 +7,6 @@ import (
 )
 
 const (
-	// KeySizeMax is the maximum key size accepted.
-	KeySizeMax = math.MaxInt32
+	// KeyLengthMax is the maximum key size accepted.
+	KeyLengthMax = math.MaxInt32
 )

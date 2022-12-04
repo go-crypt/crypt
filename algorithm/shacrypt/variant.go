@@ -7,7 +7,7 @@ import (
 	"github.com/go-crypt/crypt/algorithm"
 )
 
-// NewVariant converts an identifier string to a Variant.
+// NewVariant converts an identifier string to a shacrypt.Variant.
 func NewVariant(identifier string) Variant {
 	switch identifier {
 	case AlgIdentifierSHA256, algorithm.DigestSHA256:
@@ -19,20 +19,21 @@ func NewVariant(identifier string) Variant {
 	}
 }
 
-// Variant is a variant of the Digest.
+// Variant is a variant of the shacrypt.Digest.
 type Variant int
 
 const (
-	// VariantNone is a variant of the Digest which is unknown.
+	// VariantNone is a variant of the shacrypt.Digest which is unknown.
 	VariantNone Variant = iota
 
-	// VariantSHA256 is a variant of the Digest which uses SHA-256.
+	// VariantSHA256 is a variant of the shacrypt.Digest which uses SHA-256.
 	VariantSHA256
 
-	// VariantSHA512 is a variant of the Digest which uses SHA-512.
+	// VariantSHA512 is a variant of the shacrypt.Digest which uses SHA-512.
 	VariantSHA512
 )
 
+// String implements the fmt.Stringer returning a string representation of the shacrypt.Variant.
 func (v Variant) String() (identifier string) {
 	switch v {
 	case VariantSHA256:
@@ -44,7 +45,7 @@ func (v Variant) String() (identifier string) {
 	}
 }
 
-// Prefix returns the Variant prefix identifier.
+// Prefix returns the shacrypt.Variant prefix identifier.
 func (v Variant) Prefix() (prefix string) {
 	switch v {
 	case VariantSHA256:
@@ -80,8 +81,8 @@ func (v Variant) HashFunc() algorithm.HashFunc {
 	}
 }
 
-// DefaultRounds returns the default rounds for the particular variant.
-func (v Variant) DefaultRounds() int {
+// DefaultIterations returns the default iterations for the particular variant.
+func (v Variant) DefaultIterations() int {
 	switch v {
 	case VariantSHA512:
 		return IterationsDefaultSHA512

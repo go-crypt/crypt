@@ -13,17 +13,17 @@ import (
 type Digest struct {
 	variant Variant
 
-	cost int
+	iterations int
 
 	salt, key []byte
 }
 
-// Match returns true if the string password matches the current Digest.
+// Match returns true if the string password matches the current bcrypt.Digest.
 func (d *Digest) Match(password string) (match bool) {
 	return d.MatchBytes([]byte(password))
 }
 
-// MatchBytes returns true if the []byte passwordBytes matches the current Digest.
+// MatchBytes returns true if the []byte passwordBytes matches the current bcrypt.Digest.
 func (d *Digest) MatchBytes(passwordBytes []byte) (match bool) {
 	match, _ = d.MatchBytesAdvanced(passwordBytes)
 
@@ -45,19 +45,34 @@ func (d *Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error
 
 	var key []byte
 
-	if key, err = bcrypt.Key(input, d.salt, d.cost); err != nil {
+	if key, err = bcrypt.Key(input, d.salt, d.iterations); err != nil {
 		return false, fmt.Errorf(algorithm.ErrFmtDigestMatch, AlgName, fmt.Errorf("%w: %v", algorithm.ErrKeyDerivation, err))
 	}
 
 	return subtle.ConstantTimeCompare(d.key, key) == 1, nil
 }
 
-// Encode returns the encoded form of this digest.
+// Encode returns the encoded form of this bcrypt.Digest.
 func (d *Digest) Encode() string {
-	return d.variant.Encode(d.cost, AlgIdentifier, bcrypt.Base64Encode(d.salt), d.key)
+	return d.variant.Encode(d.iterations, AlgIdentifier, bcrypt.Base64Encode(d.salt), d.key)
 }
 
-// String returns the storable format of the Digest encoded hash.
+// String returns the storable format of the bcrypt.Digest encoded hash.
 func (d *Digest) String() string {
 	return d.Encode()
+}
+
+func (d *Digest) defaults() {
+	switch d.variant {
+	case VariantNone:
+		d.variant = VariantStandard
+	case VariantStandard, VariantSHA256:
+		break
+	default:
+		d.variant = variantDefault
+	}
+
+	if d.iterations < IterationsMin {
+		d.iterations = IterationsDefault
+	}
 }

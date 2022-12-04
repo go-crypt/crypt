@@ -9,7 +9,8 @@ import (
 // Opt describes the functional option pattern for the pbkdf2.Hasher.
 type Opt func(h *Hasher) (err error)
 
-// WithVariant configures the Variant.
+// WithVariant configures the pbkdf2.Variant of the resulting pbkdf2.Digest.
+// Default is pbkdf2.VariantSHA256.
 func WithVariant(variant Variant) Opt {
 	return func(h *Hasher) (err error) {
 		switch variant {
@@ -25,7 +26,8 @@ func WithVariant(variant Variant) Opt {
 	}
 }
 
-// WithVariantName uses the variant name set the variant.
+// WithVariantName uses the variant name or identifier to configure the pbkdf2.Variant of the resulting pbkdf2.Digest.
+// Default is pbkdf2.VariantSHA256.
 func WithVariantName(identifier string) Opt {
 	return func(h *Hasher) (err error) {
 		if identifier == "" {
@@ -44,21 +46,26 @@ func WithVariantName(identifier string) Opt {
 	}
 }
 
-// WithIterations sets the iterations parameter of the resulting Digest. Default is 29000.
+// WithIterations sets the iterations parameter of the resulting pbkdf2.Digest.
+// Minimum is 100000, Maximum is 2147483647. Default is 29000.
 func WithIterations(iterations int) Opt {
 	return func(h *Hasher) (err error) {
+		if iterations < IterationsMin || iterations > IterationsMax {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "iterations", IterationsMin, "", IterationsMax, iterations))
+		}
+
 		h.iterations = iterations
 
 		return nil
 	}
 }
 
-// WithTagLength adjusts the tag length (in bytes) of the resulting pbkdf2.Digest. Default is the output length of the
+// WithKeyLength adjusts the tag length (in bytes) of the resulting pbkdf2.Digest. Default is the output length of the
 // HMAC digest. Generally it's NOT recommended to change this value at all and let the default values be applied.
 // Longer tag lengths technically reduce security by forcing a longer hash calculation for legitimate users but not
 // requiring this for an attacker. In addition most implementations expect the tag length to match the output length of
-// the HMAC digest. This option MUST come after a specific WithVariant.
-func WithTagLength(bytes int) Opt {
+// the HMAC digest. This option MUST come after a specific pbkdf2.WithVariant.
+func WithKeyLength(bytes int) Opt {
 	return func(h *Hasher) (err error) {
 		if h.variant == VariantNone {
 			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf("tag size must not be set before the variant is set"))
@@ -66,21 +73,22 @@ func WithTagLength(bytes int) Opt {
 
 		keySizeMin := h.variant.HashFunc()().Size()
 
-		if h.bytesTag < keySizeMin || h.bytesTag > TagSizeMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "tag size", keySizeMin, "", TagSizeMax, h.bytesTag))
+		if bytes < keySizeMin || bytes > KeyLengthMax {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "tag size", keySizeMin, "", KeyLengthMax, bytes))
 		}
 
-		h.bytesTag = bytes
+		h.bytesKey = bytes
 
 		return nil
 	}
 }
 
-// WithSaltLength adjusts the salt size (in bytes) of the resulting pbkdf2.Digest. Default is 16.
+// WithSaltLength adjusts the salt size (in bytes) of the resulting pbkdf2.Digest.
+// Minimum is 8, Maximum is 2147483647. Default is 16.
 func WithSaltLength(bytes int) Opt {
 	return func(h *Hasher) (err error) {
-		if bytes < SaltSizeMin || bytes > SaltSizeMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "salt size", SaltSizeMin, "", SaltSizeMax, bytes))
+		if bytes < SaltLengthMin || bytes > SaltLengthMax {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "salt size", SaltLengthMin, "", SaltLengthMax, bytes))
 		}
 
 		h.bytesSalt = bytes

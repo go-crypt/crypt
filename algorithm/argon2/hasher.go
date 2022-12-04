@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/go-crypt/crypt/algorithm"
-	"github.com/go-crypt/crypt/internal/math"
 	"github.com/go-crypt/crypt/internal/random"
 )
 
@@ -23,16 +22,16 @@ func New(opts ...Opt) (hasher *Hasher, err error) {
 	return hasher, nil
 }
 
-// Hasher is a crypt.Hash for Argon2 which can be initialized via New using a functional options pattern.
+// Hasher is a crypt.Hash for Argon2 which can be initialized via argon2.New using a functional options pattern.
 type Hasher struct {
 	variant Variant
 
 	s, k, m, t, p int
 
-	defaults bool
+	d bool
 }
 
-// WithOptions applies the provided functional options provided as an Opt to the Hasher.
+// WithOptions applies the provided functional options provided as an argon2.Opt to the argon2.Hasher.
 func (h *Hasher) WithOptions(opts ...Opt) (err error) {
 	for _, opt := range opts {
 		if err = opt(h); err != nil {
@@ -87,9 +86,9 @@ func (h *Hasher) Merge(hash *Hasher) {
 	}
 }
 
-// Hash performs the hashing operation and returns either a Digest or an error.
+// Hash performs the hashing operation and returns either a argon2.Digest or an error.
 func (h *Hasher) Hash(password string) (digest algorithm.Digest, err error) {
-	h.setDefaults()
+	h.defaults()
 
 	if digest, err = h.hash(password); err != nil {
 		return nil, fmt.Errorf(algorithm.ErrFmtHasherHash, AlgName, err)
@@ -111,7 +110,7 @@ func (h *Hasher) hash(password string) (hashed algorithm.Digest, err error) {
 // HashWithSalt overloads the Hash method allowing the user to provide a salt. It's recommended instead to configure the
 // salt size and let this be a random value generated using crypto/rand.
 func (h *Hasher) HashWithSalt(password string, salt []byte) (digest algorithm.Digest, err error) {
-	h.setDefaults()
+	h.defaults()
 
 	if digest, err = h.hashWithSalt(password, salt); err != nil {
 		return nil, fmt.Errorf(algorithm.ErrFmtHasherHash, AlgName, err)
@@ -120,15 +119,15 @@ func (h *Hasher) HashWithSalt(password string, salt []byte) (digest algorithm.Di
 	return digest, nil
 }
 
-func (h *Hasher) hashWithSalt(password string, salt []byte) (digest algorithm.Digest, err error) {
-	if err = h.validateSalt(salt); err != nil {
-		return nil, err
+func (h *Hasher) hashWithSalt(passwordRaw string, salt []byte) (digest algorithm.Digest, err error) {
+	if s := len(salt); s > SaltLengthMax || s < SaltLengthMin {
+		return nil, fmt.Errorf("%w: salt bytes must have a length of between %d and %d but has a length of %d", algorithm.ErrSaltInvalid, SaltLengthMin, SaltLengthMax, len(salt))
 	}
 
-	passwordBytes := []byte(password)
+	password := []byte(passwordRaw)
 
-	if len(passwordBytes) > PasswordInputSizeMax {
-		return nil, fmt.Errorf("%w: password has a length of '%d' but must be less than or equal to %d", algorithm.ErrParameterInvalid, len(passwordBytes), PasswordInputSizeMax)
+	if len(password) > PasswordInputSizeMax {
+		return nil, fmt.Errorf("%w: passwordRaw has a length of '%d' but must be less than or equal to %d", algorithm.ErrParameterInvalid, len(password), PasswordInputSizeMax)
 	}
 
 	d := &Digest{
@@ -139,7 +138,9 @@ func (h *Hasher) hashWithSalt(password string, salt []byte) (digest algorithm.Di
 		salt:    salt,
 	}
 
-	d.key = d.variant.KeyFunc()(passwordBytes, d.salt, d.t, d.m, d.p, uint32(h.k))
+	d.defaults()
+
+	d.key = d.variant.KeyFunc()(password, d.salt, d.t, d.m, d.p, uint32(h.k))
 
 	return d, nil
 }
@@ -156,7 +157,7 @@ func (h *Hasher) MustHash(password string) (hashed algorithm.Digest) {
 	return hashed
 }
 
-// Validate checks the settings/parameters for this Hash and returns an error.
+// Validate checks the settings/parameters for this argon2.Hasher and returns an error.
 func (h *Hasher) Validate() (err error) {
 	if err = h.validate(); err != nil {
 		return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, err)
@@ -166,7 +167,7 @@ func (h *Hasher) Validate() (err error) {
 }
 
 func (h *Hasher) validate() (err error) {
-	h.setDefaults()
+	h.defaults()
 
 	mMin := h.p * MemoryMinParallelismMultiplier
 
@@ -177,38 +178,18 @@ func (h *Hasher) validate() (err error) {
 	return nil
 }
 
-func (h *Hasher) validateSalt(salt []byte) (err error) {
-	if len(salt) < SaltSizeMin || len(salt) > SaltSizeMax {
-		return fmt.Errorf("%w: salt bytes must have a length of between %d and %d but has a length of %d", algorithm.ErrSaltInvalid, SaltSizeMin, SaltSizeMax, len(salt))
-	}
-
-	return nil
-}
-
-func (h *Hasher) setDefaults() {
-	if h.defaults {
+func (h *Hasher) defaults() {
+	if h.d {
 		return
 	}
 
-	h.defaults = true
+	h.d = true
 
-	if h.variant == VariantNone {
-		h.variant = variantArgon2Default
+	if h.k < KeyLengthMin {
+		h.s = KeyLengthDefault
 	}
 
-	ProfileRFC9106LowMemory.Hasher().Merge(h)
-
-	if h.s < SaltSizeMin {
-		h.s = algorithm.SaltSizeDefault
+	if h.s < SaltLengthMin {
+		h.s = algorithm.SaltLengthDefault
 	}
-
-	/*
-	   Memory size m MUST be an integer number of kibibytes from 8*p to
-	   2^(32)-1.  The actual number of blocks is m', which is m rounded
-	   down to the nearest multiple of 4*p.
-	*/
-
-	pM := h.p * MemoryRoundingParallelismMultiplier
-
-	h.m = math.RoundDownToNearestMultiple(h.m, pM)
 }

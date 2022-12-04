@@ -29,14 +29,14 @@ const (
 	// AlgIdentifierSHA512 is the identifier used in encoded SHA512 variants of this algorithm.
 	AlgIdentifierSHA512 = "pbkdf2-sha512"
 
-	// TagSizeMax is the maximum tag size accepted.
-	TagSizeMax = math.MaxInt32
+	// KeyLengthMax is the maximum tag size accepted.
+	KeyLengthMax = math.MaxInt32
 
-	// SaltSizeMin is the minimum salt size accepted.
-	SaltSizeMin = 8
+	// SaltLengthMin is the minimum salt size accepted.
+	SaltLengthMin = 8
 
-	// SaltSizeMax is the maximum salt size accepted.
-	SaltSizeMax = math.MaxInt32
+	// SaltLengthMax is the maximum salt size accepted.
+	SaltLengthMax = math.MaxInt32
 
 	// IterationsMin is the minimum iterations accepted.
 	IterationsMin = 100000

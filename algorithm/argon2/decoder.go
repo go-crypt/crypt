@@ -60,8 +60,8 @@ func Decode(encodedDigest string) (digest algorithm.Digest, err error) {
 	return DecodeVariant(VariantNone)(encodedDigest)
 }
 
-// DecodeVariant the encoded digest into a algorithm.Digest provided it matches the provided Variant. If VariantNone is
-// used all variants can be decoded.
+// DecodeVariant the encoded digest into a algorithm.Digest provided it matches the provided argon2.Variant. If
+// argon2.VariantNone is used all variants can be decoded.
 func DecodeVariant(v Variant) func(encodedDigest string) (digest algorithm.Digest, err error) {
 	return func(encodedDigest string) (digest algorithm.Digest, err error) {
 		var (
@@ -101,6 +101,7 @@ func decoderParts(encodedDigest string) (variant Variant, parts []string, err er
 	return variant, parts[2:], nil
 }
 
+//nolint:gocyclo
 func decode(variant Variant, parts []string) (digest algorithm.Digest, err error) {
 	decoded := &Digest{
 		variant: variant,

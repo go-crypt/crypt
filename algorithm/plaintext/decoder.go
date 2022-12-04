@@ -43,8 +43,8 @@ func Decode(encodedDigest string) (digest algorithm.Digest, err error) {
 	return DecodeVariant(VariantNone)(encodedDigest)
 }
 
-// DecodeVariant the encoded digest into a algorithm.Digest provided it matches the provided Variant. If VariantNone is
-// used all variants can be decoded.
+// DecodeVariant the encoded digest into a algorithm.Digest provided it matches the provided plaintext.Variant. If
+// plaintext.VariantNone is used all variants can be decoded.
 func DecodeVariant(v Variant) func(encodedDigest string) (digest algorithm.Digest, err error) {
 	return func(encodedDigest string) (digest algorithm.Digest, err error) {
 		var (

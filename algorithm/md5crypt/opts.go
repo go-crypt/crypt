@@ -1,4 +1,4 @@
-package shacrypt
+package md5crypt
 
 import (
 	"fmt"
@@ -6,17 +6,17 @@ import (
 	"github.com/go-crypt/crypt/algorithm"
 )
 
-// Opt describes the functional option pattern for the shacrypt.Hasher.
+// Opt describes the functional option pattern for the md5crypt.Hasher.
 type Opt func(h *Hasher) (err error)
 
-// WithVariant configures the shacrypt.Variant of the resulting shacrypt.Digest.
-// Default is shacrypt.VariantSHA512.
+// WithVariant is used to configure the md5crypt.Variant of the resulting md5crypt.Digest.
+// Default is md5crypt.VariantStandard.
 func WithVariant(variant Variant) Opt {
 	return func(h *Hasher) (err error) {
 		switch variant {
 		case VariantNone:
 			return nil
-		case VariantSHA256, VariantSHA512:
+		case VariantStandard, VariantSun:
 			h.variant = variant
 
 			return nil
@@ -26,8 +26,8 @@ func WithVariant(variant Variant) Opt {
 	}
 }
 
-// WithVariantName uses the variant name or identifier to configure the shacrypt.Variant of the resulting shacrypt.Digest.
-// Default is shacrypt.VariantSHA512.
+// WithVariantName uses the variant name or identifier to configure the md5crypt.Variant of the resulting md5crypt.Digest.
+// Default is md5crypt.VariantStandard.
 func WithVariantName(identifier string) Opt {
 	return func(h *Hasher) (err error) {
 		if identifier == "" {
@@ -46,26 +46,9 @@ func WithVariantName(identifier string) Opt {
 	}
 }
 
-// WithSHA256 adjusts this Hasher to utilize the SHA256 hash.Hash.
-func WithSHA256() Opt {
-	return func(h *Hasher) (err error) {
-		h.variant = VariantSHA256
-
-		return nil
-	}
-}
-
-// WithSHA512 adjusts this Hasher to utilize the SHA512 hash.Hash.
-func WithSHA512() Opt {
-	return func(h *Hasher) (err error) {
-		h.variant = VariantSHA512
-
-		return nil
-	}
-}
-
-// WithIterations sets the iterations parameter of the resulting shacrypt.Digest.
-// Minimum 1000, Maximum 999999999. Default is 1000000.
+// WithIterations sets the iterations parameter of the resulting md5crypt.Digest. Only valid for the Sun variant. This
+// is encoded in the hash with the 'iterations' parameter.
+// Minimum is 0, Maximum is 4294967295. Default is 34000.
 func WithIterations(iterations int) Opt {
 	return func(h *Hasher) (err error) {
 		if iterations < IterationsMin || iterations > IterationsMax {
@@ -78,17 +61,17 @@ func WithIterations(iterations int) Opt {
 	}
 }
 
-// WithRounds is an alias for shacrypt.WithIterations.
+// WithRounds is an alias for md5crypt.WithIterations.
 func WithRounds(rounds int) Opt {
 	return WithIterations(rounds)
 }
 
-// WithSaltLength adjusts the salt size (in bytes) of the resulting shacrypt.Digest.
-// Minimum 1, Maximum 16. Default is 16.
+// WithSaltLength adjusts the salt size (in bytes) of the resulting md5crypt.Digest.
+// Minimum is 1, Maximum is 8. Default is 8.
 func WithSaltLength(bytes int) Opt {
 	return func(h *Hasher) (err error) {
 		if bytes < SaltLengthMin || bytes > SaltLengthMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "salt length", SaltLengthMin, "", SaltLengthMax, bytes))
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "salt size", SaltLengthMin, "", SaltLengthMax, bytes))
 		}
 
 		h.bytesSalt = bytes

@@ -9,7 +9,8 @@ import (
 // Opt describes the functional option pattern for the bcrypt.Hasher.
 type Opt func(h *Hasher) (err error)
 
-// WithVariant adjusts the variant of the bcrypt.Digest algorithm.
+// WithVariant is used to configure the bcrypt.Variant of the resulting bcrypt.Digest.
+// Default is bcrypt.VariantStandard.
 func WithVariant(variant Variant) Opt {
 	return func(h *Hasher) (err error) {
 		switch variant {
@@ -23,7 +24,8 @@ func WithVariant(variant Variant) Opt {
 	}
 }
 
-// WithVariantName satisfies the argon2.Opt type and sets the variant by name.
+// WithVariantName uses the variant name or identifier to configure the bcrypt.Variant of the resulting bcrypt.Digest.
+// Default is bcrypt.VariantStandard.
 func WithVariantName(identifier string) Opt {
 	return func(h *Hasher) (err error) {
 		if identifier == "" {
@@ -42,15 +44,21 @@ func WithVariantName(identifier string) Opt {
 	}
 }
 
-// WithCost sets the cost parameter of the resulting Bcrypt hash. Default is 12.
-func WithCost(cost int) Opt {
+// WithIterations sets the iterations parameter of the resulting bcrypt.Digest.
+// Minimum is 10, Maximum is 31. Default is 12.
+func WithIterations(iterations int) Opt {
 	return func(h *Hasher) (err error) {
-		if cost < CostMin || cost > CostMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "cost", CostMin, "", CostMax, cost))
+		if iterations < IterationsMin || iterations > IterationsMax {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "iterations", IterationsMin, "", IterationsMax, iterations))
 		}
 
-		h.cost = cost
+		h.iterations = iterations
 
 		return nil
 	}
+}
+
+// WithCost is an alias for bcrypt.WithIterations.
+func WithCost(iterations int) Opt {
+	return WithIterations(iterations)
 }

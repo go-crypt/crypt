@@ -9,9 +9,16 @@ import (
 	"github.com/go-crypt/crypt/internal/random"
 )
 
-// New returns a *Hasher without any settings configured.
+// New returns a *pbkdf2.Hasher with the additional opts applied if any.
 func New(opts ...Opt) (hasher *Hasher, err error) {
 	hasher = &Hasher{}
+
+	if err = hasher.WithOptions(
+		WithVariant(VariantSHA256),
+		WithSaltLength(algorithm.SaltLengthDefault),
+	); err != nil {
+		return nil, err
+	}
 
 	if err = hasher.WithOptions(opts...); err != nil {
 		return nil, err
@@ -20,81 +27,81 @@ func New(opts ...Opt) (hasher *Hasher, err error) {
 	return hasher, nil
 }
 
-// NewSHA1 returns a SHA1 variant *Hasher without any settings configured.
+// NewSHA1 returns a SHA1 variant *pbkdf2.Hasher with the additional opts applied if any.
 func NewSHA1(opts ...Opt) (hasher *Hasher, err error) {
 	if hasher, err = New(opts...); err != nil {
 		return nil, err
 	}
 
-	if err = hasher.WithOptions(WithVariant(VariantSHA1), WithTagLength(VariantSHA1.HashFunc()().Size())); err != nil {
+	if err = hasher.WithOptions(WithVariant(VariantSHA1), WithKeyLength(VariantSHA1.HashFunc()().Size())); err != nil {
 		return nil, err
 	}
 
 	return hasher, nil
 }
 
-// NewSHA224 returns a SHA224 variant *Hasher without any settings configured.
+// NewSHA224 returns a SHA224 variant *pbkdf2.Hasher with the additional opts applied if any.
 func NewSHA224(opts ...Opt) (hasher *Hasher, err error) {
 	if hasher, err = New(opts...); err != nil {
 		return nil, err
 	}
 
-	if err = hasher.WithOptions(WithVariant(VariantSHA224), WithTagLength(VariantSHA224.HashFunc()().Size())); err != nil {
+	if err = hasher.WithOptions(WithVariant(VariantSHA224), WithKeyLength(VariantSHA224.HashFunc()().Size())); err != nil {
 		return nil, err
 	}
 
 	return hasher, nil
 }
 
-// NewSHA256 returns a SHA256 variant *Hasher without any settings configured.
+// NewSHA256 returns a SHA256 variant *pbkdf2.Hasher with the additional opts applied if any.
 func NewSHA256(opts ...Opt) (hasher *Hasher, err error) {
 	if hasher, err = New(opts...); err != nil {
 		return nil, err
 	}
 
-	if err = hasher.WithOptions(WithVariant(VariantSHA256), WithTagLength(VariantSHA256.HashFunc()().Size())); err != nil {
+	if err = hasher.WithOptions(WithVariant(VariantSHA256), WithKeyLength(VariantSHA256.HashFunc()().Size())); err != nil {
 		return nil, err
 	}
 
 	return hasher, nil
 }
 
-// NewSHA384 returns a SHA384 variant *Hasher without any settings configured.
+// NewSHA384 returns a SHA384 variant *pbkdf2.Hasher with the additional opts applied if any.
 func NewSHA384(opts ...Opt) (hasher *Hasher, err error) {
 	if hasher, err = New(opts...); err != nil {
 		return nil, err
 	}
 
-	if err = hasher.WithOptions(WithVariant(VariantSHA384), WithTagLength(VariantSHA384.HashFunc()().Size())); err != nil {
+	if err = hasher.WithOptions(WithVariant(VariantSHA384), WithKeyLength(VariantSHA384.HashFunc()().Size())); err != nil {
 		return nil, err
 	}
 
 	return hasher, nil
 }
 
-// NewSHA512 returns a SHA512 variant *Hasher without any settings configured.
+// NewSHA512 returns a SHA512 variant *pbkdf2.Hasher with the additional opts applied if any.
 func NewSHA512(opts ...Opt) (hasher *Hasher, err error) {
 	if hasher, err = New(opts...); err != nil {
 		return nil, err
 	}
 
-	if err = hasher.WithOptions(WithVariant(VariantSHA512), WithTagLength(VariantSHA512.HashFunc()().Size())); err != nil {
+	if err = hasher.WithOptions(WithVariant(VariantSHA512), WithKeyLength(VariantSHA512.HashFunc()().Size())); err != nil {
 		return nil, err
 	}
 
 	return hasher, nil
 }
 
-// Hasher is a crypt.Hash for PBKDF2 which can be initialized via New using a functional options pattern.
+// Hasher is a crypt.Hash for PBKDF2 which can be initialized via pbkdf2.New using a functional options pattern.
 type Hasher struct {
 	variant Variant
 
-	iterations, bytesTag, bytesSalt int
+	iterations, bytesKey, bytesSalt int
 
-	defaults bool
+	d bool
 }
 
-// WithOptions applies the provided functional options provided as an Opt to the pbkdf2.Hasher.
+// WithOptions applies the provided functional options provided as a pbkdf2.Opt to the pbkdf2.Hasher.
 func (h *Hasher) WithOptions(opts ...Opt) (err error) {
 	for _, opt := range opts {
 		if err = opt(h); err != nil {
@@ -107,6 +114,8 @@ func (h *Hasher) WithOptions(opts ...Opt) (err error) {
 
 // Hash performs the hashing operation and returns either a algorithm.Digest or an error.
 func (h *Hasher) Hash(password string) (digest algorithm.Digest, err error) {
+	h.defaults()
+
 	if digest, err = h.hash(password); err != nil {
 		return nil, fmt.Errorf(algorithm.ErrFmtHasherHash, AlgName, err)
 	}
@@ -115,8 +124,6 @@ func (h *Hasher) Hash(password string) (digest algorithm.Digest, err error) {
 }
 
 func (h *Hasher) hash(password string) (digest algorithm.Digest, err error) {
-	h.setDefaults()
-
 	var salt []byte
 
 	if salt, err = random.Bytes(h.bytesSalt); err != nil {
@@ -129,6 +136,8 @@ func (h *Hasher) hash(password string) (digest algorithm.Digest, err error) {
 // HashWithSalt overloads the Hash method allowing the user to provide a salt. It's recommended instead to configure the
 // salt size and let this be a random value generated using crypto/rand.
 func (h *Hasher) HashWithSalt(password string, salt []byte) (digest algorithm.Digest, err error) {
+	h.defaults()
+
 	if digest, err = h.hashWithSalt(password, salt); err != nil {
 		return nil, fmt.Errorf(algorithm.ErrFmtHasherHash, AlgName, err)
 	}
@@ -137,16 +146,20 @@ func (h *Hasher) HashWithSalt(password string, salt []byte) (digest algorithm.Di
 }
 
 func (h *Hasher) hashWithSalt(password string, salt []byte) (digest algorithm.Digest, err error) {
+	if s := len(salt); s > SaltLengthMax || s < SaltLengthMin {
+		return nil, fmt.Errorf("%w: salt bytes must have a length of between %d and %d but has a length of %d", algorithm.ErrSaltInvalid, SaltLengthMin, SaltLengthMax, len(salt))
+	}
+
 	d := &Digest{
 		variant:    h.variant,
 		iterations: h.iterations,
-		t:          h.bytesTag,
+		t:          h.bytesKey,
 		salt:       salt,
 	}
 
-	hf := d.variant.HashFunc()
+	d.defaults()
 
-	d.key = pbkdf2.Key([]byte(password), d.salt, h.iterations, d.t, hf)
+	d.key = pbkdf2.Key([]byte(password), d.salt, d.iterations, d.t, d.variant.HashFunc())
 
 	return d, nil
 }
@@ -173,42 +186,27 @@ func (h *Hasher) Validate() (err error) {
 }
 
 func (h *Hasher) validate() (err error) {
-	h.setDefaults()
+	h.defaults()
 
-	tagSizeMin := h.variant.HashFunc()().Size()
+	keyLengthMin := h.variant.HashFunc()().Size()
 
-	if h.bytesTag < tagSizeMin || h.bytesTag > TagSizeMax {
-		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "tag size", tagSizeMin, "", TagSizeMax, h.bytesTag)
+	if h.bytesKey < keyLengthMin || h.bytesKey > KeyLengthMax {
+		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "key length", keyLengthMin, "", KeyLengthMax, h.bytesKey)
 	}
 
 	return nil
 }
 
-func (h *Hasher) setDefaults() {
-	if h.defaults {
+func (h *Hasher) defaults() {
+	if h.d {
 		return
 	}
 
-	h.defaults = true
-
-	switch h.variant {
-	case VariantNone:
-		h.variant = variantDefault
-	case VariantSHA1, VariantSHA224, VariantSHA256, VariantSHA384, VariantSHA512:
-		break
-	default:
-		h.variant = variantDefault
+	if h.bytesKey == 0 {
+		h.bytesKey = h.variant.HashFunc()().Size()
 	}
 
-	if h.bytesTag == 0 {
-		h.bytesTag = h.variant.HashFunc()().Size()
-	}
-
-	if h.bytesSalt == 0 {
-		h.bytesSalt = algorithm.SaltSizeDefault
-	}
-
-	if h.iterations == 0 {
-		h.iterations = h.variant.DefaultIterations()
+	if h.bytesSalt < SaltLengthMin {
+		h.bytesSalt = algorithm.SaltLengthDefault
 	}
 }

@@ -64,8 +64,8 @@ func Decode(encodedDigest string) (digest algorithm.Digest, err error) {
 	return DecodeVariant(VariantNone)(encodedDigest)
 }
 
-// DecodeVariant the encoded digest into a algorithm.Digest provided it matches the provided Variant. If VariantNone is
-// used all variants can be decoded.
+// DecodeVariant the encoded digest into a algorithm.Digest provided it matches the provided bcrypt.Variant. If
+//bcrypt.VariantNone is used all variants can be decoded.
 func DecodeVariant(v Variant) func(encodedDigest string) (digest algorithm.Digest, err error) {
 	return func(encodedDigest string) (digest algorithm.Digest, err error) {
 		var (
@@ -122,8 +122,8 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 			return nil, algorithm.ErrEncodedHashInvalidFormat
 		}
 
-		if decoded.cost, err = strconv.Atoi(parts[0]); err != nil {
-			return nil, fmt.Errorf("%w: cost could not be parsed: %v", algorithm.ErrEncodedHashInvalidOptionValue, err)
+		if decoded.iterations, err = strconv.Atoi(parts[0]); err != nil {
+			return nil, fmt.Errorf("%w: iterations could not be parsed: %v", algorithm.ErrEncodedHashInvalidOptionValue, err)
 		}
 
 		salt, key = bcrypt.DecodeSecret([]byte(parts[1]))
@@ -145,7 +145,7 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 			case oV, oT:
 				break
 			case oR:
-				decoded.cost, err = param.Int()
+				decoded.iterations, err = param.Int()
 			default:
 				return nil, fmt.Errorf("%w: option '%s' with value '%s' is unknown", algorithm.ErrEncodedHashInvalidOptionKey, param.Key, param.Value)
 			}

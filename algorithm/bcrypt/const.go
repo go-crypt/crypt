@@ -1,5 +1,9 @@
 package bcrypt
 
+import (
+	"github.com/go-crypt/crypt/algorithm"
+)
+
 const (
 	// EncodingFmt is the encoding format for this algorithm.
 	EncodingFmt = "$%s$%d$%s%s"
@@ -27,23 +31,26 @@ const (
 
 	// AlgIdentifierUnversioned is the identifier used in this algorithm (no version).
 	AlgIdentifierUnversioned = "2"
-)
 
-// bcrypt constants.
-const (
-	// CostMin is the minimum cost accepted.
-	CostMin = 10
+	// VariantNameStandard is the variant name of the bcrypt.VariantStandard.
+	VariantNameStandard = "standard"
 
-	// CostMax is the maximum cost accepted.
-	CostMax = 31
+	// VariantNameSHA256 is the variant name of the bcrypt.VariantSHA256.
+	VariantNameSHA256 = algorithm.DigestSHA256
 
-	// CostDefault is the default cost.
-	CostDefault = 13
+	// IterationsMin is the minimum iterations accepted.
+	IterationsMin = 10
+
+	// IterationsMax is the maximum iterations accepted.
+	IterationsMax = 31
+
+	// IterationsDefault is the default iterations.
+	IterationsDefault = 13
 
 	// PasswordInputSizeMax is the maximum password input size accepted.
 	PasswordInputSizeMax = 72
 
-	variantBcryptDefault = VariantStandard
+	variantDefault = VariantStandard
 )
 
 const (

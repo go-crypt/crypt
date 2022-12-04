@@ -47,6 +47,7 @@ type DecodeFunc func(encodedDigest string) (digest Digest, err error)
 // DecoderRegister describes an implementation that allows registering DecodeFunc's.
 type DecoderRegister interface {
 	RegisterDecodeFunc(prefix string, decoder DecodeFunc) (err error)
+	RegisterDecodePrefix(prefix, identifier string) (err error)
 
 	Decoder
 }

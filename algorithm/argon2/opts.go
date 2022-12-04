@@ -9,7 +9,8 @@ import (
 // Opt describes the functional option pattern for the argon2.Hasher.
 type Opt func(h *Hasher) (err error)
 
-// WithVariant satisfies the argon2.Opt type and sets the variant.
+// WithVariant is used to configure the argon2.Variant of the resulting argon2.Digest.
+// Default is argon2.VariantID.
 func WithVariant(variant Variant) Opt {
 	return func(h *Hasher) (err error) {
 		switch variant {
@@ -23,7 +24,8 @@ func WithVariant(variant Variant) Opt {
 	}
 }
 
-// WithVariantName satisfies the argon2.Opt type and sets the variant by name.
+// WithVariantName uses the variant name or identifier to configure the argon2.Variant of the resulting argon2.Digest.
+// Default is argon2.VariantID.
 func WithVariantName(identifier string) Opt {
 	return func(h *Hasher) (err error) {
 		if identifier == "" {
@@ -74,11 +76,13 @@ func WithVariantD() Opt {
 // Degree of parallelism p determines how many independent (but synchronizing) computational chains (lanes) can be run.
 // It MUST be an integer value from 1 to 2^(24)-1.
 //
+// Minimum is 1, Maximum is 16777215. Default is 4.
+//
 // RFC9106 section 3.1 "Argon2 Inputs and Outputs" https://www.rfc-editor.org/rfc/rfc9106.html#name-argon2-inputs-and-outputs.
 func WithP(p int) Opt {
 	return func(h *Hasher) (err error) {
 		if p < ParallelismMin || p > ParallelismMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "p", ParallelismMin, "", ParallelismMax, p))
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "parallelism", ParallelismMin, "", ParallelismMax, p))
 		}
 
 		h.p = p
@@ -97,9 +101,15 @@ func WithParallelism(p int) Opt {
 // Memory size m MUST be an integer number of kibibytes from 8*p to 2^(32)-1. The actual number of blocks is m', which
 // is m rounded down to the nearest multiple of 4*p.
 //
+// Minimum is 8, Maximum is 2147483647. Default is 2097152.
+//
 // RFC9106 section 3.1 "Argon2 Inputs and Outputs" https://www.rfc-editor.org/rfc/rfc9106.html#name-argon2-inputs-and-outputs.
 func WithM(m int) Opt {
 	return func(h *Hasher) (err error) {
+		if m < MemoryMin || m > MemoryMax {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "memory", MemoryMin, "", MemoryMax, m))
+		}
+
 		h.m = m
 
 		return nil
@@ -115,11 +125,13 @@ func WithMemoryInKiB(m int) Opt {
 //
 // Number of passes t (used to tune the running time independently of the memory size) MUST be an integer number from 1 to 2^(32)-1.
 //
+// Minimum is 1, Maximum is 2147483647. Default is 1.
+//
 // RFC9106 section 3.1 "Argon2 Inputs and Outputs" https://www.rfc-editor.org/rfc/rfc9106.html#name-argon2-inputs-and-outputs.
 func WithT(t int) Opt {
 	return func(h *Hasher) (err error) {
-		if t < PassesMin || t > PassesMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "t", PassesMin, "", PassesMax, t))
+		if t < IterationsMin || t > IterationsMax {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "t", IterationsMin, "", IterationsMax, t))
 		}
 
 		h.t = t
@@ -137,11 +149,13 @@ func WithIterations(t int) Opt {
 //
 // Tag length T MUST be an integer number of bytes from 4 to 2^(32)-1. The Argon2 output, or "tag", is a string T bytes long.
 //
+// Minimum is 4, Maximum is 2147483647. Default is 32.
+//
 // RFC9106 section 3.1 "Argon2 Inputs and Outputs" https://www.rfc-editor.org/rfc/rfc9106.html#name-argon2-inputs-and-outputs.
 func WithK(k int) Opt {
 	return func(h *Hasher) (err error) {
-		if k < TagLengthMin || k > TagLengthMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "k", TagLengthMin, "", TagLengthMax, k))
+		if k < KeyLengthMin || k > KeyLengthMax {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "k", KeyLengthMin, "", KeyLengthMax, k))
 		}
 
 		h.k = k
@@ -165,11 +179,13 @@ func WithKeyLength(k int) Opt {
 // Nonce S, which is a salt for password hashing applications. It MUST have a length not greater than 2^(32)-1 bytes.
 // 16 bytes is RECOMMENDED for password hashing. The salt SHOULD be unique for each password.
 //
+// Minimum is 1, Maximum is 2147483647. Default is 16.
+//
 // RFC9106 section 3.1 "Argon2 Inputs and Outputs" https://www.rfc-editor.org/rfc/rfc9106.html#name-argon2-inputs-and-outputs.
 func WithS(s int) Opt {
 	return func(h *Hasher) (err error) {
-		if s < SaltSizeMin || s > SaltSizeMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "s", SaltSizeMin, "", SaltSizeMax, s))
+		if s < SaltLengthMin || s > SaltLengthMax {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "s", SaltLengthMin, "", SaltLengthMax, s))
 		}
 
 		h.s = s

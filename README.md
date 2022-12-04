@@ -21,10 +21,11 @@ A list of tasks that need to be accomplished are listed in the
 |                                 Algorithm                                  |               Variants               |                                         Identifiers                                         |
 |:--------------------------------------------------------------------------:|:------------------------------------:|:-------------------------------------------------------------------------------------------:|
 |           [Argon2](https://www.rfc-editor.org/rfc/rfc9106.html)            |      Argon2id, Argon2i, Argon2d      |                              `argon2id`, `argon2i`, `argon2d`                               |
-|        [SHA2 Crypt](https://www.akkadia.org/drepper/SHA-crypt.txt)         |            SHA256, SHA512            |                                          `5`, `6`                                           |
+|         [sha-crypt](https://www.akkadia.org/drepper/sha-crypt.txt)         |            SHA256, SHA512            |                                          `5`, `6`                                           |
 |                                   PBKDF2                                   | SHA1, SHA224, SHA256, SHA384, SHA512 | `pbkdf2`, `pbkdf2-sha1`, `pbkdf2-sha224`, `pbkdf2-sha256`, `pbkdf2-sha384`, `pbkdf2-sha512` |
 | [bcrypt](https://www.usenix.org/legacy/event/usenix99/provos/provos_html/) |        bcrypt, bcrypt-sha256         |                        `2`, `2a`, `2b`, `2x`, `2y`,  `bcrypt-sha256`                        |
 |           [scrypt](https://www.rfc-editor.org/rfc/rfc7914.html)            |                scrypt                |                                          `scrypt`                                           |
+|                                  md5crypt                                  |            standard, sun             |                                         `1`, `md5`                                          |
 |                      [PlainText](#plain-text-format)                       |          plaintext, base64           |                                    `plaintext`, `base64`                                    |
 
 #### Plain Text Format
@@ -57,14 +58,13 @@ a HMAC-SHA-256 function the salt as the key is supported. The bcrypt-sha256 vers
 
 ### Possible Future Support
 
-|    Algorithm    |            Reasoning             |
-|:---------------:|:--------------------------------:|
-|       MD5       | Explicit Backwards Compatibility |
-|     Sun MD5     | Explicit Backwards Compatibility |
-| Type 7 (cisco)  | Explicit Backwards Compatibility |
-| Type 8 (cisco)  | Explicit Backwards Compatibility |
-| Type 9 (cisco)  | Explicit Backwards Compatibility |
-| Type 10 (cisco) | Explicit Backwards Compatibility |
+|    Algorithm    |                       Reasoning                       |
+|:---------------:|:-----------------------------------------------------:|
+| Type 7 (cisco)  | Explicit Backwards Compatibility and Interoperability |
+| Type 8 (cisco)  | Explicit Backwards Compatibility and Interoperability |
+| Type 9 (cisco)  | Explicit Backwards Compatibility and Interoperability |
+| Type 10 (cisco) | Explicit Backwards Compatibility and Interoperability |
+|  LDAP RFC2307   | Explicit Backwards Compatibility and Interoperability |
 
 Additional support for LDAP specific formats is also very likely, either via normalization and encoding options or via
 explicit algorithm variants and/or specific algorithms.
