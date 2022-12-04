@@ -1,5 +1,9 @@
 package md5crypt
 
+import (
+	"math"
+)
+
 const (
 	// EncodingFmt is the encoding format for this algorithm.
 	EncodingFmt = "$1$%s$%s"
@@ -42,6 +46,9 @@ const (
 
 	// IterationsDefault is the default iterations.
 	IterationsDefault = 34000
+
+	// IterationsMax is the maximum iterations accepted.
+	IterationsMax uint32 = math.MaxUint32
 )
 
 const (

@@ -13,8 +13,9 @@ import (
 type Digest struct {
 	variant Variant
 
-	iterations int
-	salt, key  []byte
+	iterations uint32
+
+	salt, key []byte
 }
 
 // Match returns true if the string password matches the current md5crypt.Digest.

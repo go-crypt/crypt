@@ -24,7 +24,9 @@ func New(opts ...Opt) (hasher *Hasher, err error) {
 type Hasher struct {
 	variant Variant
 
-	iterations, bytesSalt int
+	iterations uint32
+
+	bytesSalt int
 
 	d bool
 }
@@ -43,7 +45,7 @@ func (h *Hasher) WithOptions(opts ...Opt) (err error) {
 // Hash performs the hashing operation and returns either a algorithm.Digest or an error.
 func (h *Hasher) Hash(password string) (digest algorithm.Digest, err error) {
 	h.defaults()
-	
+
 	if digest, err = h.hash(password); err != nil {
 		return nil, fmt.Errorf(algorithm.ErrFmtHasherHash, AlgName, err)
 	}
