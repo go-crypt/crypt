@@ -102,41 +102,41 @@ This can be done via the `crypt.NewDecoder` function as shown below.
 package main
 
 import (
-	"fmt"
+    "fmt"
 
-	"github.com/go-crypt/crypt"
-	"github.com/go-crypt/crypt/algorithm"
-	"github.com/go-crypt/crypt/algorithm/argon2"
+    "github.com/go-crypt/crypt"
+    "github.com/go-crypt/crypt/algorithm"
+    "github.com/go-crypt/crypt/algorithm/argon2"
 )
 func main() {
-	var (
-		decoder *crypt.Decoder
-		err    error
-		digest algorithm.Digest
-	)
-	
-	if decoder, err = NewDecoderArgon2idOnly(); err != nil {
-		panic(err)
+    var (
+        decoder *crypt.Decoder
+        err    error
+        digest algorithm.Digest
+    )
+    
+    if decoder, err = NewDecoderArgon2idOnly(); err != nil {
+        panic(err)
     }
-	
-	if digest, err = decoder.Decode("$argon2id$v=19$m=2097152,t=1,p=4$BjVeoTI4ntTQc0WkFQdLWg$OAUnkkyx5STI0Ixl+OSpv4JnI6J1TYWKuCuvIbUGHTY"); err != nil {
-		panic(err)
-	}
+    
+    if digest, err = decoder.Decode("$argon2id$v=19$m=2097152,t=1,p=4$BjVeoTI4ntTQc0WkFQdLWg$OAUnkkyx5STI0Ixl+OSpv4JnI6J1TYWKuCuvIbUGHTY"); err != nil {
+        panic(err)
+    }
 
-	fmt.Printf("Digest Matches Password 'example': %t\n", digest.Match("example"))
-	fmt.Printf("Digest Matches Password 'invalid': %t\n", digest.Match("invalid"))
+    fmt.Printf("Digest Matches Password 'example': %t\n", digest.Match("example"))
+    fmt.Printf("Digest Matches Password 'invalid': %t\n", digest.Match("invalid"))
 }
 
 
 // NewDecoderArgon2idOnly returns a decoder which can only decode argon2id encoded digests.
 func NewDecoderArgon2idOnly() (decoder *crypt.Decoder, err error) {
-	decoder = crypt.NewDecoder()
+    decoder = crypt.NewDecoder()
 
-	if err = argon2.RegisterDecoderArgon2id(decoder); err != nil {
-		return nil, err
-	}
-	
-	return decoder, nil
+    if err = argon2.RegisterDecoderArgon2id(decoder); err != nil {
+        return nil, err
+    }
+    
+    return decoder, nil
 }
 ```
 ### Decoding a Password and Validating It
@@ -149,29 +149,29 @@ database operations.
 package main
 
 import (
-	"fmt"
+    "fmt"
 
-	"github.com/go-crypt/crypt"
-	"github.com/go-crypt/crypt/algorithm"
+    "github.com/go-crypt/crypt"
+    "github.com/go-crypt/crypt/algorithm"
 )
 
 func main() {
-	var (
-		decoder *crypt.Decoder
-		err error
-		digest algorithm.Digest
+    var (
+        decoder *crypt.Decoder
+        err error
+        digest algorithm.Digest
     )
-	
-	if decoder, err = crypt.NewDefaultDecoder(); err != nil {
-		panic(err)
-	}
-	
-	if digest, err = decoder.Decode("$argon2id$v=19$m=2097152,t=1,p=4$BjVeoTI4ntTQc0WkFQdLWg$OAUnkkyx5STI0Ixl+OSpv4JnI6J1TYWKuCuvIbUGHTY"); err != nil {
-		panic(err)
-	}
+    
+    if decoder, err = crypt.NewDefaultDecoder(); err != nil {
+        panic(err)
+    }
+    
+    if digest, err = decoder.Decode("$argon2id$v=19$m=2097152,t=1,p=4$BjVeoTI4ntTQc0WkFQdLWg$OAUnkkyx5STI0Ixl+OSpv4JnI6J1TYWKuCuvIbUGHTY"); err != nil {
+        panic(err)
+    }
     
     fmt.Printf("Digest Matches Password 'example': %t\n", digest.Match("example"))
-	fmt.Printf("Digest Matches Password 'invalid': %t\n", digest.Match("invalid"))
+    fmt.Printf("Digest Matches Password 'invalid': %t\n", digest.Match("invalid"))
 }
 ```
 
@@ -184,28 +184,28 @@ as in situations where you are allowing them to check a password themselves via 
 package main
 
 import (
-	"fmt"
+    "fmt"
 
-	"github.com/go-crypt/crypt"
+    "github.com/go-crypt/crypt"
 )
 
 func main() {
-	var (
-		valid bool
-		err error
+    var (
+        valid bool
+        err error
     )
-	
-	if valid, err = crypt.CheckPassword("example","$argon2id$v=19$m=2097152,t=1,p=4$BjVeoTI4ntTQc0WkFQdLWg$OAUnkkyx5STI0Ixl+OSpv4JnI6J1TYWKuCuvIbUGHTY"); err != nil {
-		panic(err)
+    
+    if valid, err = crypt.CheckPassword("example","$argon2id$v=19$m=2097152,t=1,p=4$BjVeoTI4ntTQc0WkFQdLWg$OAUnkkyx5STI0Ixl+OSpv4JnI6J1TYWKuCuvIbUGHTY"); err != nil {
+        panic(err)
     }
-	
+    
     fmt.Printf("Digest Matches Password 'example': %t\n", valid)
 
-	if valid, err = crypt.CheckPassword("invalid","$argon2id$v=19$m=2097152,t=1,p=4$BjVeoTI4ntTQc0WkFQdLWg$OAUnkkyx5STI0Ixl+OSpv4JnI6J1TYWKuCuvIbUGHTY"); err != nil {
-		panic(err)
-	}
+    if valid, err = crypt.CheckPassword("invalid","$argon2id$v=19$m=2097152,t=1,p=4$BjVeoTI4ntTQc0WkFQdLWg$OAUnkkyx5STI0Ixl+OSpv4JnI6J1TYWKuCuvIbUGHTY"); err != nil {
+        panic(err)
+    }
 
-	fmt.Printf("Digest Matches Password 'invalid': %t\n", valid)
+    fmt.Printf("Digest Matches Password 'invalid': %t\n", valid)
 }
 ```
 
@@ -215,28 +215,28 @@ func main() {
 package main
 
 import (
-	"fmt"
+    "fmt"
 
-	"github.com/go-crypt/crypt/algorithm"
-	"github.com/go-crypt/crypt/algorithm/argon2"
+    "github.com/go-crypt/crypt/algorithm"
+    "github.com/go-crypt/crypt/algorithm/argon2"
 )
 
 func main() {
-	var (
-		hasher *argon2.Hasher
-		err error
-		digest algorithm.Digest
+    var (
+        hasher *argon2.Hasher
+        err error
+        digest algorithm.Digest
     )
-	
-	if hasher, err = argon2.New(
-		argon2.WithProfileRFC9106LowMemory(),
-	); err != nil {
-		panic(err)
-	}
+    
+    if hasher, err = argon2.New(
+        argon2.WithProfileRFC9106LowMemory(),
+    ); err != nil {
+        panic(err)
+    }
 
-	if digest, err = hasher.Hash("example"); err != nil {
-		panic(err)
-	}
+    if digest, err = hasher.Hash("example"); err != nil {
+        panic(err)
+    }
     
     fmt.Printf("Encoded Digest With Password 'example': %s\n", digest.Encode())
 }

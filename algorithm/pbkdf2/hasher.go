@@ -13,13 +13,6 @@ import (
 func New(opts ...Opt) (hasher *Hasher, err error) {
 	hasher = &Hasher{}
 
-	if err = hasher.WithOptions(
-		WithVariant(VariantSHA256),
-		WithSaltLength(algorithm.SaltLengthDefault),
-	); err != nil {
-		return nil, err
-	}
-
 	if err = hasher.WithOptions(opts...); err != nil {
 		return nil, err
 	}
@@ -33,7 +26,7 @@ func NewSHA1(opts ...Opt) (hasher *Hasher, err error) {
 		return nil, err
 	}
 
-	if err = hasher.WithOptions(WithVariant(VariantSHA1), WithKeyLength(VariantSHA1.HashFunc()().Size())); err != nil {
+	if err = hasher.WithOptions(WithVariant(VariantSHA1)); err != nil {
 		return nil, err
 	}
 
@@ -46,7 +39,7 @@ func NewSHA224(opts ...Opt) (hasher *Hasher, err error) {
 		return nil, err
 	}
 
-	if err = hasher.WithOptions(WithVariant(VariantSHA224), WithKeyLength(VariantSHA224.HashFunc()().Size())); err != nil {
+	if err = hasher.WithOptions(WithVariant(VariantSHA224)); err != nil {
 		return nil, err
 	}
 
@@ -59,7 +52,7 @@ func NewSHA256(opts ...Opt) (hasher *Hasher, err error) {
 		return nil, err
 	}
 
-	if err = hasher.WithOptions(WithVariant(VariantSHA256), WithKeyLength(VariantSHA256.HashFunc()().Size())); err != nil {
+	if err = hasher.WithOptions(WithVariant(VariantSHA256)); err != nil {
 		return nil, err
 	}
 
@@ -72,7 +65,7 @@ func NewSHA384(opts ...Opt) (hasher *Hasher, err error) {
 		return nil, err
 	}
 
-	if err = hasher.WithOptions(WithVariant(VariantSHA384), WithKeyLength(VariantSHA384.HashFunc()().Size())); err != nil {
+	if err = hasher.WithOptions(WithVariant(VariantSHA384)); err != nil {
 		return nil, err
 	}
 
@@ -85,7 +78,7 @@ func NewSHA512(opts ...Opt) (hasher *Hasher, err error) {
 		return nil, err
 	}
 
-	if err = hasher.WithOptions(WithVariant(VariantSHA512), WithKeyLength(VariantSHA512.HashFunc()().Size())); err != nil {
+	if err = hasher.WithOptions(WithVariant(VariantSHA512)); err != nil {
 		return nil, err
 	}
 
