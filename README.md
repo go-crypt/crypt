@@ -26,6 +26,7 @@ A list of tasks that need to be accomplished are listed in the
 | [bcrypt](https://www.usenix.org/legacy/event/usenix99/provos/provos_html/) |        bcrypt, bcrypt-sha256         |                        `2`, `2a`, `2b`, `2x`, `2y`,  `bcrypt-sha256`                        |
 |           [scrypt](https://www.rfc-editor.org/rfc/rfc7914.html)            |                scrypt                |                                          `scrypt`                                           |
 |                                  md5crypt                                  |            standard, sun             |                                         `1`, `md5`                                          |
+|                                 sha1crypt                                  |               standard               |                                           `sha1`                                            |
 |                      [PlainText](#plain-text-format)                       |          plaintext, base64           |                                    `plaintext`, `base64`                                    |
 
 #### Plain Text Format

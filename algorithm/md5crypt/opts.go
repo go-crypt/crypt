@@ -71,7 +71,7 @@ func WithRounds(rounds uint32) Opt {
 func WithSaltLength(bytes int) Opt {
 	return func(h *Hasher) (err error) {
 		if bytes < SaltLengthMin || bytes > SaltLengthMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "salt size", SaltLengthMin, "", SaltLengthMax, bytes))
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "salt length", SaltLengthMin, "", SaltLengthMax, bytes))
 		}
 
 		h.bytesSalt = bytes

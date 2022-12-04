@@ -115,8 +115,6 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 		variant: variant,
 	}
 
-	decoded.variant = variant
-
 	var params []encoding.Parameter
 
 	if parts[0] != "" {
