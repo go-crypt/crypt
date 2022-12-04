@@ -89,6 +89,24 @@ Use `go get` to add this module to your project with `go get github.com/go-crypt
 The following examples show how easy it is to interact with the argon2 algorithm. Most other algorithm implementations
 are relatively similar.
 
+### Functional Options Pattern
+
+The `algorithm.Hasher` implementations use a functional options pattern. This pattern is accessible via the `New`
+function in each algorithm package or via a receiver function of the individual `algorithm.Hasher` implementation called
+`WithOptions`.
+
+Most algorithm implementations have at least the following functional option signatures:
+- `WithVariant(variant Variant) Opt`
+- `WithVariantName(identifier string) Opt`
+- `WithIterations(iterations int) Opt`
+
+With the exception of `WithVariantName` which takes a string, and `WithVariant` which takes a `Variant` type (which is
+technically a int), nearly every functional option takes a single `int`. There are a few functional options which take
+a single `uint32` where the maximum value exceeds the maximum value for an untyped int on 32bit architectures.
+
+If the `uint32` methods are an issue for anyone using this module we suggest opening an issue and describing why and we'll
+consider adding another functional option which takes an `int`.
+
 ### Creating a Decoder
 
 While several convenience functions exist for building password decoders and checking individual passwords it is 
