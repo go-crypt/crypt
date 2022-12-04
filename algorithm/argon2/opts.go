@@ -101,10 +101,10 @@ func WithParallelism(p int) Opt {
 // Memory size m MUST be an integer number of kibibytes from 8*p to 2^(32)-1. The actual number of blocks is m', which
 // is m rounded down to the nearest multiple of 4*p.
 //
-// Minimum is 8, Maximum is 2147483647. Default is 2097152.
+// Minimum is 8, Maximum is 4294967295. Default is 2097152.
 //
 // RFC9106 section 3.1 "Argon2 Inputs and Outputs" https://www.rfc-editor.org/rfc/rfc9106.html#name-argon2-inputs-and-outputs.
-func WithM(m int) Opt {
+func WithM(m uint32) Opt {
 	return func(h *Hasher) (err error) {
 		if m < MemoryMin || m > MemoryMax {
 			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "memory", MemoryMin, "", MemoryMax, m))
@@ -117,7 +117,7 @@ func WithM(m int) Opt {
 }
 
 // WithMemoryInKiB is an alias for WithM.
-func WithMemoryInKiB(m int) Opt {
+func WithMemoryInKiB(m uint32) Opt {
 	return WithM(m)
 }
 

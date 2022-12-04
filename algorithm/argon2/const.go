@@ -5,12 +5,6 @@ import (
 )
 
 const (
-	argon2i  = "argon2i"
-	argon2d  = "argon2d"
-	argon2id = "argon2id"
-)
-
-const (
 	// EncodingFmt is the encoding format for this algorithm.
 	EncodingFmt = "$%s$v=%d$m=%d,t=%d,p=%d$%s$%s"
 
@@ -70,7 +64,7 @@ const (
 	MemoryMin = ParallelismMin * MemoryMinParallelismMultiplier
 
 	// MemoryMax is the maximum input for memory.
-	MemoryMax = math.MaxInt32
+	MemoryMax uint32 = math.MaxUint32
 
 	// MemoryDefault represents the default memory value.
 	MemoryDefault = 2 * 1024 * 1024
@@ -80,6 +74,10 @@ const (
 )
 
 const (
+	argon2i  = "argon2i"
+	argon2d  = "argon2d"
+	argon2id = "argon2id"
+
 	variantDefault = VariantID
 
 	oV = "v"

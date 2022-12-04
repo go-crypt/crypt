@@ -26,7 +26,9 @@ func New(opts ...Opt) (hasher *Hasher, err error) {
 type Hasher struct {
 	variant Variant
 
-	s, k, m, t, p int
+	s, k, t, p int
+
+	m uint32
 
 	d bool
 }
@@ -134,7 +136,7 @@ func (h *Hasher) hashWithSalt(passwordRaw string, salt []byte) (digest algorithm
 		variant: h.variant,
 		t:       uint32(h.t),
 		p:       uint32(h.p),
-		m:       uint32(h.m),
+		m:       h.m,
 		salt:    salt,
 	}
 
@@ -169,7 +171,7 @@ func (h *Hasher) Validate() (err error) {
 func (h *Hasher) validate() (err error) {
 	h.defaults()
 
-	mMin := h.p * MemoryMinParallelismMultiplier
+	mMin := uint32(h.p) * MemoryMinParallelismMultiplier
 
 	if h.m < mMin || h.m > MemoryMax {
 		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "m", mMin, " (p * 8)", MemoryMax, h.m)
