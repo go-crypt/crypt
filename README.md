@@ -108,6 +108,7 @@ import (
     "github.com/go-crypt/crypt/algorithm"
     "github.com/go-crypt/crypt/algorithm/argon2"
 )
+
 func main() {
     var (
         decoder *crypt.Decoder
