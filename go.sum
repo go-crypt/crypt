@@ -1,4 +1,4 @@
-github.com/go-crypt/x v0.1.11 h1:Iec2tLD0u+ock7VELzSAchHU+/dxcwaQ9iixBPmnkl0=
-github.com/go-crypt/x v0.1.11/go.mod h1:WV7BRe2jUe4wMLEpAt+zyu5ToyuzsHiRjnP7qSO3oTY=
+github.com/go-crypt/x v0.1.12 h1:UQvK75MBYGdeY7PdP/YbkUqiGxNzJq3BlO/lTVT6yuU=
+github.com/go-crypt/x v0.1.12/go.mod h1:037K8Cyl2IJUzO297LjhDIeYZYxg7K8yzbCco6ZNtV0=
 golang.org/x/sys v0.4.0 h1:Zr2JFtRQNX3BCZ8YtxRE9hNJYC8J6I1MVbMg6owUp18=
 golang.org/x/sys v0.4.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
