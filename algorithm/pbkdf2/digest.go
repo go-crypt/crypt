@@ -70,4 +70,8 @@ func (d *Digest) defaults() {
 	if d.iterations < IterationsMin {
 		d.iterations = d.variant.DefaultIterations()
 	}
+
+	if d.t == 0 {
+		d.t = d.variant.HashFunc()().Size()
+	}
 }

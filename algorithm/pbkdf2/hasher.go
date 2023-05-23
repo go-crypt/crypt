@@ -195,9 +195,7 @@ func (h *Hasher) defaults() {
 		return
 	}
 
-	if h.bytesKey == 0 {
-		h.bytesKey = h.variant.HashFunc()().Size()
-	}
+	h.d = true
 
 	if h.bytesSalt < SaltLengthMin {
 		h.bytesSalt = algorithm.SaltLengthDefault
