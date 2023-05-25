@@ -201,6 +201,14 @@ func (h *Hasher) defaults() {
 
 	h.d = true
 
+	if h.variant == VariantNone {
+		h.variant = variantDefault
+	}
+
+	if h.bytesKey == 0 {
+		h.bytesKey = h.variant.HashFunc()().Size()
+	}
+
 	if h.bytesSalt < SaltLengthMin {
 		h.bytesSalt = algorithm.SaltLengthDefault
 	}
