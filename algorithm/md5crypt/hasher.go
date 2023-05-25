@@ -17,6 +17,10 @@ func New(opts ...Opt) (hasher *Hasher, err error) {
 		return nil, err
 	}
 
+	if err = hasher.Validate(); err != nil {
+		return nil, err
+	}
+
 	return hasher, nil
 }
 
