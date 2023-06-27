@@ -65,7 +65,7 @@ func Decode(encodedDigest string) (digest algorithm.Digest, err error) {
 }
 
 // DecodeVariant the encoded digest into a algorithm.Digest provided it matches the provided bcrypt.Variant. If
-//bcrypt.VariantNone is used all variants can be decoded.
+// bcrypt.VariantNone is used all variants can be decoded.
 func DecodeVariant(v Variant) func(encodedDigest string) (digest algorithm.Digest, err error) {
 	return func(encodedDigest string) (digest algorithm.Digest, err error) {
 		var (
@@ -126,6 +126,15 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 			return nil, fmt.Errorf("%w: iterations could not be parsed: %v", algorithm.ErrEncodedHashInvalidOptionValue, err)
 		}
 
+		switch n, i := len(parts[1]), bcrypt.EncodedSaltSize+bcrypt.EncodedHashSize; n {
+		case i:
+			break
+		case 0:
+			return nil, fmt.Errorf("%w: key is expected to be %d bytes but it was empty", algorithm.ErrEncodedHashKeyEncoding, i)
+		default:
+			return nil, fmt.Errorf("%w: key is expected to be %d bytes but it has %d bytes", algorithm.ErrEncodedHashKeyEncoding, i, n)
+		}
+
 		salt, key = bcrypt.DecodeSecret([]byte(parts[1]))
 	case VariantSHA256:
 		if countParts != 3 {
@@ -133,6 +142,24 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 		}
 
 		salt, key = []byte(parts[1]), []byte(parts[2])
+
+		switch n := len(salt); n {
+		case bcrypt.EncodedSaltSize:
+			break
+		case 0:
+			return nil, fmt.Errorf("%w: salt is expected to be %d bytes but it was empty", algorithm.ErrEncodedHashSaltEncoding, bcrypt.EncodedSaltSize)
+		default:
+			return nil, fmt.Errorf("%w: salt is expected to be %d bytes but it has %d bytes", algorithm.ErrEncodedHashSaltEncoding, bcrypt.EncodedSaltSize, n)
+		}
+
+		switch n := len(key); n {
+		case bcrypt.EncodedHashSize:
+			break
+		case 0:
+			return nil, fmt.Errorf("%w: key is expected to be %d bytes but it was empty", algorithm.ErrEncodedHashKeyEncoding, bcrypt.EncodedHashSize)
+		default:
+			return nil, fmt.Errorf("%w: key is expected to be %d bytes but it has %d bytes", algorithm.ErrEncodedHashKeyEncoding, bcrypt.EncodedHashSize, n)
+		}
 
 		var params []encoding.Parameter
 
