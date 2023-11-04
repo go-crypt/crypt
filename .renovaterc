@@ -1,8 +1,5 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "constraints": {
-    "go": "1.20"
-  },
   "extends": [
     "config:base",
     ":semanticCommitTypeAll(build)",
@@ -18,6 +15,6 @@
   ],
   "postUpdateOptions": [
       "gomodTidy",
-      "gomodNoMassage"
+      "gomodMassage"
   ]
 }
