@@ -72,7 +72,7 @@ func DecodeVariant(v Variant) func(encodedDigest string) (digest algorithm.Diges
 func decoderParts(encodedDigest string) (variant Variant, parts []string, err error) {
 	parts = encoding.Split(encodedDigest, -1)
 
-	if len(parts) != 5 {
+	if n := len(parts); n != 4 && n != 5 {
 		return VariantNone, nil, algorithm.ErrEncodedHashInvalidFormat
 	}
 
@@ -90,14 +90,29 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 		variant: variant,
 	}
 
-	if len(parts[2]) == 0 {
+	var (
+		ip, is, ik int
+	)
+
+	switch len(parts) {
+	case 2:
+		ip, is, ik = -1, 0, 1
+	case 3:
+		ip, is, ik = 0, 1, 2
+	}
+
+	if len(parts[ik]) == 0 {
 		return nil, fmt.Errorf("%w: key has 0 bytes", algorithm.ErrEncodedHashKeyEncoding)
 	}
 
+	decoded.iterations = IterationsDefaultOmitted
+
 	var params []encoding.Parameter
 
-	if params, err = encoding.DecodeParameterStr(parts[0]); err != nil {
-		return nil, err
+	if ip >= 0 {
+		if params, err = encoding.DecodeParameterStr(parts[ip]); err != nil {
+			return nil, err
+		}
 	}
 
 	for _, param := range params {
@@ -115,7 +130,7 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 		}
 	}
 
-	decoded.salt, decoded.key = []byte(parts[1]), []byte(parts[2])
+	decoded.salt, decoded.key = []byte(parts[is]), []byte(parts[ik])
 
 	return decoded, nil
 }
