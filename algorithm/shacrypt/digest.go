@@ -50,10 +50,18 @@ func (d *Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error
 
 // Encode this Digest as a string for storage.
 func (d *Digest) Encode() (hash string) {
-	return strings.ReplaceAll(fmt.Sprintf(EncodingFmt,
-		d.variant.Prefix(), d.iterations,
-		d.salt, d.key,
-	), "\n", "")
+	switch d.iterations {
+	case IterationsDefaultOmitted:
+		return strings.ReplaceAll(fmt.Sprintf(EncodingFmtRoundsOmitted,
+			d.variant.Prefix(),
+			d.salt, d.key,
+		), "\n", "")
+	default:
+		return strings.ReplaceAll(fmt.Sprintf(EncodingFmt,
+			d.variant.Prefix(), d.iterations,
+			d.salt, d.key,
+		), "\n", "")
+	}
 }
 
 // String returns the storable format of the shacrypt.Digest hash utilizing fmt.Sprintf and shacrypt.EncodingFmt.

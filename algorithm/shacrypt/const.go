@@ -4,6 +4,9 @@ const (
 	// EncodingFmt is the encoding format for this algorithm.
 	EncodingFmt = "$%s$rounds=%d$%s$%s"
 
+	// EncodingFmtRoundsOmitted is the encoding format for this algorithm when the rounds can be omitted.
+	EncodingFmtRoundsOmitted = "$%s$%s$%s"
+
 	// AlgName is the name for this algorithm.
 	AlgName = "shacrypt"
 
@@ -24,6 +27,9 @@ const (
 
 	// IterationsDefaultSHA512 is the default number of iterations for SHA512.
 	IterationsDefaultSHA512 = 500000
+
+	// IterationsDefaultOmitted is the default number of iterations when the rounds are omitted.
+	IterationsDefaultOmitted = 5000
 
 	// SaltLengthMin is the minimum salt length.
 	SaltLengthMin = 1
