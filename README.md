@@ -83,7 +83,7 @@ Use `go get` to add this module to your project with `go get github.com/go-crypt
 
 ### Requirements
 
-- go 1.18+
+- go 1.21+
 
 ## Usage
 
