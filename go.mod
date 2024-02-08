@@ -3,7 +3,7 @@ module github.com/go-crypt/crypt
 go 1.22.0
 
 require (
-	github.com/go-crypt/x v0.2.9
+	github.com/go-crypt/x v0.2.10
 	github.com/stretchr/testify v1.8.4
 )
 
