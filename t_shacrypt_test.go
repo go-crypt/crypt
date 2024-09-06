@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestOutputsMKPASSWD(t *testing.T) {
+func TestSHACRYPTOutputsMKPASSWD(t *testing.T) {
 	testcCases := []struct {
 		name     string
 		have     string
@@ -17,42 +17,42 @@ func TestOutputsMKPASSWD(t *testing.T) {
 		{
 			"ShouldValidatePasswordWithOmittedRoundsSHA256",
 			"$5$4X/QmdRP6q7Ilhpc$2sperIXN6jawEYd8a8arineQHqYIEGURjZGdD4H4xs8",
-			"password",
+			password,
 			true,
 			"",
 		},
 		{
 			"ShouldNotValidatePasswordWithOmittedRoundsSHA256",
 			"$5$4X/QmdRP6q7Ilhpc$2sperIXN6jawEYd8a8arineQHqYIEGURjZGdD4H4xs8",
-			"wrong_password",
+			wrongPassword,
 			false,
 			"",
 		},
 		{
 			"ShouldValidatePasswordWithOmittedRoundsSHA512",
 			"$6$rB2PL49BuajVczWm$sA.XUPEt/j6k4kFnO58EDKsEU8rXau47.eSH6lpqc/tgC9Y0BbYcG7H3.KmMMpthWMcip/xmDn83nTUXK5Vp90",
-			"password",
+			password,
 			true,
 			"",
 		},
 		{
 			"ShouldNotValidatePasswordWithOmittedRoundsSHA512",
 			"$6$rB2PL49BuajVczWm$sA.XUPEt/j6k4kFnO58EDKsEU8rXau47.eSH6lpqc/tgC9Y0BbYcG7H3.KmMMpthWMcip/xmDn83nTUXK5Vp90",
-			"wrong_password",
+			wrongPassword,
 			false,
 			"",
 		},
 		{
-			"ShouldNotValidatePasswordWithOmittedRoundsSHA512",
-			"$6$rB2PL49BuajVczWm$sA.XUPEt/j6k4kFnO58EDKsEU8rXau47.eSH6lpqc/tgC9Y0BbYcG7H3.KmMMpthWMcip/xmDn83nTUXK5Vp90",
-			"wrong_password",
+			"ShouldNotValidatePasswordWithRoundsSHA512",
+			"$6$rounds=1000$rB2PL49BuajVczWm$sA.XUPEt/j6k4kFnO58EDKsEU8rXau47.eSH6lpqc/tgC9Y0BbYcG7H3.KmMMpthWMcip/xmDn83nTUXK5Vp90",
+			wrongPassword,
 			false,
 			"",
 		},
 		{
-			"ShouldValidatePasswordWithOmittedRoundsSHA512",
+			"ShouldValidatePasswordWithRoundsSHA512",
 			"$6$rounds=1000$eG49klxUKySvBpju$.1paw1pj51FdmvNAnsNoX8lyHMdH/S74DfkZnWWTOnGI9keTp/DXjR9ro5kJrncPSF5fc.krAwdkBxc4C8kSU1",
-			"password",
+			password,
 			true,
 			"",
 		},
