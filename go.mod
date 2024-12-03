@@ -2,7 +2,7 @@ module github.com/go-crypt/crypt
 
 go 1.22
 
-toolchain go1.23.3
+toolchain go1.23.4
 
 require (
 	github.com/go-crypt/x v0.3.1
