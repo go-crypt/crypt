@@ -2,10 +2,10 @@ module github.com/go-crypt/crypt
 
 go 1.22
 
-toolchain go1.23.6
+toolchain go1.24.0
 
 require (
-	github.com/go-crypt/x v0.3.3
+	github.com/go-crypt/x v0.3.4
 	github.com/stretchr/testify v1.10.0
 )
 
