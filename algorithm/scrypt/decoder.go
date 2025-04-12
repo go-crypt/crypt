@@ -10,7 +10,29 @@ import (
 
 // RegisterDecoder the decoder with the algorithm.DecoderRegister.
 func RegisterDecoder(r algorithm.DecoderRegister) (err error) {
-	if err = r.RegisterDecodeFunc(AlgName, Decode); err != nil {
+	if err = RegisterDecoderScrypt(r); err != nil {
+		return err
+	}
+
+	if err = RegisterDecoderYeScrypt(r); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// RegisterDecoderScrypt the scrypt decoder with the algorithm.DecoderRegister.
+func RegisterDecoderScrypt(r algorithm.DecoderRegister) (err error) {
+	if err = r.RegisterDecodeFunc(VariantScrypt.Prefix(), Decode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// RegisterDecoderYeScrypt the yescrypt decoder with the algorithm.DecoderRegister.
+func RegisterDecoderYeScrypt(r algorithm.DecoderRegister) (err error) {
+	if err = r.RegisterDecodeFunc(VariantYeScrypt.Prefix(), Decode); err != nil {
 		return err
 	}
 
@@ -19,40 +41,56 @@ func RegisterDecoder(r algorithm.DecoderRegister) (err error) {
 
 // Decode the encoded digest into a algorithm.Digest.
 func Decode(encodedDigest string) (digest algorithm.Digest, err error) {
-	var (
-		parts []string
-	)
-
-	if parts, err = decoderParts(encodedDigest); err != nil {
-		return nil, fmt.Errorf(algorithm.ErrFmtDigestDecode, AlgName, err)
-	}
-
-	if digest, err = decode(parts); err != nil {
-		return nil, fmt.Errorf(algorithm.ErrFmtDigestDecode, AlgName, err)
-	}
-
-	return digest, nil
+	return DecodeVariant(VariantNone)(encodedDigest)
 }
 
-func decoderParts(encodedDigest string) (parts []string, err error) {
+// DecodeVariant the encoded digest into a algorithm.Digest provided it matches the provided scrypt.Variant. If
+// scrypt.VariantNone is used all variants can be decoded.
+func DecodeVariant(v Variant) func(encodedDigest string) (digest algorithm.Digest, err error) {
+	return func(encodedDigest string) (digest algorithm.Digest, err error) {
+		var (
+			parts   []string
+			variant Variant
+		)
+
+		if variant, parts, err = decoderParts(encodedDigest); err != nil {
+			return nil, fmt.Errorf(algorithm.ErrFmtDigestDecode, AlgName, err)
+		}
+
+		if v != VariantNone && v != variant {
+			return nil, fmt.Errorf(algorithm.ErrFmtDigestDecode, AlgName, fmt.Errorf("the '%s' variant cannot be decoded only the '%s' variant can be", variant.String(), v.String()))
+		}
+
+		if digest, err = decode(variant, parts); err != nil {
+			return nil, fmt.Errorf(algorithm.ErrFmtDigestDecode, AlgName, err)
+		}
+
+		return digest, nil
+	}
+}
+
+func decoderParts(encodedDigest string) (variant Variant, parts []string, err error) {
 	parts = encoding.Split(encodedDigest, -1)
 
 	if len(parts) != 5 {
-		return nil, algorithm.ErrEncodedHashInvalidFormat
+		return VariantNone, nil, algorithm.ErrEncodedHashInvalidFormat
 	}
 
-	if parts[1] != AlgName {
-		return nil, fmt.Errorf("%w: identifier '%s' is not an encoded %s digest", algorithm.ErrEncodedHashInvalidIdentifier, parts[1], AlgName)
+	variant = NewVariant(parts[1])
+
+	if variant == VariantNone {
+		return variant, nil, fmt.Errorf("%w: identifier '%s' is not an encoded %s digest", algorithm.ErrEncodedHashInvalidIdentifier, parts[1], AlgName)
 	}
 
-	return parts[2:], nil
+	return variant, parts[2:], nil
 }
 
-func decode(parts []string) (digest algorithm.Digest, err error) {
+func decode(variant Variant, parts []string) (digest algorithm.Digest, err error) {
 	decoded := &Digest{
-		ln: IterationsDefault,
-		r:  BlockSizeDefault,
-		p:  ParallelismDefault,
+		variant: variant,
+		ln:      IterationsDefault,
+		r:       BlockSizeDefault,
+		p:       ParallelismDefault,
 	}
 
 	var params []encoding.Parameter

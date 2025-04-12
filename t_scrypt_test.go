@@ -13,8 +13,12 @@ func TestScryptOutputs(t *testing.T) {
 		have string
 	}{
 		{
-			"ShouldValidatePassword",
+			"ShouldValidateScrypt",
 			"$scrypt$ln=4,r=8,p=1$ySYknWRq9On6wWfpsOUQQg$C28LpWaXQ3P0/dcbN0njxJx4VL/UCQIAWlnYAJgT/mY",
+		},
+		{
+			"ShouldValidateYeScrypt",
+			"$yescrypt$ln=16,r=8,p=1$rv4548XFQfhs3Rhje9pjvA$O4vmzIW9ztOUp38G/mFjFAmojq7q58F7vkGco5Nxjr0",
 		},
 	}
 

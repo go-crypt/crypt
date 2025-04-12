@@ -57,7 +57,15 @@ const (
 )
 
 const (
+	AlgIdentifier = "scrypt"
+
+	AlgIdentifierYeScrypt = "yescrypt"
+)
+
+const (
 	oP  = "p"
 	oR  = "r"
 	oLN = "ln"
+
+	variantDefault = VariantScrypt
 )
