@@ -11,6 +11,9 @@ const (
 	// AlgName is the name for this algorithm.
 	AlgName = "scrypt"
 
+	// AlgNameYeScrypt is the name for this algorithm's yescrypt variant.
+	AlgNameYeScrypt = "yescrypt"
+
 	// KeyLengthMin is the minimum key length accepted.
 	KeyLengthMin = 1
 
@@ -57,9 +60,9 @@ const (
 )
 
 const (
-	AlgIdentifier = "scrypt"
+	AlgIdentifier = AlgName
 
-	AlgIdentifierYeScrypt = "yescrypt"
+	AlgIdentifierYeScrypt = "y"
 )
 
 const (
