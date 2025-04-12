@@ -26,6 +26,26 @@ func WithVariant(variant Variant) Opt {
 	}
 }
 
+// WithVariantName uses the variant name or identifier to configure the scrypt.Variant of the resulting scrypt.Digest.
+// Default is scrypt.VariantScrypt.
+func WithVariantName(identifier string) Opt {
+	return func(h *Hasher) (err error) {
+		if identifier == "" {
+			return nil
+		}
+
+		variant := NewVariant(identifier)
+
+		if variant == VariantNone {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf("%w: variant identifier '%s' is invalid", algorithm.ErrParameterInvalid, identifier))
+		}
+
+		h.variant = variant
+
+		return nil
+	}
+}
+
 // WithK adjusts the key length of the resulting scrypt.Digest.
 // Minimum is 1, Maximum is 137438953440. Default is 32.
 func WithK(k int) Opt {
