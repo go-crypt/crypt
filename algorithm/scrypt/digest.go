@@ -69,7 +69,7 @@ func (d *Digest) n() (n int) {
 
 func (d *Digest) defaults() {
 	switch d.variant {
-	case VariantScrypt, VariantYeScrypt:
+	case VariantScrypt, VariantYescrypt:
 		break
 	default:
 		d.variant = variantDefault

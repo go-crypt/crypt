@@ -13,8 +13,8 @@ func NewVariant(identifier string) (variant Variant) {
 	switch identifier {
 	case AlgName:
 		return VariantScrypt
-	case AlgNameYeScrypt, AlgIdentifierYeScrypt:
-		return VariantYeScrypt
+	case AlgNameYescrypt, AlgIdentifierYescrypt:
+		return VariantYescrypt
 	default:
 		return VariantNone
 	}
@@ -29,7 +29,7 @@ const (
 
 	VariantScrypt
 
-	VariantYeScrypt
+	VariantYescrypt
 )
 
 // String implements the fmt.Stringer returning a string representation of the scrypt.Variant.
@@ -37,8 +37,8 @@ func (v Variant) String() (variant string) {
 	switch v {
 	case VariantScrypt:
 		return AlgIdentifier
-	case VariantYeScrypt:
-		return AlgIdentifierYeScrypt
+	case VariantYescrypt:
+		return AlgIdentifierYescrypt
 	default:
 		return
 	}
@@ -54,7 +54,7 @@ func (v Variant) KeyFunc() KeyFunc {
 	switch v {
 	case VariantScrypt:
 		return scrypt.Key
-	case VariantYeScrypt:
+	case VariantYescrypt:
 		return yescrypt.Key
 	default:
 		return nil
@@ -66,8 +66,8 @@ func (v Variant) Encode(ln, r, p int, salt, key []byte) (f string) {
 	switch v {
 	case VariantScrypt:
 		return fmt.Sprintf(EncodingFmt, v.Prefix(), ln, r, p, base64.RawStdEncoding.EncodeToString(salt), base64.RawStdEncoding.EncodeToString(key))
-	case VariantYeScrypt:
-		return fmt.Sprintf(EncodingFmtYeScrypt, v.Prefix(), yescrypt.EncodeSetting(0, ln, r), yescrypt.Encode64(salt), yescrypt.Encode64(key))
+	case VariantYescrypt:
+		return fmt.Sprintf(EncodingFmtYescrypt, v.Prefix(), yescrypt.EncodeSetting(0, ln, r), yescrypt.Encode64(salt), yescrypt.Encode64(key))
 	default:
 		return
 	}

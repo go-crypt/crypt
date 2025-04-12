@@ -16,7 +16,7 @@ func WithVariant(variant Variant) Opt {
 		switch variant {
 		case VariantNone:
 			return nil
-		case VariantScrypt, VariantYeScrypt:
+		case VariantScrypt, VariantYescrypt:
 			h.variant = variant
 
 			return nil

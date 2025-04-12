@@ -75,7 +75,7 @@ func TestScryptOutputsNative(t *testing.T) {
 }
 
 func TestScryptEncodeDecode(t *testing.T) {
-	hash, err := scrypt.NewYeScrypt()
+	hash, err := scrypt.NewYescrypt()
 	require.NoError(t, err)
 
 	digest, err := hash.HashWithSalt("password", []byte("aa131311"))

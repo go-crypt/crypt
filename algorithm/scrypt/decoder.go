@@ -16,7 +16,7 @@ func RegisterDecoder(r algorithm.DecoderRegister) (err error) {
 		return err
 	}
 
-	if err = RegisterDecoderYeScrypt(r); err != nil {
+	if err = RegisterDecoderYescrypt(r); err != nil {
 		return err
 	}
 
@@ -32,9 +32,9 @@ func RegisterDecoderScrypt(r algorithm.DecoderRegister) (err error) {
 	return nil
 }
 
-// RegisterDecoderYeScrypt the yescrypt decoder with the algorithm.DecoderRegister.
-func RegisterDecoderYeScrypt(r algorithm.DecoderRegister) (err error) {
-	if err = r.RegisterDecodeFunc(VariantYeScrypt.Prefix(), Decode); err != nil {
+// RegisterDecoderYescrypt the yescrypt decoder with the algorithm.DecoderRegister.
+func RegisterDecoderYescrypt(r algorithm.DecoderRegister) (err error) {
+	if err = r.RegisterDecodeFunc(VariantYescrypt.Prefix(), Decode); err != nil {
 		return err
 	}
 
@@ -96,7 +96,7 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 	}
 
 	switch variant {
-	case VariantYeScrypt:
+	case VariantYescrypt:
 		if _, decoded.ln, decoded.r, err = yescrypt.DecodeSetting([]byte(parts[0])); err != nil {
 			return nil, fmt.Errorf(algorithm.ErrFmtDigestDecode, AlgName, err)
 		}
