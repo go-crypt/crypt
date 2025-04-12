@@ -37,12 +37,12 @@ func NewScrypt(opts ...Opt) (hasher *Hasher, err error) {
 	return hasher, nil
 }
 
-func NewYeScrypt(opts ...Opt) (hasher *Hasher, err error) {
+func NewYescrypt(opts ...Opt) (hasher *Hasher, err error) {
 	if hasher, err = New(opts...); err != nil {
 		return nil, err
 	}
 
-	if err = hasher.WithOptions(WithVariant(VariantYeScrypt)); err != nil {
+	if err = hasher.WithOptions(WithVariant(VariantYescrypt)); err != nil {
 		return nil, err
 	}
 

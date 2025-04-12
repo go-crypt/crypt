@@ -4,6 +4,8 @@ import (
 	"encoding/base64"
 	"fmt"
 
+	"github.com/go-crypt/x/yescrypt"
+
 	"github.com/go-crypt/crypt/algorithm"
 	"github.com/go-crypt/crypt/internal/encoding"
 )
@@ -14,7 +16,7 @@ func RegisterDecoder(r algorithm.DecoderRegister) (err error) {
 		return err
 	}
 
-	if err = RegisterDecoderYeScrypt(r); err != nil {
+	if err = RegisterDecoderYescrypt(r); err != nil {
 		return err
 	}
 
@@ -30,9 +32,9 @@ func RegisterDecoderScrypt(r algorithm.DecoderRegister) (err error) {
 	return nil
 }
 
-// RegisterDecoderYeScrypt the yescrypt decoder with the algorithm.DecoderRegister.
-func RegisterDecoderYeScrypt(r algorithm.DecoderRegister) (err error) {
-	if err = r.RegisterDecodeFunc(VariantYeScrypt.Prefix(), Decode); err != nil {
+// RegisterDecoderYescrypt the yescrypt decoder with the algorithm.DecoderRegister.
+func RegisterDecoderYescrypt(r algorithm.DecoderRegister) (err error) {
+	if err = r.RegisterDecodeFunc(VariantYescrypt.Prefix(), Decode); err != nil {
 		return err
 	}
 
@@ -93,35 +95,44 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 		p:       ParallelismDefault,
 	}
 
-	var params []encoding.Parameter
-
-	if params, err = encoding.DecodeParameterStr(parts[0]); err != nil {
-		return nil, err
-	}
-
-	for _, param := range params {
-		switch param.Key {
-		case oLN:
-			decoded.ln, err = param.Int()
-		case oR:
-			decoded.r, err = param.Int()
-		case oP:
-			decoded.p, err = param.Int()
-		default:
-			return nil, fmt.Errorf("%w: option '%s' with value '%s' is unknown", algorithm.ErrEncodedHashInvalidOptionKey, param.Key, param.Value)
+	switch variant {
+	case VariantYescrypt:
+		if _, decoded.ln, decoded.r, err = yescrypt.DecodeSetting([]byte(parts[0])); err != nil {
+			return nil, fmt.Errorf(algorithm.ErrFmtDigestDecode, AlgName, err)
 		}
 
-		if err != nil {
-			return nil, fmt.Errorf("%w: option '%s' has invalid value '%s': %v", algorithm.ErrEncodedHashInvalidOptionValue, param.Key, param.Value, err)
+		decoded.salt, decoded.key = yescrypt.Decode64([]byte(parts[1])), yescrypt.Decode64([]byte(parts[2]))
+	default:
+		var params []encoding.Parameter
+
+		if params, err = encoding.DecodeParameterStr(parts[0]); err != nil {
+			return nil, err
 		}
-	}
 
-	if decoded.salt, err = base64.RawStdEncoding.DecodeString(parts[1]); err != nil {
-		return nil, fmt.Errorf("%w: %v", algorithm.ErrEncodedHashSaltEncoding, err)
-	}
+		for _, param := range params {
+			switch param.Key {
+			case oLN:
+				decoded.ln, err = param.Int()
+			case oR:
+				decoded.r, err = param.Int()
+			case oP:
+				decoded.p, err = param.Int()
+			default:
+				return nil, fmt.Errorf("%w: option '%s' with value '%s' is unknown", algorithm.ErrEncodedHashInvalidOptionKey, param.Key, param.Value)
+			}
 
-	if decoded.key, err = base64.RawStdEncoding.DecodeString(parts[2]); err != nil {
-		return nil, fmt.Errorf("%w: %v", algorithm.ErrEncodedHashKeyEncoding, err)
+			if err != nil {
+				return nil, fmt.Errorf("%w: option '%s' has invalid value '%s': %v", algorithm.ErrEncodedHashInvalidOptionValue, param.Key, param.Value, err)
+			}
+		}
+
+		if decoded.salt, err = base64.RawStdEncoding.DecodeString(parts[1]); err != nil {
+			return nil, fmt.Errorf("%w: %v", algorithm.ErrEncodedHashSaltEncoding, err)
+		}
+
+		if decoded.key, err = base64.RawStdEncoding.DecodeString(parts[2]); err != nil {
+			return nil, fmt.Errorf("%w: %v", algorithm.ErrEncodedHashKeyEncoding, err)
+		}
 	}
 
 	if len(decoded.key) == 0 {

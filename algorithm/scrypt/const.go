@@ -5,14 +5,17 @@ import (
 )
 
 const (
-	// EncodingFormat is the format of the encoded digest.
-	EncodingFormat = "$%s$ln=%d,r=%d,p=%d$%s$%s"
+	// EncodingFmt is the format of the encoded digest.
+	EncodingFmt = "$%s$ln=%d,r=%d,p=%d$%s$%s"
+
+	// EncodingFmtYescrypt is the format of the encoded digest.
+	EncodingFmtYescrypt = "$%s$%s$%s$%s"
 
 	// AlgName is the name for this algorithm.
 	AlgName = "scrypt"
 
-	// AlgNameYeScrypt is the name for this algorithm's yescrypt variant.
-	AlgNameYeScrypt = "yescrypt"
+	// AlgNameYescrypt is the name for this algorithm's yescrypt variant.
+	AlgNameYescrypt = "yescrypt"
 
 	// KeyLengthMin is the minimum key length accepted.
 	KeyLengthMin = 1
@@ -62,7 +65,7 @@ const (
 const (
 	AlgIdentifier = AlgName
 
-	AlgIdentifierYeScrypt = "y"
+	AlgIdentifierYescrypt = "y"
 )
 
 const (

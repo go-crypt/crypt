@@ -2,7 +2,6 @@ package scrypt
 
 import (
 	"crypto/subtle"
-	"encoding/base64"
 	"fmt"
 
 	"github.com/go-crypt/crypt/algorithm"
@@ -55,9 +54,7 @@ func (d *Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error
 
 // Encode returns the encoded form of this scrypt.Digest.
 func (d *Digest) Encode() string {
-	return fmt.Sprintf(EncodingFormat, d.variant.Prefix(),
-		d.ln, d.r, d.p, base64.RawStdEncoding.EncodeToString(d.salt), base64.RawStdEncoding.EncodeToString(d.key),
-	)
+	return d.variant.Encode(d.ln, d.r, d.p, d.salt, d.key)
 }
 
 // String returns the storable format of the scrypt.Digest encoded hash.
@@ -72,7 +69,7 @@ func (d *Digest) n() (n int) {
 
 func (d *Digest) defaults() {
 	switch d.variant {
-	case VariantScrypt, VariantYeScrypt:
+	case VariantScrypt, VariantYescrypt:
 		break
 	default:
 		d.variant = variantDefault
