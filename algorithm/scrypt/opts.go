@@ -9,6 +9,23 @@ import (
 // Opt describes the functional option pattern for the scrypt.Hasher.
 type Opt func(h *Hasher) (err error)
 
+// WithVariant configures the scrypt.Variant of the resulting scrypt.Digest.
+// Default is scrypt.VariantScrypt.
+func WithVariant(variant Variant) Opt {
+	return func(h *Hasher) (err error) {
+		switch variant {
+		case VariantNone:
+			return nil
+		case VariantScrypt, VariantYeScrypt:
+			h.variant = variant
+
+			return nil
+		default:
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf("%w: variant '%d' is invalid", algorithm.ErrParameterInvalid, variant))
+		}
+	}
+}
+
 // WithK adjusts the key length of the resulting scrypt.Digest.
 // Minimum is 1, Maximum is 137438953440. Default is 32.
 func WithK(k int) Opt {

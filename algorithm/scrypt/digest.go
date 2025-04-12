@@ -5,13 +5,13 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	"github.com/go-crypt/x/scrypt"
-
 	"github.com/go-crypt/crypt/algorithm"
 )
 
 // Digest is a scrypt.Digest which handles scrypt hashes.
 type Digest struct {
+	variant Variant
+
 	ln, r, p int
 
 	salt, key []byte
@@ -46,7 +46,7 @@ func (d *Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error
 
 	var key []byte
 
-	if key, err = scrypt.Key(passwordBytes, d.salt, d.n(), d.r, d.p, len(d.key)); err != nil {
+	if key, err = d.variant.KeyFunc()(passwordBytes, d.salt, d.n(), d.r, d.p, len(d.key)); err != nil {
 		return false, err
 	}
 
@@ -55,7 +55,7 @@ func (d *Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error
 
 // Encode returns the encoded form of this scrypt.Digest.
 func (d *Digest) Encode() string {
-	return fmt.Sprintf(EncodingFormat, AlgName,
+	return fmt.Sprintf(EncodingFormat, d.variant.Prefix(),
 		d.ln, d.r, d.p, base64.RawStdEncoding.EncodeToString(d.salt), base64.RawStdEncoding.EncodeToString(d.key),
 	)
 }
@@ -71,6 +71,13 @@ func (d *Digest) n() (n int) {
 }
 
 func (d *Digest) defaults() {
+	switch d.variant {
+	case VariantScrypt, VariantYeScrypt:
+		break
+	default:
+		d.variant = variantDefault
+	}
+
 	if d.ln < IterationsMin {
 		d.ln = IterationsDefault
 	}

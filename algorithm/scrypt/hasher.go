@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/go-crypt/x/scrypt"
-
 	"github.com/go-crypt/crypt/algorithm"
 	"github.com/go-crypt/crypt/internal/random"
 )
@@ -27,8 +25,34 @@ func New(opts ...Opt) (hasher *Hasher, err error) {
 	return hasher, nil
 }
 
+func NewScrypt(opts ...Opt) (hasher *Hasher, err error) {
+	if hasher, err = New(opts...); err != nil {
+		return nil, err
+	}
+
+	if err = hasher.WithOptions(WithVariant(VariantScrypt)); err != nil {
+		return nil, err
+	}
+
+	return hasher, nil
+}
+
+func NewYeScrypt(opts ...Opt) (hasher *Hasher, err error) {
+	if hasher, err = New(opts...); err != nil {
+		return nil, err
+	}
+
+	if err = hasher.WithOptions(WithVariant(VariantYeScrypt)); err != nil {
+		return nil, err
+	}
+
+	return hasher, nil
+}
+
 // Hasher is a crypt.Hash for scrypt which can be initialized via New using a functional options pattern.
 type Hasher struct {
+	variant Variant
+
 	ln, r, k, p, bytesSalt int
 
 	d bool
@@ -86,15 +110,16 @@ func (h *Hasher) hashWithSalt(password string, salt []byte) (digest algorithm.Di
 	}
 
 	d := &Digest{
-		ln:   h.ln,
-		r:    h.r,
-		p:    h.p,
-		salt: salt,
+		variant: h.variant,
+		ln:      h.ln,
+		r:       h.r,
+		p:       h.p,
+		salt:    salt,
 	}
 
 	d.defaults()
 
-	if d.key, err = scrypt.Key([]byte(password), d.salt, d.n(), d.r, d.p, h.k); err != nil {
+	if d.key, err = d.variant.KeyFunc()([]byte(password), d.salt, d.n(), d.r, d.p, h.k); err != nil {
 		return nil, fmt.Errorf("%w: %v", algorithm.ErrKeyDerivation, err)
 	}
 
@@ -166,6 +191,10 @@ func (h *Hasher) defaults() {
 	}
 
 	h.d = true
+
+	if h.variant == VariantNone {
+		h.variant = variantDefault
+	}
 
 	if h.k == 0 {
 		h.k = algorithm.KeyLengthDefault
