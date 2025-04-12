@@ -5,8 +5,11 @@ import (
 )
 
 const (
-	// EncodingFormat is the format of the encoded digest.
-	EncodingFormat = "$%s$ln=%d,r=%d,p=%d$%s$%s"
+	// EncodingFmt is the format of the encoded digest.
+	EncodingFmt = "$%s$ln=%d,r=%d,p=%d$%s$%s"
+
+	// EncodingFmtYeScrypt is the format of the encoded digest.
+	EncodingFmtYeScrypt = "$%s$%s$%s$%s"
 
 	// AlgName is the name for this algorithm.
 	AlgName = "scrypt"

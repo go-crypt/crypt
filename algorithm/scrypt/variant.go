@@ -1,6 +1,9 @@
 package scrypt
 
 import (
+	"encoding/base64"
+	"fmt"
+
 	"github.com/go-crypt/x/scrypt"
 	"github.com/go-crypt/x/yescrypt"
 )
@@ -55,6 +58,18 @@ func (v Variant) KeyFunc() KeyFunc {
 		return yescrypt.Key
 	default:
 		return nil
+	}
+}
+
+// Encode formats the variant encoded bcrypt.Digest.
+func (v Variant) Encode(ln, r, p int, salt, key []byte) (f string) {
+	switch v {
+	case VariantScrypt:
+		return fmt.Sprintf(EncodingFmt, v.Prefix(), ln, r, p, base64.RawStdEncoding.EncodeToString(salt), base64.RawStdEncoding.EncodeToString(key))
+	case VariantYeScrypt:
+		return fmt.Sprintf(EncodingFmtYeScrypt, v.Prefix(), yescrypt.EncodeSetting(0, ln, r), yescrypt.Encode64(salt), yescrypt.Encode64(key))
+	default:
+		return
 	}
 }
 
