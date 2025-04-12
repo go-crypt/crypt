@@ -8,9 +8,9 @@ import (
 // NewVariant converts an identifier string to a scrypt.Variant.
 func NewVariant(identifier string) (variant Variant) {
 	switch identifier {
-	case AlgIdentifier:
+	case AlgName:
 		return VariantScrypt
-	case AlgIdentifierYeScrypt:
+	case AlgNameYeScrypt, AlgIdentifierYeScrypt:
 		return VariantYeScrypt
 	default:
 		return VariantNone
