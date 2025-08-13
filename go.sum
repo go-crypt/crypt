@@ -1,7 +1,7 @@
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/go-crypt/x v0.4.6 h1:6E7YpbJRGd5zMeQYncoW9N5gZf4AxkJR1Rhci55Mg/Q=
-github.com/go-crypt/x v0.4.6/go.mod h1:EuHUQ0mkS7iJdaB9eeyfGr/Ggzzeqk5bE+l5/iKOy/0=
+github.com/go-crypt/x v0.4.7 h1:hObjW67nhq/GI1jaD7XCv5RoiVKzF46XIbULgzH71oU=
+github.com/go-crypt/x v0.4.7/go.mod h1:K3q7VmLC0U1QFAPn0SQvXjkAtu6FJuH0rN9LNqobX6k=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/testify v1.10.0 h1:Xv5erBjTwe/5IxqUQTdXv5kgmIvbHo3QQyRwhJsOfJA=
