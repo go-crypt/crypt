@@ -32,7 +32,7 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
   build:
-    name: 'Build'
+    name: 'Build and Test'
     runs-on: 'ubuntu-latest'
     strategy:
       matrix:
