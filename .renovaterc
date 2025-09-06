@@ -4,7 +4,7 @@
     "go": "1.25"
   },
   "extends": [
-    "config:base",
+    "config:recommended",
     ":semanticCommitTypeAll(build)",
     ":separatePatchReleases"
   ],
@@ -17,7 +17,7 @@
     "gomod"
   ],
   "postUpdateOptions": [
-      "gomodTidy",
-      "gomodMassage"
+    "gomodTidy",
+    "gomodMassage"
   ]
 }
