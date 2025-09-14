@@ -7,36 +7,55 @@ import (
 )
 
 var (
-	reAlgorithmPrefixPBKDF2 = regexp.MustCompile(`^\{(?P<identifier>PBKDF2(-SHA\d+)?)}(?P<remainder>\d+\$.*)$`)
+	reAlgorithmPrefixLDAPPBKDF2 = regexp.MustCompile(`^\{(?P<identifier>PBKDF2(-SHA\d+)?)}(?P<remainder>\d+\$.*)$`)
+	reAlgorithmPrefixLDAP       = regexp.MustCompile(`^\{(?P<identifier>\w+)}(?P<remainder>\d+\$.*)$`)
 )
 
 // Normalize performs normalization on an encoded digest. This removes prefixes which are not necessary and performs
 // minimal modification to the encoded digest to make it possible for decoding.
 func Normalize(encodedDigest string) string {
 	if strings.HasPrefix(encodedDigest, StorageFormatPrefixLDAPCrypt) {
-		encodedDigest = encodedDigest[7:]
+		return encodedDigest[7:]
 	}
 
 	if strings.HasPrefix(encodedDigest, StorageFormatPrefixLDAPArgon2) {
-		encodedDigest = encodedDigest[8:]
+		return encodedDigest[8:]
 	}
 
-	matchesPBKDF2 := reAlgorithmPrefixPBKDF2.FindStringSubmatch(encodedDigest)
+	if strings.HasPrefix(encodedDigest, StorageFormatPrefixLDAPClearText) {
+		return fmt.Sprintf("$plaintext$%s", encodedDigest[11:])
+	}
 
-	if len(matchesPBKDF2) != 0 {
-		var identifier, remainder string
+	var matches []string
 
-		for g, group := range reAlgorithmPrefixPBKDF2.SubexpNames() {
-			switch group {
-			case "identifier":
-				identifier = matchesPBKDF2[g]
-			case "remainder":
-				identifier = matchesPBKDF2[g]
-			}
-		}
+	matches = reAlgorithmPrefixLDAPPBKDF2.FindStringSubmatch(encodedDigest)
+
+	if len(matches) != 0 {
+		identifier, remainder := getIdentifierRemainderGroups(reAlgorithmPrefixLDAPPBKDF2, matches)
+
+		encodedDigest = fmt.Sprintf("$%s$%s", strings.ToLower(identifier), remainder)
+	}
+
+	matches = reAlgorithmPrefixLDAP.FindStringSubmatch(encodedDigest)
+
+	if len(matches) != 0 {
+		identifier, remainder := getIdentifierRemainderGroups(reAlgorithmPrefixLDAPPBKDF2, matches)
 
 		encodedDigest = fmt.Sprintf("$%s$%s", strings.ToLower(identifier), remainder)
 	}
 
 	return encodedDigest
+}
+
+func getIdentifierRemainderGroups(pattern *regexp.Regexp, matches []string) (identifier, remainder string) {
+	for g, group := range pattern.SubexpNames() {
+		switch group {
+		case "identifier":
+			identifier = matches[g]
+		case "remainder":
+			remainder = matches[g]
+		}
+	}
+
+	return identifier, remainder
 }

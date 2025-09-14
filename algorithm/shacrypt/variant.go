@@ -57,6 +57,17 @@ func (v Variant) Prefix() (prefix string) {
 	}
 }
 
+func (v Variant) PrefixLDAP() (prefix string) {
+	switch v {
+	case VariantSHA256:
+		return AlgIdentifierSHA256
+	case VariantSHA512:
+		return AlgIdentifierSHA512
+	default:
+		return AlgIdentifierSHA512
+	}
+}
+
 // Name returns the Variant name.
 func (v Variant) Name() (s string) {
 	switch v {

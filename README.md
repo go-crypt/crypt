@@ -16,7 +16,12 @@ A list of tasks that need to be accomplished are listed in the
 
 ## Algorithms
 
+Many algorithms are supported and some normalization is used to cover other storage formats. Normalization converts the
+unnormalized digest into one of the [Standard](#standard) formats in order to reduce duplication.
+
 ### Supported
+
+#### Standard
 
 |                                  Algorithm                                   |               Variants               |                                         Identifiers                                         |
 |:----------------------------------------------------------------------------:|:------------------------------------:|:-------------------------------------------------------------------------------------------:|
@@ -28,6 +33,16 @@ A list of tasks that need to be accomplished are listed in the
 |                                   md5crypt                                   |            standard, sun             |                                         `1`, `md5`                                          |
 |                                  sha1crypt                                   |               standard               |                                           `sha1`                                            |
 |                       [PlainText](#plain-text-format)                        |          plaintext, base64           |                                    `plaintext`, `base64`                                    |
+
+#### LDAP
+
+|                       Algorithm                       |                                               Identifiers                                               |                                 Notes                                 |
+|:-----------------------------------------------------:|:-------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------:|
+| [Argon2](https://www.rfc-editor.org/rfc/rfc9106.html) |                                               `{ARGON2}`                                                |                       Handled by Normalization                        |
+|                        PBKDF2                         | `{PBKDF2}`, `{PBKDF2-SHA1}`, `{PBKDF2-SHA224}`, `{PBKDF2-SHA256}`, `{PBKDF2-SHA384}`, `{PBKDF2-SHA512}` |                       Handled by Normalization                        |
+|                       sha1crypt                       |                                            `{SHA}`, `{SSHA}`                                            |                       Handled by Normalization                        |
+|                       sha2crypt                       |                            `{SHA256}`, `{SSHA256}`, `{SHA512}`, `{SSHA512}`                             |                       Handled by Normalization                        |
+|                      Plain Text                       |                                              `{CLEARTEXT}`                                              | Handled by Normalization (See [Plain Text Format](#plain-text-format) |
 
 #### Plain Text Format
 
@@ -65,7 +80,6 @@ a HMAC-SHA-256 function the salt as the key is supported. The bcrypt-sha256 vers
 | Type 8 (cisco)  | Explicit Backwards Compatibility and Interoperability |
 | Type 9 (cisco)  | Explicit Backwards Compatibility and Interoperability |
 | Type 10 (cisco) | Explicit Backwards Compatibility and Interoperability |
-|  LDAP RFC2307   | Explicit Backwards Compatibility and Interoperability |
 
 Additional support for LDAP specific formats is also very likely, either via normalization and encoding options or via
 explicit algorithm variants and/or specific algorithms.

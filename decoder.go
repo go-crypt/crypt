@@ -185,5 +185,9 @@ func decoderProfileDefault(decoder *Decoder) (err error) {
 		return fmt.Errorf("could not register the shacrypt decoder: %w", err)
 	}
 
+	if err = shacrypt.RegisterLDAPDecoder(decoder); err != nil {
+		return fmt.Errorf("could not register the shacrypt ldap decoder: %w", err)
+	}
+
 	return nil
 }
