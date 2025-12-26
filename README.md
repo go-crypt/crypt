@@ -1,7 +1,15 @@
-[![Go Reference](https://pkg.go.dev/badge/github.com/go-crypt/crypt.svg)](https://pkg.go.dev/github.com/go-crypt/crypt)
+[![Go Reference](https://godoc.org/github.com/go-crypt/crypt?status.svg)](https://godoc.org/github.com/go-crypt/crypt)
 [![Go Report Card](https://goreportcard.com/badge/github.com/go-crypt/crypt)](https://goreportcard.com/report/github.com/go-crypt/crypt)
+[![Version](https://img.shields.io/github/release/go-crypt/crypt.svg)](https://github.com/go-crypt/crypt/releases)
+![Go version](https://img.shields.io/badge/Go-1.25-brightgreen.svg)
+[![codecov](https://codecov.io/github/go-crypt/crypt/graph/badge.svg?token=P1FN91DTLE)](https://codecov.io/github/go-crypt/crypt)
+![License](https://img.shields.io/github/license/go-crypt/crypt?logo=apache&color=blue)
 
 # github.com/go-crypt/crypt
+
+<p align="center">
+  <img src="./static/logo.png" alt="Logo" width="500"/>
+</p>
 
 Password Hashing / Digest / Crypt library.
 
