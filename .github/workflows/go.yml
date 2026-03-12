@@ -42,7 +42,6 @@ jobs:
     strategy:
       matrix:
         go:
-          - '1.24'
           - '1.25'
           - '1.26'
       fail-fast: false
