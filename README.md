@@ -65,7 +65,7 @@ a HMAC-SHA-256 function the salt as the key is supported. The bcrypt-sha256 vers
 [PHC string format]: https://github.com/P-H-C/phc-string-format/blob/master/phc-sf-spec.md
 [Modular Crypt Format]: https://passlib.readthedocs.io/en/stable/modular_crypt_format.html
 
-### Possible Future Support
+### Decodable Digest Formats
 
 |    Algorithm    |                       Reasoning                       |
 |:---------------:|:-----------------------------------------------------:|
