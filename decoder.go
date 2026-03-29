@@ -8,6 +8,7 @@ import (
 	"github.com/go-crypt/crypt/algorithm"
 	"github.com/go-crypt/crypt/algorithm/argon2"
 	"github.com/go-crypt/crypt/algorithm/bcrypt"
+	"github.com/go-crypt/crypt/algorithm/descrypt"
 	"github.com/go-crypt/crypt/algorithm/md5crypt"
 	"github.com/go-crypt/crypt/algorithm/pbkdf2"
 	"github.com/go-crypt/crypt/algorithm/plaintext"
@@ -80,6 +81,10 @@ func NewDecoderAll() (d *Decoder, err error) {
 		return nil, fmt.Errorf("could not register the sha1crypt decoder: %w", err)
 	}
 
+	if err = descrypt.RegisterDecoder(d); err != nil {
+		return nil, fmt.Errorf("could not register the descrypt decoder: %w", err)
+	}
+
 	return d, nil
 }
 
@@ -143,6 +148,12 @@ func (d *Decoder) decode(encodedDigest string) (digest algorithm.Digest, err err
 	encodedDigest = Normalize(encodedDigest)
 
 	if len(encodedDigest) == 0 || rune(encodedDigest[0]) != encoding.Delimiter {
+		if decodeFunc, ok := d.decoders[descrypt.AlgName]; ok {
+			if digest, err = decodeFunc(encodedDigest); err == nil {
+				return digest, nil
+			}
+		}
+
 		return nil, fmt.Errorf("%w: the digest doesn't begin with the delimiter %s and is not one of the other understood formats", algorithm.ErrEncodedHashInvalidFormat, strconv.QuoteRune(encoding.Delimiter))
 	}
 
