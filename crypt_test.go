@@ -150,7 +150,7 @@ func TestDecoderRegisterDecodePrefix(t *testing.T) {
 			nil,
 			"{TEST}",
 			"missing",
-			"decoder isn't registered for dentifier 'missing'",
+			"decoder isn't registered for identifier 'missing'",
 		},
 	}
 

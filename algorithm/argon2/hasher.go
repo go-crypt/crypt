@@ -188,7 +188,7 @@ func (h *Hasher) defaults() {
 	h.d = true
 
 	if h.k < KeyLengthMin {
-		h.s = KeyLengthDefault
+		h.k = KeyLengthDefault
 	}
 
 	if h.s < SaltLengthMin {
