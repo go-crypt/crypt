@@ -114,7 +114,7 @@ func WithR(r int) Opt {
 
 // WithBlockSize is an alias for WithR.
 func WithBlockSize(r int) Opt {
-	return WithS(r)
+	return WithR(r)
 }
 
 // WithP sets the p parameter (parallelism factor) of the resulting scrypt.Digest.

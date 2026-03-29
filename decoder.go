@@ -116,7 +116,7 @@ func (d *Decoder) RegisterDecodePrefix(prefix, identifier string) (err error) {
 	}
 
 	if _, ok := d.decoders[identifier]; !ok {
-		return fmt.Errorf("decoder isn't registered for dentifier '%s'", identifier)
+		return fmt.Errorf("decoder isn't registered for identifier '%s'", identifier)
 	}
 
 	d.prefixes[prefix] = identifier
