@@ -26,6 +26,16 @@ func TestNormalize(t *testing.T) {
 			"$argon2id$v=19$m=65536,t=3,p=4$salt$key",
 		},
 		{
+			"ShouldRewritePBKDF2Prefix",
+			"{PBKDF2-SHA256}310000$salt$key",
+			"$pbkdf2-sha256$310000$salt$key",
+		},
+		{
+			"ShouldRewritePBKDF2PrefixWithoutSHAVariant",
+			"{PBKDF2}120000$salt$key",
+			"$pbkdf2$120000$salt$key",
+		},
+		{
 			"ShouldNotModifyNormalDigest",
 			"$6$salt$key",
 			"$6$salt$key",

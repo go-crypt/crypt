@@ -31,7 +31,7 @@ func Normalize(encodedDigest string) string {
 			case "identifier":
 				identifier = matchesPBKDF2[g]
 			case "remainder":
-				identifier = matchesPBKDF2[g]
+				remainder = matchesPBKDF2[g]
 			}
 		}
 
