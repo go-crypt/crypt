@@ -74,6 +74,16 @@ func (d *Digest) String() string {
 	return d.Encode()
 }
 
+// Key returns the raw unencoded key which is the final result of this digest.
+func (d *Digest) Key() (key []byte) {
+	return d.key
+}
+
+// Salt returns the raw unencoded salt used to generate this digest.
+func (d *Digest) Salt() (salt []byte) {
+	return nil
+}
+
 func (d *Digest) defaults() {
 	switch d.variant {
 	case VariantPlainText, VariantBase64:
@@ -81,10 +91,4 @@ func (d *Digest) defaults() {
 	default:
 		d.variant = VariantPlainText
 	}
-}
-
-// Key returns the raw plaintext key which can be used in situations where the plaintext value is required such as
-// validating JWT's signed by HMAC-SHA256.
-func (d *Digest) Key() []byte {
-	return d.key
 }

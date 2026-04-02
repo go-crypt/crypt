@@ -72,6 +72,16 @@ func (d *Digest) String() string {
 	return d.Encode()
 }
 
+// Key returns the key which is the final result of this digest.
+func (d *Digest) Key() (key []byte) {
+	return d.key
+}
+
+// Salt returns the salt used to generate this digest.
+func (d *Digest) Salt() (salt []byte) {
+	return d.salt
+}
+
 func (d *Digest) defaults() {
 	switch d.variant {
 	case VariantStandard, VariantSun:

@@ -441,6 +441,14 @@ func TestDigestMethods(t *testing.T) {
 		assert.False(t, digest.Match(wrongPassword))
 	})
 
+	t.Run("ShouldReturnKey", func(t *testing.T) {
+		assert.NotEmpty(t, digest.Key())
+	})
+
+	t.Run("ShouldReturnSalt", func(t *testing.T) {
+		assert.NotEmpty(t, digest.Salt())
+	})
+
 	t.Run("ShouldReturnValue", func(t *testing.T) {
 		value, err := digest.Value()
 		assert.NoError(t, err)
@@ -611,6 +619,14 @@ func TestNullDigestNilMethods(t *testing.T) {
 		assert.False(t, match)
 	})
 
+	t.Run("ShouldReturnNilKey", func(t *testing.T) {
+		assert.Nil(t, d.Key())
+	})
+
+	t.Run("ShouldReturnNilSalt", func(t *testing.T) {
+		assert.Nil(t, d.Salt())
+	})
+
 	t.Run("ShouldReturnNilValue", func(t *testing.T) {
 		value, err := d.Value()
 		assert.NoError(t, err)
@@ -641,6 +657,14 @@ func TestNullDigestWithDigest(t *testing.T) {
 
 	t.Run("ShouldMatchPassword", func(t *testing.T) {
 		assert.True(t, d.Match(password))
+	})
+
+	t.Run("ShouldReturnKey", func(t *testing.T) {
+		assert.NotEmpty(t, d.Key())
+	})
+
+	t.Run("ShouldReturnSalt", func(t *testing.T) {
+		assert.NotEmpty(t, d.Salt())
 	})
 
 	t.Run("ShouldReturnNonNilValue", func(t *testing.T) {

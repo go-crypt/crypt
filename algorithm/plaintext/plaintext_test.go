@@ -436,9 +436,10 @@ func TestDigestEncode(t *testing.T) {
 	}
 }
 
-func TestDigestKey(t *testing.T) {
+func TestDigestKeySalt(t *testing.T) {
 	d := NewDigest("password")
 	assert.Equal(t, []byte("password"), d.Key())
+	assert.Nil(t, d.Salt())
 }
 
 func TestNewDigest(t *testing.T) {
