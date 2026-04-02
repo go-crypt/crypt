@@ -62,6 +62,16 @@ func (d *Digest) String() string {
 	return d.Encode()
 }
 
+// Key returns the key which is the final result of this digest.
+func (d *Digest) Key() (key []byte) {
+	return d.key
+}
+
+// Salt returns the salt used to generate this digest.
+func (d *Digest) Salt() (salt []byte) {
+	return d.salt
+}
+
 // n returns 2 to the power of log N i.e d.ln.
 func (d *Digest) n() (n int) {
 	return 1 << d.ln

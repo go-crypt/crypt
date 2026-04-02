@@ -178,6 +178,21 @@ func TestDecode(t *testing.T) {
 	}
 }
 
+func TestDigestKeySalt(t *testing.T) {
+	hasher, err := New(WithIterations(1000), WithSaltLength(8))
+	require.NoError(t, err)
+
+	digest, err := hasher.Hash("password")
+	require.NoError(t, err)
+
+	d, ok := digest.(*Digest)
+	require.True(t, ok)
+
+	assert.NotEmpty(t, d.Key())
+	assert.NotEmpty(t, d.Salt())
+	assert.Len(t, d.Salt(), 8)
+}
+
 func TestDigestMatch(t *testing.T) {
 	hasher, err := New(WithIterations(1000))
 	require.NoError(t, err)

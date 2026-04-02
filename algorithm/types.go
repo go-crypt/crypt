@@ -39,6 +39,8 @@ type Digest interface {
 	Matcher
 
 	Encode() (hash string)
+	Key() (key []byte)
+	Salt() (salt []byte)
 }
 
 // DecodeFunc describes a function to decode an encoded digest into a algorithm.Digest.

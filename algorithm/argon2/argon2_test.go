@@ -490,6 +490,22 @@ func TestDigestMatchAdvanced(t *testing.T) {
 	assert.Equal(t, digest.Encode(), digest.String())
 }
 
+func TestDigestKeySalt(t *testing.T) {
+	hasher, err := New(WithT(1), WithP(1), WithM(8), WithK(32), WithS(16))
+	require.NoError(t, err)
+
+	digest, err := hasher.Hash("password")
+	require.NoError(t, err)
+
+	d, ok := digest.(*Digest)
+	require.True(t, ok)
+
+	assert.NotEmpty(t, d.Key())
+	assert.Len(t, d.Key(), 32)
+	assert.NotEmpty(t, d.Salt())
+	assert.Len(t, d.Salt(), 16)
+}
+
 func TestWithProfileRFC9106(t *testing.T) {
 	testCases := []struct {
 		name string

@@ -90,6 +90,16 @@ func (d *Digest) Match(password string) (match bool) {
 	return d.digest.Match(password)
 }
 
+// Key returns the key which is the final result of this digest.
+func (d *Digest) Key() (key []byte) {
+	return d.digest.Key()
+}
+
+// Salt returns the salt used to generate this digest.
+func (d *Digest) Salt() (salt []byte) {
+	return d.digest.Salt()
+}
+
 // Value implements driver.Valuer.
 func (d *Digest) Value() (value driver.Value, err error) {
 	if d.digest == nil {
@@ -214,6 +224,24 @@ func (d *NullDigest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err e
 	}
 
 	return d.digest.MatchBytesAdvanced(passwordBytes)
+}
+
+// Key returns the key which is the final result of this digest.
+func (d *NullDigest) Key() (key []byte) {
+	if d.digest == nil {
+		return nil
+	}
+
+	return d.digest.Key()
+}
+
+// Salt returns the salt used to generate this digest.
+func (d *NullDigest) Salt() (salt []byte) {
+	if d.digest == nil {
+		return nil
+	}
+
+	return d.digest.Salt()
 }
 
 // Value implements driver.Valuer.
