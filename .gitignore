@@ -1,0 +1,5 @@
+.graphifyignore
+graphify-out/
+
+# Added by ggshield
+.cache_ggshield

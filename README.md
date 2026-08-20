@@ -91,7 +91,7 @@ Use `go get` to add this module to your project with `go get github.com/go-crypt
 
 ### Requirements
 
-- go 1.24+
+- go 1.25+
 
 ## Usage
 
