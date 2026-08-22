@@ -67,17 +67,20 @@ jobs:
         run: |
           go test -race -shuffle=on -v ./...
   fuzz:
-    name: 'Fuzz'
+    name: 'Fuzz (${{ matrix.target.label }})'
     runs-on: 'ubuntu-latest'
     strategy:
       matrix:
         target:
           - package: '.'
-            name: 'FuzzDecode'
+            func: 'FuzzDecode'
+            label: 'Decode'
           - package: '.'
-            name: 'FuzzNormalize'
+            func: 'FuzzNormalize'
+            label: 'Normalize'
           - package: './algorithm/scrypt'
-            name: 'FuzzDecodeAndMatch'
+            func: 'FuzzDecodeAndMatch'
+            label: 'Scrypt Decode and Match'
       fail-fast: false
     steps:
       - name: 'Harden Runner'
@@ -93,9 +96,9 @@ jobs:
       - name: 'Get Dependencies'
         run: |
           go get -v -t ./...
-      - name: 'Fuzz ${{ matrix.target.name }}'
+      - name: 'Fuzz ${{ matrix.target.func }}'
         run: |
-          go test -run '^$' -fuzz '^${{ matrix.target.name }}$' -fuzztime 120s ${{ matrix.target.package }}
+          go test -run '^$' -fuzz '^${{ matrix.target.func }}$' -fuzztime 120s ${{ matrix.target.package }}
       - name: 'Show Failing Corpus'
         if: failure()
         run: |
