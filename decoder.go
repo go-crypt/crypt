@@ -88,6 +88,7 @@ func NewDecoderAll() (d *Decoder, err error) {
 type Decoder struct {
 	decoders map[string]algorithm.DecodeFunc
 	prefixes map[string]string
+	global   bool
 }
 
 // RegisterDecodeFunc registers a new algorithm.DecodeFunc with this Decoder against a specific identifier.
@@ -134,10 +135,8 @@ func (d *Decoder) Decode(encodedDigest string) (digest algorithm.Digest, err err
 }
 
 func (d *Decoder) decode(encodedDigest string) (digest algorithm.Digest, err error) {
-	for prefix, key := range d.prefixes {
-		if strings.HasPrefix(encodedDigest, prefix) {
-			return d.decoders[key](encodedDigest)
-		}
+	if key, ok := d.matchPrefix(encodedDigest); ok {
+		return d.decoders[key](encodedDigest)
 	}
 
 	encodedDigest = Normalize(encodedDigest)
@@ -156,12 +155,25 @@ func (d *Decoder) decode(encodedDigest string) (digest algorithm.Digest, err err
 		return decodeFunc(encodedDigest)
 	}
 
-	switch d {
-	case gdecoder:
+	if d.global {
 		return nil, fmt.Errorf("%w: the identifier '%s' is unknown to the global decoder", algorithm.ErrEncodedHashInvalidIdentifier, parts[1])
-	default:
-		return nil, fmt.Errorf("%w: the identifier '%s' is unknown to the decoder", algorithm.ErrEncodedHashInvalidIdentifier, parts[1])
 	}
+
+	return nil, fmt.Errorf("%w: the identifier '%s' is unknown to the decoder", algorithm.ErrEncodedHashInvalidIdentifier, parts[1])
+}
+
+func (d *Decoder) matchPrefix(encodedDigest string) (identifier string, ok bool) {
+	var matched string
+
+	for prefix, key := range d.prefixes {
+		if !strings.HasPrefix(encodedDigest, prefix) || len(prefix) <= len(matched) && ok {
+			continue
+		}
+
+		matched, identifier, ok = prefix, key, true
+	}
+
+	return identifier, ok
 }
 
 func decoderProfileDefault(decoder *Decoder) (err error) {

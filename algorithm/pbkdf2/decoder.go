@@ -141,6 +141,10 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 		return nil, fmt.Errorf("%w: iterations could not be parsed: %v", algorithm.ErrEncodedHashInvalidOptionValue, err)
 	}
 
+	if decoded.iterations < 1 {
+		return nil, fmt.Errorf("%w: iterations must be at least 1 but is set to '%d'", algorithm.ErrEncodedHashInvalidOptionValue, decoded.iterations)
+	}
+
 	if decoded.salt, err = encoding.Base64RawAdaptedEncoding.DecodeString(parts[1]); err != nil {
 		return nil, fmt.Errorf("%w: %v", algorithm.ErrEncodedHashSaltEncoding, err)
 	}

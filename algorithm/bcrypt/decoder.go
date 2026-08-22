@@ -126,6 +126,10 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 			return nil, fmt.Errorf("%w: iterations could not be parsed: %v", algorithm.ErrEncodedHashInvalidOptionValue, err)
 		}
 
+		if err = validateCost(decoded.iterations); err != nil {
+			return nil, err
+		}
+
 		switch n, i := len(parts[1]), bcrypt.EncodedSaltSize+bcrypt.EncodedHashSize; n {
 		case i:
 			break
@@ -181,6 +185,10 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 				return nil, fmt.Errorf("%w: option '%s' has invalid value '%s': %v", algorithm.ErrEncodedHashInvalidOptionValue, param.Key, param.Value, err)
 			}
 		}
+
+		if err = validateCost(decoded.iterations); err != nil {
+			return nil, err
+		}
 	}
 
 	if decoded.salt, err = bcrypt.Base64Decode(salt); err != nil {
@@ -194,4 +202,12 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 	decoded.key = key
 
 	return decoded, nil
+}
+
+func validateCost(cost int) (err error) {
+	if cost < bcrypt.MinCost || cost > bcrypt.MaxCost {
+		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, "cost", bcrypt.MinCost, "", bcrypt.MaxCost, cost)
+	}
+
+	return nil
 }

@@ -124,6 +124,10 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 				return nil, fmt.Errorf("%w: option '%s' has invalid value '%s': %v", algorithm.ErrEncodedHashInvalidOptionValue, param.Key, param.Value, err)
 			}
 
+			if rounds == 0 || rounds > IterationsMax {
+				return nil, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, param.Key, 1, "", IterationsMax, rounds)
+			}
+
 			decoded.iterations = int(rounds)
 		default:
 			return nil, fmt.Errorf("%w: option '%s' with value '%s' is unknown", algorithm.ErrEncodedHashInvalidOptionKey, param.Key, param.Value)

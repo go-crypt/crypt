@@ -26,67 +26,27 @@ func New(opts ...Opt) (hasher *Hasher, err error) {
 
 // NewSHA1 returns a SHA1 variant *pbkdf2.Hasher with the additional opts applied if any.
 func NewSHA1(opts ...Opt) (hasher *Hasher, err error) {
-	if hasher, err = New(opts...); err != nil {
-		return nil, err
-	}
-
-	if err = hasher.WithOptions(WithVariant(VariantSHA1)); err != nil {
-		return nil, err
-	}
-
-	return hasher, nil
+	return New(append([]Opt{WithVariant(VariantSHA1)}, opts...)...)
 }
 
 // NewSHA224 returns a SHA224 variant *pbkdf2.Hasher with the additional opts applied if any.
 func NewSHA224(opts ...Opt) (hasher *Hasher, err error) {
-	if hasher, err = New(opts...); err != nil {
-		return nil, err
-	}
-
-	if err = hasher.WithOptions(WithVariant(VariantSHA224)); err != nil {
-		return nil, err
-	}
-
-	return hasher, nil
+	return New(append([]Opt{WithVariant(VariantSHA224)}, opts...)...)
 }
 
 // NewSHA256 returns a SHA256 variant *pbkdf2.Hasher with the additional opts applied if any.
 func NewSHA256(opts ...Opt) (hasher *Hasher, err error) {
-	if hasher, err = New(opts...); err != nil {
-		return nil, err
-	}
-
-	if err = hasher.WithOptions(WithVariant(VariantSHA256)); err != nil {
-		return nil, err
-	}
-
-	return hasher, nil
+	return New(append([]Opt{WithVariant(VariantSHA256)}, opts...)...)
 }
 
 // NewSHA384 returns a SHA384 variant *pbkdf2.Hasher with the additional opts applied if any.
 func NewSHA384(opts ...Opt) (hasher *Hasher, err error) {
-	if hasher, err = New(opts...); err != nil {
-		return nil, err
-	}
-
-	if err = hasher.WithOptions(WithVariant(VariantSHA384)); err != nil {
-		return nil, err
-	}
-
-	return hasher, nil
+	return New(append([]Opt{WithVariant(VariantSHA384)}, opts...)...)
 }
 
 // NewSHA512 returns a SHA512 variant *pbkdf2.Hasher with the additional opts applied if any.
 func NewSHA512(opts ...Opt) (hasher *Hasher, err error) {
-	if hasher, err = New(opts...); err != nil {
-		return nil, err
-	}
-
-	if err = hasher.WithOptions(WithVariant(VariantSHA512)); err != nil {
-		return nil, err
-	}
-
-	return hasher, nil
+	return New(append([]Opt{WithVariant(VariantSHA512)}, opts...)...)
 }
 
 // Hasher is a crypt.Hash for PBKDF2 which can be initialized via pbkdf2.New using a functional options pattern.

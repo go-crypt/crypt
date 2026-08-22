@@ -31,7 +31,7 @@ jobs:
           go get -v -t ./...
       - name: 'Test'
         run: |
-          go test -coverprofile=coverage.txt -v ./...
+          go test -race -coverprofile=coverage.txt -covermode=atomic -v ./...
       - name: 'Coverage'
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
@@ -65,4 +65,38 @@ jobs:
           go build -v ./...
       - name: 'Test'
         run: |
-          go test -v ./...
+          go test -race -shuffle=on -v ./...
+  fuzz:
+    name: 'Fuzz'
+    runs-on: 'ubuntu-latest'
+    strategy:
+      matrix:
+        target:
+          - package: '.'
+            name: 'FuzzDecode'
+          - package: '.'
+            name: 'FuzzNormalize'
+          - package: './algorithm/scrypt'
+            name: 'FuzzDecodeAndMatch'
+      fail-fast: false
+    steps:
+      - name: 'Harden Runner'
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: 'audit'
+      - name: 'Set up Go'
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: '1.27'
+      - name: 'Checkout'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: 'Get Dependencies'
+        run: |
+          go get -v -t ./...
+      - name: 'Fuzz ${{ matrix.target.name }}'
+        run: |
+          go test -run '^$' -fuzz '^${{ matrix.target.name }}$' -fuzztime 120s ${{ matrix.target.package }}
+      - name: 'Show Failing Corpus'
+        if: failure()
+        run: |
+          find . -path '*/testdata/fuzz/*' -type f -print -exec cat {} \;
