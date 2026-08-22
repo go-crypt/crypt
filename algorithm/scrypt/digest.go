@@ -72,9 +72,24 @@ func (d *Digest) Salt() (salt []byte) {
 	return d.salt
 }
 
-// n returns 2 to the power of log N i.e d.ln.
 func (d *Digest) n() (n int) {
 	return 1 << d.ln
+}
+
+func (d *Digest) validate() (err error) {
+	if d.ln < IterationsMin || d.ln > IterationsMax {
+		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, oLN, IterationsMin, "", IterationsMax, d.ln)
+	}
+
+	if d.r < BlockSizeMin || d.r > BlockSizeMax {
+		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, oR, BlockSizeMin, "", BlockSizeMax, d.r)
+	}
+
+	if d.p < ParallelismMin || d.p > ParallelismMax {
+		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, oP, ParallelismMin, "", ParallelismMax, d.p)
+	}
+
+	return nil
 }
 
 func (d *Digest) defaults() {

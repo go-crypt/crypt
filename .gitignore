@@ -3,3 +3,5 @@ graphify-out/
 
 # Added by ggshield
 .cache_ggshield
+
+coverage.out

@@ -162,16 +162,16 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 		return nil, fmt.Errorf("%w: key has 0 bytes", algorithm.ErrEncodedHashKeyEncoding)
 	}
 
-	if decoded.t == 0 {
-		decoded.t = 1
+	if decoded.t < IterationsMin {
+		return nil, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, oT, IterationsMin, "", uint32(IterationsMax), decoded.t)
 	}
 
-	if decoded.p == 0 {
-		decoded.p = 4
+	if decoded.p < ParallelismMin || decoded.p > ParallelismMax {
+		return nil, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, oP, ParallelismMin, "", uint32(ParallelismMax), decoded.p)
 	}
 
-	if decoded.m == 0 {
-		decoded.m = 32 * 1024
+	if decoded.m < MemoryMin {
+		return nil, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, oM, MemoryMin, "", MemoryMax, decoded.m)
 	}
 
 	return decoded, nil

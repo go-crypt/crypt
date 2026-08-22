@@ -12,7 +12,7 @@ const (
 	EncodingFmtSun = "$md5$%s$$%s"
 
 	// EncodingFmtSunIterations is the encoding format for this algorithm when using md5crypt.VariantSun and iterations more than 0.
-	EncodingFmtSunIterations = "$md5,iterations=%d$%s$$%s"
+	EncodingFmtSunIterations = "$md5,rounds=%d$%s$$%s"
 
 	// AlgName is the name for this algorithm.
 	AlgName = "md5crypt"
@@ -22,6 +22,13 @@ const (
 
 	// AlgIdentifierVariantSun is the identifier used in this algorithm when using md5crypt.VariantSun.
 	AlgIdentifierVariantSun = "md5"
+
+	// ParameterRounds is the parameter name used by the Sun variant of this algorithm to carry the iteration count.
+	ParameterRounds = "rounds"
+
+	// ParameterIterations is a non standard parameter name for the iteration count which earlier versions of this
+	// library emitted. It is accepted when decoding so those digests remain readable.
+	ParameterIterations = "iterations"
 
 	// VariantNameStandard is the md5crypt.Variant name for md5crypt.VariantStandard.
 	VariantNameStandard = "standard"

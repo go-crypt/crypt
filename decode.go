@@ -1,11 +1,18 @@
 package crypt
 
 import (
+	"sync"
+
 	"github.com/go-crypt/crypt/algorithm"
 )
 
-// The global Decoder. This is utilized by the Decode function.
-var gdecoder *Decoder
+// The global Decoder. This is utilized by the Decode function. It is initialized exactly once by gdecoderOnce so that
+// the Decode function is safe for concurrent use.
+var (
+	gdecoder     *Decoder
+	gdecoderErr  error
+	gdecoderOnce sync.Once
+)
 
 // Decode is a convenience function which wraps the Decoder functionality. It's recommended to create your own decoder
 // instead via NewDecoder or NewDefaultDecoder.
@@ -22,10 +29,14 @@ func Decode(encodedDigest string) (digest algorithm.Digest, err error) {
 }
 
 func decode(encodedDigest string) (digest algorithm.Digest, err error) {
-	if gdecoder == nil {
-		if gdecoder, err = NewDefaultDecoder(); err != nil {
-			return nil, err
+	gdecoderOnce.Do(func() {
+		if gdecoder, gdecoderErr = NewDefaultDecoder(); gdecoderErr == nil {
+			gdecoder.global = true
 		}
+	})
+
+	if gdecoderErr != nil {
+		return nil, gdecoderErr
 	}
 
 	return gdecoder.Decode(encodedDigest)

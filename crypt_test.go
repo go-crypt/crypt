@@ -693,7 +693,7 @@ func TestNullDigestScan(t *testing.T) {
 		{
 			"ShouldFailInvalidType",
 			123,
-			"invalid type for crypt.Digest: can't scan int into crypt.Digest",
+			"invalid type for crypt.NullDigest: can't scan int into crypt.NullDigest",
 		},
 	}
 

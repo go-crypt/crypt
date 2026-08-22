@@ -62,41 +62,73 @@ type Digest struct {
 
 // Encode decorates the algorithm.Digest Encode function.
 func (d *Digest) Encode() string {
+	if d.digest == nil {
+		return ""
+	}
+
 	return d.digest.Encode()
 }
 
 // String decorates the algorithm.Digest String function.
 func (d *Digest) String() string {
+	if d.digest == nil {
+		return ""
+	}
+
 	return d.digest.String()
 }
 
 // MatchBytes decorates the algorithm.Digest MatchBytes function.
 func (d *Digest) MatchBytes(passwordBytes []byte) (match bool) {
+	if d.digest == nil {
+		return false
+	}
+
 	return d.digest.MatchBytes(passwordBytes)
 }
 
 // MatchAdvanced decorates the algorithm.Digest MatchAdvanced function.
 func (d *Digest) MatchAdvanced(password string) (match bool, err error) {
+	if d.digest == nil {
+		return false, ErrDigestNil
+	}
+
 	return d.digest.MatchAdvanced(password)
 }
 
 // MatchBytesAdvanced decorates the algorithm.Digest MatchBytesAdvanced function.
 func (d *Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error) {
+	if d.digest == nil {
+		return false, ErrDigestNil
+	}
+
 	return d.digest.MatchBytesAdvanced(passwordBytes)
 }
 
 // Match decorates the algorithm.Digest Match function.
 func (d *Digest) Match(password string) (match bool) {
+	if d.digest == nil {
+		return false
+	}
+
 	return d.digest.Match(password)
 }
 
 // Key returns the key which is the final result of this digest.
 func (d *Digest) Key() (key []byte) {
+	if d.digest == nil {
+		return nil
+	}
+
 	return d.digest.Key()
 }
 
 // Salt returns the salt used to generate this digest.
 func (d *Digest) Salt() (salt []byte) {
+	if d.digest == nil {
+		return nil
+	}
+
 	return d.digest.Salt()
 }
 
@@ -120,7 +152,7 @@ func (d *Digest) Scan(src any) (err error) {
 		}
 
 		return nil
-	case byte:
+	case []byte:
 		if d.digest, err = Decode(string(digest)); err != nil {
 			return err
 		}
@@ -261,19 +293,31 @@ func (d *NullDigest) Scan(src any) (err error) {
 
 		return nil
 	case string:
+		if len(digest) == 0 {
+			d.digest = nil
+
+			return nil
+		}
+
 		if d.digest, err = Decode(digest); err != nil {
 			return err
 		}
 
 		return nil
-	case byte:
+	case []byte:
+		if len(digest) == 0 {
+			d.digest = nil
+
+			return nil
+		}
+
 		if d.digest, err = Decode(string(digest)); err != nil {
 			return err
 		}
 
 		return nil
 	default:
-		return fmt.Errorf("invalid type for crypt.Digest: can't scan %T into crypt.Digest", digest)
+		return fmt.Errorf("invalid type for crypt.NullDigest: can't scan %T into crypt.NullDigest", digest)
 	}
 }
 

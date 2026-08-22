@@ -128,7 +128,7 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 
 		for _, param := range params {
 			switch param.Key {
-			case "rounds":
+			case ParameterRounds, ParameterIterations:
 				var value uint64
 
 				if value, err = strconv.ParseUint(param.Value, 10, 32); err != nil {
