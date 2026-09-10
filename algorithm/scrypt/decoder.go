@@ -139,5 +139,9 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 		return nil, fmt.Errorf("%w: key has 0 bytes", algorithm.ErrEncodedHashKeyEncoding)
 	}
 
+	if err = decoded.validate(); err != nil {
+		return nil, err
+	}
+
 	return decoded, nil
 }

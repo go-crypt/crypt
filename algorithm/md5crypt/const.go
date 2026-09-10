@@ -12,7 +12,7 @@ const (
 	EncodingFmtSun = "$md5$%s$$%s"
 
 	// EncodingFmtSunIterations is the encoding format for this algorithm when using md5crypt.VariantSun and iterations more than 0.
-	EncodingFmtSunIterations = "$md5,iterations=%d$%s$$%s"
+	EncodingFmtSunIterations = "$md5,rounds=%d$%s$$%s"
 
 	// AlgName is the name for this algorithm.
 	AlgName = "md5crypt"
@@ -22,6 +22,13 @@ const (
 
 	// AlgIdentifierVariantSun is the identifier used in this algorithm when using md5crypt.VariantSun.
 	AlgIdentifierVariantSun = "md5"
+
+	// ParameterRounds is the parameter name used by the Sun variant of this algorithm to carry the iteration count.
+	ParameterRounds = "rounds"
+
+	// ParameterIterations is a non standard parameter name for the iteration count which earlier versions of this
+	// library emitted. It is accepted when decoding so those digests remain readable.
+	ParameterIterations = "iterations"
 
 	// VariantNameStandard is the md5crypt.Variant name for md5crypt.VariantStandard.
 	VariantNameStandard = "standard"
@@ -44,8 +51,13 @@ const (
 	// IterationsMin is the minimum iterations accepted.
 	IterationsMin = 0
 
-	// IterationsMax is the maximum iterations accepted.
-	IterationsMax uint32 = math.MaxUint32
+	// IterationsMax is the maximum iterations accepted. The Sun variant performs 4096 iterations in addition to the
+	// value encoded in the digest, so the maximum is reduced by that amount to prevent the total from overflowing a
+	// uint32 and silently performing drastically fewer iterations than requested.
+	IterationsMax uint32 = math.MaxUint32 - IterationsSunBase
+
+	// IterationsSunBase is the number of iterations the Sun variant performs in addition to the encoded rounds value.
+	IterationsSunBase uint32 = 4096
 
 	// IterationsDefault is the default iterations.
 	IterationsDefault = 34000

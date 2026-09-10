@@ -26,27 +26,11 @@ func New(opts ...Opt) (hasher *Hasher, err error) {
 }
 
 func NewScrypt(opts ...Opt) (hasher *Hasher, err error) {
-	if hasher, err = New(opts...); err != nil {
-		return nil, err
-	}
-
-	if err = hasher.WithOptions(WithVariant(VariantScrypt)); err != nil {
-		return nil, err
-	}
-
-	return hasher, nil
+	return New(append([]Opt{WithVariant(VariantScrypt)}, opts...)...)
 }
 
 func NewYescrypt(opts ...Opt) (hasher *Hasher, err error) {
-	if hasher, err = New(opts...); err != nil {
-		return nil, err
-	}
-
-	if err = hasher.WithOptions(WithVariant(VariantYescrypt)); err != nil {
-		return nil, err
-	}
-
-	return hasher, nil
+	return New(append([]Opt{WithVariant(VariantYescrypt)}, opts...)...)
 }
 
 // Hasher is a crypt.Hash for scrypt which can be initialized via New using a functional options pattern.

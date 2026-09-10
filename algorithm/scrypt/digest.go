@@ -3,6 +3,7 @@ package scrypt
 import (
 	"crypto/subtle"
 	"fmt"
+	"math"
 
 	"github.com/go-crypt/crypt/algorithm"
 )
@@ -72,9 +73,48 @@ func (d *Digest) Salt() (salt []byte) {
 	return d.salt
 }
 
-// n returns 2 to the power of log N i.e d.ln.
 func (d *Digest) n() (n int) {
 	return 1 << d.ln
+}
+
+func (d *Digest) validate() (err error) {
+	if d.ln < IterationsMin || d.ln > IterationsMax {
+		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, oLN, IterationsMin, "", IterationsMax, d.ln)
+	}
+
+	if d.r < BlockSizeMin || d.r > BlockSizeMax {
+		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, oR, BlockSizeMin, "", BlockSizeMax, d.r)
+	}
+
+	if d.p < ParallelismMin || d.p > ParallelismMax {
+		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, oP, ParallelismMin, "", ParallelismMax, d.p)
+	}
+
+	rp := uint64(d.r) * uint64(d.p)
+
+	if rp >= 1<<30 {
+		return fmt.Errorf("%w: parameters 'r' and 'p' must be less than %d when multiplied but they are '%d'", algorithm.ErrEncodedHashInvalidOptionValue, 1<<30, rp)
+	}
+
+	mp := KeyLengthMax / (128 * d.r)
+
+	if d.p > mp {
+		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, oP, ParallelismMin, "", mp, d.p)
+	}
+
+	nr := math.MaxInt / 128 / d.r
+
+	if n := d.n(); n > nr {
+		return fmt.Errorf("%w: parameter '%s' when raised to the power of 2 must be less than or equal to %d (%d / r) but it is set to '%d' which is equal to '%d'", algorithm.ErrEncodedHashInvalidOptionValue, oLN, nr, math.MaxInt/128, d.ln, n)
+	}
+
+	pr := math.MaxInt / 128 / d.p
+
+	if pr < BlockSizeMax && d.r > pr {
+		return fmt.Errorf("%w: parameter '%s' when parameter '%s' is %d must be less than %d (%d / p) but it is set to '%d'", algorithm.ErrEncodedHashInvalidOptionValue, oR, oP, d.p, pr, math.MaxInt/128, d.r)
+	}
+
+	return nil
 }
 
 func (d *Digest) defaults() {

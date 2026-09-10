@@ -5,8 +5,9 @@ import (
 )
 
 const (
-	// EncodingFmt is the encoding format for this algorithm.
-	EncodingFmt = "$%s$%d$%s%s"
+	// EncodingFmt is the encoding format for this algorithm. The cost is zero padded to two digits as the bcrypt
+	// modular crypt format always represents it that way, and other implementations reject a single digit cost.
+	EncodingFmt = "$%s$%02d$%s%s"
 
 	// EncodingFmtSHA256 is the encoding format for the SHA256 variant of this algorithm.
 	EncodingFmtSHA256 = "$%s$v=2,t=%s,r=%d$%s$%s"

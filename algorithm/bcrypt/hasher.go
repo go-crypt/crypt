@@ -27,15 +27,7 @@ func New(opts ...Opt) (hasher *Hasher, err error) {
 // NewSHA256 returns a new bcrypt.Hasher with the provided functional options applied as well as the bcrypt.VariantSHA256
 // applied via the bcrypt.WithVariant bcrypt.Opt.
 func NewSHA256(opts ...Opt) (hasher *Hasher, err error) {
-	if hasher, err = New(opts...); err != nil {
-		return nil, err
-	}
-
-	if err = hasher.WithOptions(WithVariant(VariantSHA256)); err != nil {
-		return nil, err
-	}
-
-	return hasher, nil
+	return New(append([]Opt{WithVariant(VariantSHA256)}, opts...)...)
 }
 
 // Hasher is a crypt.Hash for bcrypt which can be initialized via bcrypt.New using a functional options pattern.
