@@ -1,6 +1,7 @@
 package crypt
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -43,6 +44,11 @@ func FuzzNormalize(f *testing.F) {
 	})
 }
 
+// argon2MemoryHardParameter is the argon2 memory parameter carried by several corpus entries. Deriving a key with it
+// allocates 2GiB which is more than a test run should require, so the entries which carry it and also decode are
+// skipped when verifying passwords. FuzzDecode and FuzzNormalize still cover them as neither derives a key.
+const argon2MemoryHardParameter = "m=2097152"
+
 func TestCheckPasswordNeverPanicsOverCorpus(t *testing.T) {
 	for _, encodedDigest := range corpusDecode {
 		t.Run(encodedDigest, func(t *testing.T) {
@@ -50,6 +56,12 @@ func TestCheckPasswordNeverPanicsOverCorpus(t *testing.T) {
 				valid bool
 				err   error
 			)
+
+			if strings.Contains(encodedDigest, argon2MemoryHardParameter) {
+				if _, decodeErr := Decode(encodedDigest); decodeErr == nil {
+					t.Skip("deriving a key from this digest would allocate 2GiB; it remains covered by FuzzDecode and FuzzNormalize")
+				}
+			}
 
 			if !assertNotPanics(t, func() { valid, err = CheckPassword("password", encodedDigest) }) {
 				return

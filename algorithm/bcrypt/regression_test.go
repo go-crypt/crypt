@@ -32,14 +32,23 @@ func TestDecodeRejectsUnusableCost(t *testing.T) {
 }
 
 func TestDecodeAcceptsLegacyCosts(t *testing.T) {
-	for _, cost := range []string{"04", "05", "09", "31"} {
-		t.Run(cost, func(t *testing.T) {
-			encoded := "$2b$" + cost + "$" + validStandardKey
+	testCases := []struct {
+		cost, expected string
+	}{
+		{"04", "04"},
+		{"05", "05"},
+		{"09", "09"},
+		{"31", "31"},
+		{"4", "04"},
+		{"9", "09"},
+	}
 
-			digest, err := Decode(encoded)
+	for _, tc := range testCases {
+		t.Run(tc.cost, func(t *testing.T) {
+			digest, err := Decode("$2b$" + tc.cost + "$" + validStandardKey)
 
 			require.NoError(t, err)
-			assert.Equal(t, encoded, digest.Encode())
+			assert.Equal(t, "$2b$"+tc.expected+"$"+validStandardKey, digest.Encode())
 		})
 	}
 }

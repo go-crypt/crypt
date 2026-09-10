@@ -170,8 +170,10 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 		return nil, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, oP, ParallelismMin, "", uint32(ParallelismMax), decoded.p)
 	}
 
-	if decoded.m < MemoryMin {
-		return nil, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, oM, MemoryMin, "", MemoryMax, decoded.m)
+	mMin := uint64(decoded.p) * MemoryMinParallelismMultiplier
+
+	if uint64(decoded.m) < mMin {
+		return nil, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, oM, mMin, " (p * 8)", MemoryMax, decoded.m)
 	}
 
 	return decoded, nil

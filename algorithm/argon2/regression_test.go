@@ -16,6 +16,7 @@ func TestDecodeRejectsParametersItCannotHonour(t *testing.T) {
 		{"ZeroParallelism", "$argon2id$v=19$m=8,t=1,p=0$c2FsdHNhbHQ$a2V5a2V5a2V5a2V5"},
 		{"ZeroMemory", "$argon2id$v=19$m=0,t=1,p=1$c2FsdHNhbHQ$a2V5a2V5a2V5a2V5"},
 		{"MemoryBelowMinimum", "$argon2id$v=19$m=1,t=1,p=1$c2FsdHNhbHQ$a2V5a2V5a2V5a2V5"},
+		{"MemoryBelowParallelismMinimum", "$argon2id$v=19$m=8,t=1,p=2$c2FsdHNhbHQ$a2V5a2V5a2V5a2V5"},
 		{"ParallelismAboveMaximum", "$argon2id$v=19$m=8,t=1,p=16777216$c2FsdHNhbHQ$a2V5a2V5a2V5a2V5"},
 	}
 

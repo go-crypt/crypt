@@ -5,3 +5,4 @@ graphify-out/
 .cache_ggshield
 
 coverage.out
+coverage.txt

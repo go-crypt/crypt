@@ -13,6 +13,8 @@ func TestDecodeRejectsUnusableRounds(t *testing.T) {
 		digest string
 	}{
 		{"Zero", "$6$rounds=0$saltsalt$keykeykey"},
+		{"BelowMinimum", "$6$rounds=100$saltsalt$keykeykey"},
+		{"JustBelowMinimum", "$6$rounds=999$saltsalt$keykeykey"},
 		{"AboveMaximum", "$6$rounds=4294967295$saltsalt$keykeykey"},
 	}
 
@@ -33,7 +35,6 @@ func TestDecodeAcceptsRoundsWithinRange(t *testing.T) {
 	}{
 		{"Minimum", "$6$rounds=1000$saltsalt$keykeykey"},
 		{"Maximum", "$6$rounds=999999999$saltsalt$keykeykey"},
-		{"BelowSpecMinimumButUsable", "$6$rounds=100$saltsalt$keykeykey"},
 	}
 
 	for _, tc := range testCases {

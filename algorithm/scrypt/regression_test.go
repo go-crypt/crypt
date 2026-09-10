@@ -19,6 +19,8 @@ func TestDecodeRejectsParametersThatCannotBeUsed(t *testing.T) {
 		{"ZeroR", "$scrypt$ln=16,r=0,p=1$c2FsdHNhbHQ$a2V5"},
 		{"NegativeP", "$scrypt$ln=16,r=8,p=-1$c2FsdHNhbHQ$a2V5"},
 		{"ZeroP", "$scrypt$ln=16,r=8,p=0$c2FsdHNhbHQ$a2V5"},
+		{"JointlyOversizedRP", "$scrypt$ln=16,r=32768,p=32768$c2FsdHNhbHQ$a2V5"},
+		{"JointlyOversizedNR", "$scrypt$ln=58,r=8,p=1$c2FsdHNhbHQ$a2V5"},
 	}
 
 	for _, tc := range testCases {
