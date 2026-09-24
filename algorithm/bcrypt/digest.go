@@ -13,6 +13,8 @@ import (
 type Digest struct {
 	variant Variant
 
+	version string
+
 	iterations int
 
 	salt, key []byte
@@ -41,6 +43,10 @@ func (d *Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error
 		return false, fmt.Errorf(algorithm.ErrFmtDigestMatch, AlgName, fmt.Errorf("%w: key has 0 bytes", algorithm.ErrPasswordInvalid))
 	}
 
+	if d.variant == VariantStandard && d.version == AlgIdentifierVerX && !isASCII(passwordBytes) {
+		return false, fmt.Errorf(algorithm.ErrFmtDigestMatch, AlgName, fmt.Errorf("%w: the %s version can't be verified for passwords containing non-ASCII bytes", algorithm.ErrPasswordInvalid, AlgIdentifierVerX))
+	}
+
 	input := d.variant.EncodeInput(passwordBytes, d.salt)
 
 	var key []byte
@@ -54,7 +60,13 @@ func (d *Digest) MatchBytesAdvanced(passwordBytes []byte) (match bool, err error
 
 // Encode returns the encoded form of this bcrypt.Digest.
 func (d *Digest) Encode() string {
-	return d.variant.Encode(d.iterations, AlgIdentifier, bcrypt.Base64Encode(d.salt), d.key)
+	version := d.version
+
+	if version == "" {
+		version = AlgIdentifier
+	}
+
+	return d.variant.Encode(d.iterations, version, bcrypt.Base64Encode(d.salt), d.key)
 }
 
 // String returns the storable format of the bcrypt.Digest encoded hash.
@@ -85,4 +97,14 @@ func (d *Digest) defaults() {
 	if d.iterations < IterationsMin {
 		d.iterations = IterationsDefault
 	}
+}
+
+func isASCII(b []byte) bool {
+	for _, c := range b {
+		if c >= 0x80 {
+			return false
+		}
+	}
+
+	return true
 }

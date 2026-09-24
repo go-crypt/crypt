@@ -6,6 +6,8 @@ import (
 	xbcrypt "github.com/go-crypt/x/bcrypt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/go-crypt/crypt/algorithm"
 )
 
 func TestDecodeRejectsUnusableCost(t *testing.T) {
@@ -115,3 +117,90 @@ const (
 	validSHA256Salt  = "3XCpXfcQBjcbXFHTLcbFju"
 	validSHA256Key   = "AXNZ1B7NPTf7XyCqUKcvIUOB5eKKZ4C"
 )
+
+func TestDecodePreservesVersionIdentifier(t *testing.T) {
+	testCases := []string{
+		"$2a$05$CCCCCCCCCCCCCCCCCCCCC.E5YPO9kmyuRGyh0XouQYb4YMJKvyOeW",
+		"$2b$05$CCCCCCCCCCCCCCCCCCCCC.E5YPO9kmyuRGyh0XouQYb4YMJKvyOeW",
+		"$2x$05$CCCCCCCCCCCCCCCCCCCCC.E5YPO9kmyuRGyh0XouQYb4YMJKvyOeW",
+		"$2y$05$CCCCCCCCCCCCCCCCCCCCC.E5YPO9kmyuRGyh0XouQYb4YMJKvyOeW",
+		"$bcrypt-sha256$v=2,t=2a,r=10$oYmTNJVOBi3hdhUYy4JqOe$jCuMDm.Pw9hhoF/FDC6sOi48yBAoWvC",
+		"$bcrypt-sha256$v=2,t=2b,r=10$oYmTNJVOBi3hdhUYy4JqOe$jCuMDm.Pw9hhoF/FDC6sOi48yBAoWvC",
+		"$bcrypt-sha256$v=2,t=2x,r=10$oYmTNJVOBi3hdhUYy4JqOe$jCuMDm.Pw9hhoF/FDC6sOi48yBAoWvC",
+		"$bcrypt-sha256$v=2,t=2y,r=10$oYmTNJVOBi3hdhUYy4JqOe$jCuMDm.Pw9hhoF/FDC6sOi48yBAoWvC",
+	}
+
+	for _, encoded := range testCases {
+		t.Run(encoded, func(t *testing.T) {
+			digest, err := Decode(encoded)
+			require.NoError(t, err)
+
+			assert.Equal(t, encoded, digest.Encode())
+		})
+	}
+}
+
+func TestHashedDigestsUseVersion2b(t *testing.T) {
+	for _, variant := range []Variant{VariantStandard, VariantSHA256} {
+		t.Run(variant.String(), func(t *testing.T) {
+			hasher, err := New(WithVariant(variant), WithIterations(IterationsMin))
+			require.NoError(t, err)
+
+			digest, err := hasher.Hash("password")
+			require.NoError(t, err)
+
+			switch variant {
+			case VariantSHA256:
+				assert.Contains(t, digest.Encode(), "t=2b,")
+			default:
+				assert.Regexp(t, `^\$2b\$`, digest.Encode())
+			}
+		})
+	}
+}
+
+func TestVersion2xMatchesASCIIPasswords(t *testing.T) {
+	// The 2x version only differs from the other versions for passwords containing bytes with the high bit set.
+	digest, err := Decode("$2x$05$CCCCCCCCCCCCCCCCCCCCC.E5YPO9kmyuRGyh0XouQYb4YMJKvyOeW")
+	require.NoError(t, err)
+
+	match, err := digest.MatchAdvanced("U*U")
+	assert.NoError(t, err)
+	assert.True(t, match)
+
+	match, err = digest.MatchAdvanced("U*V")
+	assert.NoError(t, err)
+	assert.False(t, match)
+}
+
+func TestVersion2xRejectsNonASCIIPasswords(t *testing.T) {
+	// Reference vector from crypt_blowfish, which produced 2x digests using its sign extension bug.
+	digest, err := Decode("$2x$05$/OK.fbVrR/bpIqNJ5ianF.CE5elHaaO4EbggVDjb8P19RukzXSM3e")
+	require.NoError(t, err)
+
+	match, err := digest.MatchAdvanced("\xa3")
+	assert.False(t, match)
+	assert.ErrorIs(t, err, algorithm.ErrPasswordInvalid)
+	assert.EqualError(t, err, "bcrypt match error: password is invalid: the 2x version can't be verified for passwords containing non-ASCII bytes")
+
+	assert.False(t, digest.Match("\xa3"))
+}
+
+func TestVersion2yMatchesNonASCIIPasswords(t *testing.T) {
+	// Reference vector from crypt_blowfish.
+	digest, err := Decode("$2y$05$/OK.fbVrR/bpIqNJ5ianF.Sa7shbm4.OzKpvFnX1pQLmQW96oUlCq")
+	require.NoError(t, err)
+
+	match, err := digest.MatchAdvanced("\xa3")
+	assert.NoError(t, err)
+	assert.True(t, match)
+}
+
+func TestSHA256VariantVersion2xMatches(t *testing.T) {
+	// The SHA256 variant always passes base64 encoded input to bcrypt, so the 2x version is safe for any password.
+	digest, err := Decode("$bcrypt-sha256$v=2,t=2x,r=10$oYmTNJVOBi3hdhUYy4JqOe$jCuMDm.Pw9hhoF/FDC6sOi48yBAoWvC")
+	require.NoError(t, err)
+
+	_, err = digest.MatchAdvanced("\xa3")
+	assert.NoError(t, err)
+}

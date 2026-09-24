@@ -102,10 +102,13 @@ func decoderParts(encodedDigest string) (variant Variant, parts []string, err er
 		return variant, nil, fmt.Errorf("%w: identifier '%s' is not an encoded %s digest", algorithm.ErrEncodedHashInvalidIdentifier, parts[1], AlgName)
 	}
 
-	return variant, parts[2:], nil
+	return variant, parts[1:], nil
 }
 
 func decode(variant Variant, parts []string) (digest algorithm.Digest, err error) {
+	identifier := parts[0]
+	parts = parts[1:]
+
 	countParts := len(parts)
 
 	var (
@@ -121,6 +124,8 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 		if countParts != 2 {
 			return nil, algorithm.ErrEncodedHashInvalidFormat
 		}
+
+		decoded.version = identifier
 
 		if decoded.iterations, err = strconv.Atoi(parts[0]); err != nil {
 			return nil, fmt.Errorf("%w: iterations could not be parsed: %v", algorithm.ErrEncodedHashInvalidOptionValue, err)
@@ -173,8 +178,10 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 
 		for _, param := range params {
 			switch param.Key {
-			case oV, oT:
+			case oV:
 				break
+			case oT:
+				decoded.version = param.Value
 			case oR:
 				decoded.iterations, err = param.Int()
 			default:
