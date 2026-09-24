@@ -15,7 +15,7 @@ const (
 	AlgIdentifier = "sha1"
 
 	// SaltLengthMin is the minimum salt size accepted.
-	SaltLengthMin = 0
+	SaltLengthMin = 1
 
 	// SaltLengthMax is the maximum salt size accepted.
 	SaltLengthMax = 64

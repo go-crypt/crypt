@@ -37,10 +37,11 @@ func TestWithSaltLength(t *testing.T) {
 		have int
 		err  string
 	}{
-		{"ShouldNotErrMin", 0, ""},
+		{"ShouldNotErrMin", 1, ""},
 		{"ShouldNotErrMax", 64, ""},
-		{"ShouldErrBelowMin", -1, "sha1crypt validation error: parameter is invalid: parameter 'salt length' must be between 0 and 64 but is set to '-1'"},
-		{"ShouldErrAboveMax", 65, "sha1crypt validation error: parameter is invalid: parameter 'salt length' must be between 0 and 64 but is set to '65'"},
+		{"ShouldErrZero", 0, "sha1crypt validation error: parameter is invalid: parameter 'salt length' must be between 1 and 64 but is set to '0'"},
+		{"ShouldErrBelowMin", -1, "sha1crypt validation error: parameter is invalid: parameter 'salt length' must be between 1 and 64 but is set to '-1'"},
+		{"ShouldErrAboveMax", 65, "sha1crypt validation error: parameter is invalid: parameter 'salt length' must be between 1 and 64 but is set to '65'"},
 	}
 
 	for _, tc := range testCases {
@@ -125,7 +126,8 @@ func TestHashWithSalt(t *testing.T) {
 		err  string
 	}{
 		{"ShouldNotErrValidSalt", []byte("abcdefgh"), ""},
-		{"ShouldErrSaltTooLong", make([]byte, 65), "sha1crypt hashing error: salt is invalid: salt bytes must have a length of between 0 and 64 but has a length of 65"},
+		{"ShouldErrSaltEmpty", nil, "sha1crypt hashing error: salt is invalid: salt bytes must have a length of between 1 and 64 but has a length of 0"},
+		{"ShouldErrSaltTooLong", make([]byte, 65), "sha1crypt hashing error: salt is invalid: salt bytes must have a length of between 1 and 64 but has a length of 65"},
 	}
 
 	for _, tc := range testCases {
@@ -226,4 +228,29 @@ func TestDigestEncode(t *testing.T) {
 	encoded := digest.Encode()
 	assert.NotEmpty(t, encoded)
 	assert.Equal(t, encoded, digest.String())
+}
+
+func TestHashUsesDefaultSaltLength(t *testing.T) {
+	hasher, err := New(WithIterations(1000))
+	require.NoError(t, err)
+
+	first, err := hasher.Hash("password")
+	require.NoError(t, err)
+
+	second, err := hasher.Hash("password")
+	require.NoError(t, err)
+
+	assert.Len(t, first.Salt(), SaltLengthDefault)
+	assert.Len(t, second.Salt(), SaltLengthDefault)
+	assert.NotEqual(t, first.Encode(), second.Encode())
+}
+
+func TestDecodeEmptySaltDigest(t *testing.T) {
+	// Digests with an empty salt were produced by default in earlier versions and must remain verifiable.
+	digest, err := Decode("$sha1$1000$$LpsYCXQDwcmGKSeE7gBjRolvHeh/")
+	require.NoError(t, err)
+
+	assert.Empty(t, digest.Salt())
+	assert.True(t, digest.Match("password"))
+	assert.False(t, digest.Match("wrong"))
 }
