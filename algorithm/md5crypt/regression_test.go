@@ -79,3 +79,48 @@ func TestWithIterationsRejectsRoundsThatOverflow(t *testing.T) {
 
 	assert.NoError(t, err)
 }
+
+func TestSunVariantAppliesDefaultIterations(t *testing.T) {
+	hasher, err := New(WithVariant(VariantSun))
+	require.NoError(t, err)
+
+	digest, err := hasher.Hash("password")
+	require.NoError(t, err)
+
+	encoded := digest.Encode()
+	assert.Contains(t, encoded, "$md5,rounds=34000$")
+
+	decoded, err := Decode(encoded)
+	require.NoError(t, err, "encoded digest %q could not be decoded", encoded)
+
+	assert.Equal(t, encoded, decoded.Encode())
+	assert.True(t, decoded.Match("password"))
+	assert.False(t, decoded.Match("incorrect"))
+}
+
+func TestSunVariantHonoursExplicitZeroIterations(t *testing.T) {
+	hasher, err := New(WithVariant(VariantSun), WithIterations(0))
+	require.NoError(t, err)
+
+	digest, err := hasher.Hash("password")
+	require.NoError(t, err)
+
+	encoded := digest.Encode()
+	assert.Regexp(t, `^\$md5\$[^$]+\$\$[^$]+$`, encoded)
+
+	decoded, err := Decode(encoded)
+	require.NoError(t, err)
+
+	assert.True(t, decoded.Match("password"))
+}
+
+func TestStandardVariantUnaffectedByDefaultIterations(t *testing.T) {
+	hasher, err := New()
+	require.NoError(t, err)
+
+	digest, err := hasher.Hash("password")
+	require.NoError(t, err)
+
+	assert.Regexp(t, `^\$1\$[^$]+\$[^$]+$`, digest.Encode())
+	assert.True(t, digest.Match("password"))
+}

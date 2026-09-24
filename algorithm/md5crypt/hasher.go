@@ -29,6 +29,7 @@ type Hasher struct {
 	variant Variant
 
 	iterations uint32
+	i          bool
 
 	bytesSalt int
 
@@ -127,6 +128,10 @@ func (h *Hasher) defaults() {
 	}
 
 	h.d = true
+
+	if !h.i {
+		h.iterations = IterationsDefault
+	}
 
 	if h.bytesSalt < SaltLengthMin {
 		h.bytesSalt = SaltLengthDefault
