@@ -218,3 +218,36 @@ func TestSHA256VariantVersion2xMatches(t *testing.T) {
 	assert.NoError(t, err)
 	assert.False(t, match)
 }
+
+func TestDecodeSHA256VariantRequiresVersion2(t *testing.T) {
+	testCases := []struct {
+		name   string
+		digest string
+		err    string
+	}{
+		{"Version1", "$bcrypt-sha256$v=1,t=2b,r=10$oYmTNJVOBi3hdhUYy4JqOe$jCuMDm.Pw9hhoF/FDC6sOi48yBAoWvC", "bcrypt decode error: provided encoded hash has an invalid version: version 2 is supported but encoded hash is version 1"},
+		{"Version3", "$bcrypt-sha256$v=3,t=2b,r=10$oYmTNJVOBi3hdhUYy4JqOe$jCuMDm.Pw9hhoF/FDC6sOi48yBAoWvC", "bcrypt decode error: provided encoded hash has an invalid version: version 2 is supported but encoded hash is version 3"},
+		{"VersionEmpty", "$bcrypt-sha256$v=,t=2b,r=10$oYmTNJVOBi3hdhUYy4JqOe$jCuMDm.Pw9hhoF/FDC6sOi48yBAoWvC", "bcrypt decode error: provided encoded hash has an invalid version: version 2 is supported but encoded hash is version "},
+		{"VersionMissing", "$bcrypt-sha256$t=2b,r=10$oYmTNJVOBi3hdhUYy4JqOe$jCuMDm.Pw9hhoF/FDC6sOi48yBAoWvC", "bcrypt decode error: provided encoded hash has an invalid version: version 2 is supported but encoded hash has no version"},
+		{"PasslibVersion1Format", "$bcrypt-sha256$2a,12$LrmaIX5x4TRtAwEfwJZa1.$2ehnw6LvuIUTM0iz4iz9hTxv21B6KFO", "bcrypt decode error: parameter pair '2a' is not properly encoded: does not contain kv separator '='"},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			digest, err := Decode(tc.digest)
+
+			assert.Nil(t, digest)
+			assert.EqualError(t, err, tc.err)
+		})
+	}
+}
+
+func TestDecodeSHA256VariantAcceptsVersion2(t *testing.T) {
+	const encoded = "$bcrypt-sha256$v=2,t=2b,r=10$oYmTNJVOBi3hdhUYy4JqOe$jCuMDm.Pw9hhoF/FDC6sOi48yBAoWvC"
+
+	digest, err := Decode(encoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, encoded, digest.Encode())
+	assert.True(t, digest.Match("password"))
+}

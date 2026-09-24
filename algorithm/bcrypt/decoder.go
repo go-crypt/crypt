@@ -170,7 +170,10 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 			return nil, fmt.Errorf("%w: key is expected to be %d bytes but it has %d bytes", algorithm.ErrEncodedHashKeyEncoding, bcrypt.EncodedHashSize, n)
 		}
 
-		var params []encoding.Parameter
+		var (
+			params  []encoding.Parameter
+			version bool
+		)
 
 		if params, err = encoding.DecodeParameterStr(parts[0]); err != nil {
 			return nil, err
@@ -179,7 +182,11 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 		for _, param := range params {
 			switch param.Key {
 			case oV:
-				break
+				if param.Value != versionSHA256 {
+					return nil, fmt.Errorf("%w: version %s is supported but encoded hash is version %s", algorithm.ErrEncodedHashInvalidVersion, versionSHA256, param.Value)
+				}
+
+				version = true
 			case oT:
 				decoded.version = param.Value
 			case oR:
@@ -191,6 +198,10 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 			if err != nil {
 				return nil, fmt.Errorf("%w: option '%s' has invalid value '%s': %v", algorithm.ErrEncodedHashInvalidOptionValue, param.Key, param.Value, err)
 			}
+		}
+
+		if !version {
+			return nil, fmt.Errorf("%w: version %s is supported but encoded hash has no version", algorithm.ErrEncodedHashInvalidVersion, versionSHA256)
 		}
 
 		if err = validateCost(decoded.iterations); err != nil {
