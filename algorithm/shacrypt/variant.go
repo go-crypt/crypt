@@ -15,7 +15,7 @@ func NewVariant(identifier string) Variant {
 	case AlgIdentifierSHA512, algorithm.DigestSHA512:
 		return VariantSHA512
 	default:
-		return VariantSHA512
+		return VariantNone
 	}
 }
 

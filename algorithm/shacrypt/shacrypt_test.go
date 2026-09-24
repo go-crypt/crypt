@@ -17,7 +17,9 @@ func TestNewVariant(t *testing.T) {
 		{"ShouldReturnSHA256ForName", "sha256", VariantSHA256},
 		{"ShouldReturnSHA512ForIdentifier", "6", VariantSHA512},
 		{"ShouldReturnSHA512ForName", "sha512", VariantSHA512},
-		{"ShouldDefaultToSHA512ForUnknown", "unknown", VariantSHA512},
+		{"ShouldReturnNoneForUnknown", "unknown", VariantNone},
+		{"ShouldReturnNoneForEmpty", "", VariantNone},
+		{"ShouldReturnNoneForMD5Crypt", "1", VariantNone},
 	}
 
 	for _, tc := range testCases {
@@ -132,6 +134,7 @@ func TestWithVariantName(t *testing.T) {
 		{"ShouldNotErrSHA256", "sha256", ""},
 		{"ShouldNotErrSHA512", "sha512", ""},
 		{"ShouldNotErrEmpty", "", ""},
+		{"ShouldErrUnknown", "unknown", "shacrypt validation error: parameter is invalid: variant identifier 'unknown' is invalid"},
 	}
 
 	for _, tc := range testCases {
@@ -371,6 +374,9 @@ func TestDecode(t *testing.T) {
 	}{
 		{"ShouldFailInvalidFormat", "$", "shacrypt decode error: provided encoded hash has an invalid format"},
 		{"ShouldFailTooFewParts", "$5$", "shacrypt decode error: provided encoded hash has an invalid format"},
+		{"ShouldFailMD5CryptDigest", "$1$saltsalt$abcdefghijklmnopqrstuv", "shacrypt decode error: provided encoded hash has an invalid identifier: identifier '1' is not an encoded shacrypt digest"},
+		{"ShouldFailBCryptDigest", "$2b$12$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012", "shacrypt decode error: provided encoded hash has an invalid identifier: identifier '2b' is not an encoded shacrypt digest"},
+		{"ShouldFailUnknownIdentifierWithRounds", "$7$rounds=5000$saltsalt$abcdefghijklmnopqrstuv", "shacrypt decode error: provided encoded hash has an invalid identifier: identifier '7' is not an encoded shacrypt digest"},
 	}
 
 	for _, tc := range testCases {
