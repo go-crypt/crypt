@@ -1,6 +1,7 @@
 package bcrypt
 
 import (
+	"strings"
 	"testing"
 
 	xbcrypt "github.com/go-crypt/x/bcrypt"
@@ -197,10 +198,23 @@ func TestVersion2yMatchesNonASCIIPasswords(t *testing.T) {
 }
 
 func TestSHA256VariantVersion2xMatches(t *testing.T) {
-	// The SHA256 variant always passes base64 encoded input to bcrypt, so the 2x version is safe for any password.
-	digest, err := Decode("$bcrypt-sha256$v=2,t=2x,r=10$oYmTNJVOBi3hdhUYy4JqOe$jCuMDm.Pw9hhoF/FDC6sOi48yBAoWvC")
+	hasher, err := NewSHA256(WithIterations(IterationsMin))
 	require.NoError(t, err)
 
-	_, err = digest.MatchAdvanced("\xa3")
+	hashed, err := hasher.Hash("\xa3")
+	require.NoError(t, err)
+
+	encoded := strings.Replace(hashed.Encode(), ",t=2b,", ",t=2x,", 1)
+	require.Contains(t, encoded, ",t=2x,")
+
+	digest, err := Decode(encoded)
+	require.NoError(t, err)
+
+	match, err := digest.MatchAdvanced("\xa3")
 	assert.NoError(t, err)
+	assert.True(t, match)
+
+	match, err = digest.MatchAdvanced("\xa4")
+	assert.NoError(t, err)
+	assert.False(t, match)
 }
