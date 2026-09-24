@@ -89,8 +89,4 @@ func (d *Digest) defaults() {
 	default:
 		d.variant = variantDefault
 	}
-
-	if d.iterations < IterationsMin {
-		d.iterations = IterationsDefault
-	}
 }

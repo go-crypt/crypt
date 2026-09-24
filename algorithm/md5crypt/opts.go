@@ -47,14 +47,15 @@ func WithVariantName(identifier string) Opt {
 }
 
 // WithIterations sets the iterations parameter of the resulting md5crypt.Digest. Only valid for the Sun variant. This
-// is encoded in the hash with the 'iterations' parameter.
-// Minimum is 0, Maximum is 4294967295. Default is 34000.
+// is encoded in the hash with the 'rounds' parameter.
+// Minimum is 0, Maximum is 4294963199. Default is 34000.
 func WithIterations(iterations uint32) Opt {
 	return func(h *Hasher) (err error) {
 		if iterations < IterationsMin || iterations > IterationsMax {
 			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "iterations", IterationsMin, "", IterationsMax, iterations))
 		}
 
+		h.i = true
 		h.iterations = iterations
 
 		return nil
