@@ -134,6 +134,12 @@ func (h *Hasher) Validate() (err error) {
 }
 
 func (h *Hasher) validate() (err error) {
+	// The yescrypt variant does not support parallelism and does not encode it, so any other value would fail during
+	// hashing.
+	if h.variant == VariantYescrypt && h.p > ParallelismMin {
+		return fmt.Errorf("%w: parameter 'p' must be 1 for the yescrypt variant but is set to '%d'", algorithm.ErrParameterInvalid, h.p)
+	}
+
 	rp := uint64(h.r) * uint64(h.p)
 
 	if rp >= 1<<30 {

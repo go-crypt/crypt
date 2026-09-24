@@ -5,6 +5,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/go-crypt/crypt/algorithm"
 )
 
 func TestDecodeRejectsParametersThatCannotBeUsed(t *testing.T) {
@@ -89,4 +91,51 @@ func TestHashedDigestsRoundTrip(t *testing.T) {
 			assert.False(t, decoded.Match("incorrect"))
 		})
 	}
+}
+
+func TestNewYescryptRejectsParallelismOtherThanOne(t *testing.T) {
+	testCases := []struct {
+		name string
+		opts []Opt
+	}{
+		{"NewYescrypt", []Opt{WithP(2)}},
+		{"VariantAfterParallelism", []Opt{WithP(2), WithVariant(VariantYescrypt)}},
+		{"VariantName", []Opt{WithVariantName("yescrypt"), WithP(4)}},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			hasher, err := NewYescrypt(tc.opts...)
+
+			assert.Nil(t, hasher)
+			assert.ErrorIs(t, err, algorithm.ErrParameterInvalid)
+			assert.ErrorContains(t, err, "scrypt validation error: parameter is invalid: parameter 'p' must be 1 for the yescrypt variant but is set to '")
+		})
+	}
+}
+
+func TestNewScryptAllowsParallelismOtherThanOne(t *testing.T) {
+	hasher, err := NewScrypt(WithLN(4), WithR(1), WithP(2))
+	require.NoError(t, err)
+
+	digest, err := hasher.Hash("password")
+	require.NoError(t, err)
+
+	decoded, err := Decode(digest.Encode())
+	require.NoError(t, err)
+
+	assert.True(t, decoded.Match("password"))
+}
+
+func TestNewYescryptAllowsParallelismOfOne(t *testing.T) {
+	hasher, err := NewYescrypt(WithLN(4), WithP(1))
+	require.NoError(t, err)
+
+	digest, err := hasher.Hash("password")
+	require.NoError(t, err)
+
+	decoded, err := Decode(digest.Encode())
+	require.NoError(t, err)
+
+	assert.True(t, decoded.Match("password"))
 }
