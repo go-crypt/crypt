@@ -90,7 +90,9 @@ func (h *Hasher) Merge(hash *Hasher) {
 
 // Hash performs the hashing operation and returns either a argon2.Digest or an error.
 func (h *Hasher) Hash(password string) (digest algorithm.Digest, err error) {
-	h.defaults()
+	if err = h.validate(); err != nil {
+		return nil, fmt.Errorf(algorithm.ErrFmtHasherHash, AlgName, err)
+	}
 
 	if digest, err = h.hash(password); err != nil {
 		return nil, fmt.Errorf(algorithm.ErrFmtHasherHash, AlgName, err)
@@ -112,7 +114,9 @@ func (h *Hasher) hash(password string) (hashed algorithm.Digest, err error) {
 // HashWithSalt overloads the Hash method allowing the user to provide a salt. It's recommended instead to configure the
 // salt size and let this be a random value generated using crypto/rand.
 func (h *Hasher) HashWithSalt(password string, salt []byte) (digest algorithm.Digest, err error) {
-	h.defaults()
+	if err = h.validate(); err != nil {
+		return nil, fmt.Errorf(algorithm.ErrFmtHasherHash, AlgName, err)
+	}
 
 	if digest, err = h.hashWithSalt(password, salt); err != nil {
 		return nil, fmt.Errorf(algorithm.ErrFmtHasherHash, AlgName, err)
@@ -171,10 +175,22 @@ func (h *Hasher) Validate() (err error) {
 func (h *Hasher) validate() (err error) {
 	h.defaults()
 
-	mMin := uint32(h.p) * MemoryMinParallelismMultiplier
+	// The parallelism and memory are validated using the values Digest.defaults will apply when they're unset,
+	// otherwise the memory could be rounded below the minimum for the parallelism and produce an undecodable digest.
+	p, m := uint32(h.p), h.m
 
-	if h.m < mMin || h.m > MemoryMax {
-		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "m", mMin, " (p * 8)", MemoryMax, h.m)
+	if p < ParallelismMin {
+		p = ParallelismDefault
+	}
+
+	if m < MemoryMin {
+		m = MemoryDefault
+	}
+
+	mMin := p * MemoryMinParallelismMultiplier
+
+	if m < mMin || m > MemoryMax {
+		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "m", mMin, " (p * 8)", MemoryMax, m)
 	}
 
 	return nil

@@ -1,6 +1,7 @@
 package argon2
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -81,4 +82,46 @@ func TestDecodeVariantRejectsOtherVariants(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.Equal(t, encoded, digest.Encode())
+}
+
+func TestNewRejectsMemoryBelowDefaultParallelismMinimum(t *testing.T) {
+	hasher, err := New(WithM(30))
+
+	assert.Nil(t, hasher)
+	assert.EqualError(t, err, "argon2 validation error: parameter is invalid: parameter 'm' must be between 32 (p * 8) and 4294967295 but is set to '30'")
+}
+
+func TestHashRejectsMemoryBelowParallelismMinimumWithoutValidate(t *testing.T) {
+	hasher := &Hasher{}
+
+	require.NoError(t, hasher.WithOptions(WithM(30)))
+
+	digest, err := hasher.Hash("password")
+
+	assert.Nil(t, digest)
+	assert.EqualError(t, err, "argon2 hashing error: parameter is invalid: parameter 'm' must be between 32 (p * 8) and 4294967295 but is set to '30'")
+
+	digest, err = hasher.HashWithSalt("password", []byte("saltsaltsaltsalt"))
+
+	assert.Nil(t, digest)
+	assert.EqualError(t, err, "argon2 hashing error: parameter is invalid: parameter 'm' must be between 32 (p * 8) and 4294967295 but is set to '30'")
+}
+
+func TestHashedDigestsWithDefaultParallelismRoundTrip(t *testing.T) {
+	for _, m := range []uint32{32, 33, 47, 48, 64} {
+		t.Run(fmt.Sprintf("m=%d", m), func(t *testing.T) {
+			hasher, err := New(WithM(m))
+			require.NoError(t, err)
+
+			digest, err := hasher.Hash("password")
+			require.NoError(t, err)
+
+			encoded := digest.Encode()
+
+			decoded, err := Decode(encoded)
+			require.NoError(t, err, "encoded digest %q could not be decoded", encoded)
+
+			assert.True(t, decoded.Match("password"))
+		})
+	}
 }
