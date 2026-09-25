@@ -118,7 +118,7 @@ func WithBlockSize(r int) Opt {
 }
 
 // WithP sets the p parameter (parallelism factor) of the resulting scrypt.Digest.
-// Minimum is 1, Maximum is 1073741823. Default is 1.
+// Minimum is 1, Maximum is 1073741823. Default is 1. The yescrypt variant only supports a value of 1.
 func WithP(p int) Opt {
 	return func(h *Hasher) (err error) {
 		if p < ParallelismMin || p > ParallelismMax {
