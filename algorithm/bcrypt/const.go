@@ -55,6 +55,8 @@ const (
 )
 
 const (
+	versionSHA256 = "2"
+
 	oV = "v"
 	oT = "t"
 	oR = "r"
