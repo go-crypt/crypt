@@ -40,6 +40,7 @@ func TestDecodeRejectsInvalidRounds(t *testing.T) {
 		{"Empty", "$6$rounds=$saltsalt$keykeykey"},
 		{"Negative", "$6$rounds=-1$saltsalt$keykeykey"},
 		{"NotNumeric", "$6$rounds=abc$saltsalt$keykeykey"},
+		{"AboveUint64NotNumericSuffix", "$6$rounds=99999999999999999999x$saltsalt$keykeykey"},
 	}
 
 	for _, tc := range testCases {

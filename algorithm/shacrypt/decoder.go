@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/go-crypt/crypt/algorithm"
 	"github.com/go-crypt/crypt/internal/encoding"
@@ -121,7 +122,7 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 		case "rounds":
 			var rounds uint64
 
-			if rounds, err = strconv.ParseUint(param.Value, 10, 64); err != nil && !errors.Is(err, strconv.ErrRange) {
+			if rounds, err = strconv.ParseUint(param.Value, 10, 64); err != nil && (!errors.Is(err, strconv.ErrRange) || strings.Trim(param.Value, "0123456789") != "") {
 				return nil, fmt.Errorf("%w: option '%s' has invalid value '%s': %v", algorithm.ErrEncodedHashInvalidOptionValue, param.Key, param.Value, err)
 			}
 
