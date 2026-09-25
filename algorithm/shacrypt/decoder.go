@@ -1,6 +1,7 @@
 package shacrypt
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -120,15 +121,18 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 		case "rounds":
 			var rounds uint64
 
-			if rounds, err = strconv.ParseUint(param.Value, 10, 32); err != nil {
+			if rounds, err = strconv.ParseUint(param.Value, 10, 64); err != nil && !errors.Is(err, strconv.ErrRange) {
 				return nil, fmt.Errorf("%w: option '%s' has invalid value '%s': %v", algorithm.ErrEncodedHashInvalidOptionValue, param.Key, param.Value, err)
 			}
 
-			if rounds < IterationsMin || rounds > IterationsMax {
-				return nil, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, param.Key, IterationsMin, "", IterationsMax, rounds)
+			switch {
+			case rounds < IterationsMin:
+				decoded.iterations = IterationsMin
+			case rounds > IterationsMax:
+				decoded.iterations = IterationsMax
+			default:
+				decoded.iterations = int(rounds)
 			}
-
-			decoded.iterations = int(rounds)
 		default:
 			return nil, fmt.Errorf("%w: option '%s' with value '%s' is unknown", algorithm.ErrEncodedHashInvalidOptionKey, param.Key, param.Value)
 		}
