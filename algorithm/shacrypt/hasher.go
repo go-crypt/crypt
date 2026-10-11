@@ -34,6 +34,8 @@ type Hasher struct {
 	d bool
 }
 
+var _ algorithm.RehashChecker = (*Hasher)(nil)
+
 // NewSHA256 returns a *Hasher with the SHA256 hash.Hash which d to 1000000 iterations. These
 // settings can be overridden with the methods with the With prefix.
 func NewSHA256() (hasher *Hasher, err error) {
@@ -135,6 +137,26 @@ func (h *Hasher) Validate() (err error) {
 	}
 
 	return nil
+}
+
+// NeedsRehash returns false only if the provided algorithm.Digest is a shacrypt.Digest with the same variant,
+// iterations, and salt length this shacrypt.Hasher would produce. It implements algorithm.RehashChecker.
+func (h *Hasher) NeedsRehash(digest algorithm.Digest) (needed bool) {
+	d, ok := algorithm.UnwrapDigest(digest).(*Digest)
+	if !ok || d == nil {
+		return true
+	}
+
+	h.defaults()
+
+	c := &Digest{
+		variant:    h.variant,
+		iterations: h.iterations,
+	}
+
+	c.defaults()
+
+	return d.variant != c.variant || d.iterations != c.iterations || len(d.salt) != h.bytesSalt
 }
 
 func (h *Hasher) validate() (err error) {

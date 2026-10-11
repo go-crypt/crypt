@@ -24,6 +24,8 @@ type Hasher struct {
 	variant Variant
 }
 
+var _ algorithm.RehashChecker = (*Hasher)(nil)
+
 // WithOptions applies the provided functional options provided as an plaintext.Opt to the plaintext.Hasher.
 func (h *Hasher) WithOptions(opts ...Opt) (err error) {
 	for _, opt := range opts {
@@ -39,6 +41,23 @@ func (h *Hasher) WithOptions(opts ...Opt) (err error) {
 // to be reused and you should use it in conjunction with MustHash.
 func (h *Hasher) Validate() (err error) {
 	return nil
+}
+
+// NeedsRehash returns false only if the provided algorithm.Digest is a plaintext.Digest with the same variant this
+// plaintext.Hasher would produce. It implements algorithm.RehashChecker.
+func (h *Hasher) NeedsRehash(digest algorithm.Digest) (needed bool) {
+	d, ok := algorithm.UnwrapDigest(digest).(*Digest)
+	if !ok || d == nil {
+		return true
+	}
+
+	c := &Digest{
+		variant: h.variant,
+	}
+
+	c.defaults()
+
+	return d.variant != c.variant
 }
 
 // Hash performs the hashing operation on a password and resets any relevant parameters such as a manually set salt.
