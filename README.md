@@ -269,3 +269,47 @@ func main() {
     fmt.Printf("Encoded Digest With Password 'example': %s\n", digest.Encode())
 }
 ```
+
+### Upgrading a Digest After a Successful Match
+
+Every hasher implements `algorithm.RehashChecker`. The `NeedsRehash` method reports if a digest was produced with a
+different algorithm, variant, or parameters than the hasher is configured with, without performing any hashing. This
+allows upgrading stored digests at the moment a valid password is provided.
+
+```go
+package main
+
+import (
+    "fmt"
+
+    "github.com/go-crypt/crypt"
+    "github.com/go-crypt/crypt/algorithm"
+    "github.com/go-crypt/crypt/algorithm/argon2"
+)
+
+func main() {
+    var (
+        hasher *argon2.Hasher
+        digest algorithm.Digest
+        err    error
+    )
+
+    if hasher, err = argon2.New(
+        argon2.WithProfileRFC9106LowMemory(),
+    ); err != nil {
+        panic(err)
+    }
+
+    if digest, err = crypt.Decode("$6$nrdRQcQ65PgwBIAy$6EXCj7uGtr1oCevz0RitIHOVp.Wlngmm.0saij4wuYGEFZBXnEwP0Huga4XOe5qWu0vcMF2lCs3n0IFNKLP781"); err != nil {
+        panic(err)
+    }
+
+    if digest.Match("example") && hasher.NeedsRehash(digest) {
+        if digest, err = hasher.Hash("example"); err != nil {
+            panic(err)
+        }
+
+        fmt.Printf("Upgraded Encoded Digest: %s\n", digest.Encode())
+    }
+}
+```

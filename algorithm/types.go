@@ -43,6 +43,32 @@ type Digest interface {
 	Salt() (salt []byte)
 }
 
+// RehashChecker is implemented by a Hash which can report if a Digest was produced with an algorithm, variant, or
+// parameters other than those the Hash is currently configured with. It's intended to be used after a successful
+// match to decide if the password should be hashed again and the stored Digest replaced.
+type RehashChecker interface {
+	// NeedsRehash returns false only if the Digest is effectively what this Hash would produce, disregarding the
+	// values of the salt and key. It does not perform any key derivation.
+	NeedsRehash(digest Digest) (needed bool)
+}
+
+// DigestUnwrapper is implemented by types which decorate a Digest.
+type DigestUnwrapper interface {
+	Unwrap() (digest Digest)
+}
+
+// UnwrapDigest returns the innermost Digest by following any DigestUnwrapper implementations.
+func UnwrapDigest(digest Digest) Digest {
+	for {
+		unwrapper, ok := digest.(DigestUnwrapper)
+		if !ok {
+			return digest
+		}
+
+		digest = unwrapper.Unwrap()
+	}
+}
+
 // DecodeFunc describes a function to decode an encoded digest into a algorithm.Digest.
 type DecodeFunc func(encodedDigest string) (digest Digest, err error)
 
