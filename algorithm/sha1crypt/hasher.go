@@ -34,6 +34,8 @@ type Hasher struct {
 	d bool
 }
 
+var _ algorithm.RehashChecker = (*Hasher)(nil)
+
 // WithOptions applies the provided functional options provided as a sha1crypt.Opt to the sha1crypt.Hasher.
 func (h *Hasher) WithOptions(opts ...Opt) (err error) {
 	for _, opt := range opts {
@@ -85,6 +87,26 @@ func (h *Hasher) Validate() (err error) {
 	h.defaults()
 
 	return nil
+}
+
+// NeedsRehash returns false only if the provided algorithm.Digest is a sha1crypt.Digest with the same iterations and
+// salt length this sha1crypt.Hasher would produce. It implements algorithm.RehashChecker.
+func (h *Hasher) NeedsRehash(digest algorithm.Digest) (needed bool) {
+	d, ok := algorithm.UnwrapDigest(digest).(*Digest)
+	if !ok || d == nil {
+		return true
+	}
+
+	h.defaults()
+
+	c := &Digest{
+		iterations: h.iterations,
+		i:          h.i,
+	}
+
+	c.defaults()
+
+	return d.iterations != c.iterations || len(d.salt) != h.bytesSalt
 }
 
 func (h *Hasher) hash(password string) (digest algorithm.Digest, err error) {

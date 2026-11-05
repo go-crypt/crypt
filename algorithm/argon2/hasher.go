@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-crypt/crypt/algorithm"
+	"github.com/go-crypt/crypt/internal/math"
 	"github.com/go-crypt/crypt/internal/random"
 )
 
@@ -32,6 +33,8 @@ type Hasher struct {
 
 	d bool
 }
+
+var _ algorithm.RehashChecker = (*Hasher)(nil)
 
 // WithOptions applies the provided functional options provided as an argon2.Opt to the argon2.Hasher.
 func (h *Hasher) WithOptions(opts ...Opt) (err error) {
@@ -170,6 +173,38 @@ func (h *Hasher) Validate() (err error) {
 	}
 
 	return nil
+}
+
+// NeedsRehash returns false only if the provided algorithm.Digest is an argon2.Digest with the same variant,
+// iterations, memory, parallelism, key length, and salt length this argon2.Hasher would produce. It implements
+// algorithm.RehashChecker.
+func (h *Hasher) NeedsRehash(digest algorithm.Digest) (needed bool) {
+	d, ok := algorithm.UnwrapDigest(digest).(*Digest)
+	if !ok || d == nil {
+		return true
+	}
+
+	h.defaults()
+
+	c := &Digest{
+		variant: h.variant,
+		t:       uint32(h.t),
+		p:       uint32(h.p),
+		m:       h.m,
+	}
+
+	c.defaults()
+
+	// The parallelism is compared before the memory so the divisor used to round the memory is never zero.
+	if d.variant != c.variant || d.t != c.t || d.p != c.p {
+		return true
+	}
+
+	if math.Uint32RoundDownToNearestMultiple(d.m, d.p*MemoryRoundingParallelismMultiplier) != c.m {
+		return true
+	}
+
+	return len(d.key) != h.k || len(d.salt) != h.s
 }
 
 func (h *Hasher) validate() (err error) {

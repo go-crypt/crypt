@@ -42,6 +42,8 @@ type Hasher struct {
 	d bool
 }
 
+var _ algorithm.RehashChecker = (*Hasher)(nil)
+
 // WithOptions defines the options for this scrypt.Hasher.
 func (h *Hasher) WithOptions(opts ...Opt) (err error) {
 	for _, opt := range opts {
@@ -131,6 +133,32 @@ func (h *Hasher) Validate() (err error) {
 	}
 
 	return nil
+}
+
+// NeedsRehash returns false only if the provided algorithm.Digest is a scrypt.Digest with the same variant, ln, r, p,
+// key length, and salt length this scrypt.Hasher would produce. It implements algorithm.RehashChecker.
+func (h *Hasher) NeedsRehash(digest algorithm.Digest) (needed bool) {
+	d, ok := algorithm.UnwrapDigest(digest).(*Digest)
+	if !ok || d == nil {
+		return true
+	}
+
+	h.defaults()
+
+	c := &Digest{
+		variant: h.variant,
+		ln:      h.ln,
+		r:       h.r,
+		p:       h.p,
+	}
+
+	c.defaults()
+
+	if d.variant != c.variant || d.ln != c.ln || d.r != c.r || d.p != c.p {
+		return true
+	}
+
+	return len(d.key) != h.k || len(d.salt) != h.bytesSalt
 }
 
 func (h *Hasher) validate() (err error) {
