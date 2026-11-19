@@ -58,6 +58,8 @@ type Hasher struct {
 	d bool
 }
 
+var _ algorithm.RehashChecker = (*Hasher)(nil)
+
 // WithOptions applies the provided functional options provided as a pbkdf2.Opt to the pbkdf2.Hasher.
 func (h *Hasher) WithOptions(opts ...Opt) (err error) {
 	for _, opt := range opts {
@@ -140,6 +142,31 @@ func (h *Hasher) Validate() (err error) {
 	}
 
 	return nil
+}
+
+// NeedsRehash returns false only if the provided algorithm.Digest is a pbkdf2.Digest with the same variant,
+// iterations, key length, and salt length this pbkdf2.Hasher would produce. It implements algorithm.RehashChecker.
+func (h *Hasher) NeedsRehash(digest algorithm.Digest) (needed bool) {
+	d, ok := algorithm.UnwrapDigest(digest).(*Digest)
+	if !ok || d == nil {
+		return true
+	}
+
+	h.defaults()
+
+	c := &Digest{
+		variant:    h.variant,
+		iterations: h.iterations,
+		t:          h.bytesKey,
+	}
+
+	c.defaults()
+
+	if d.variant != c.variant || d.iterations != c.iterations {
+		return true
+	}
+
+	return len(d.key) != c.t || len(d.salt) != h.bytesSalt
 }
 
 func (h *Hasher) validate() (err error) {

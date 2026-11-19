@@ -132,6 +132,15 @@ func (d *Digest) Salt() (salt []byte) {
 	return d.digest.Salt()
 }
 
+// Unwrap returns the decorated algorithm.Digest. Implements algorithm.DigestUnwrapper.
+func (d *Digest) Unwrap() algorithm.Digest {
+	if d == nil {
+		return nil
+	}
+
+	return d.digest
+}
+
 // Value implements driver.Valuer.
 func (d *Digest) Value() (value driver.Value, err error) {
 	if d.digest == nil {
@@ -274,6 +283,15 @@ func (d *NullDigest) Salt() (salt []byte) {
 	}
 
 	return d.digest.Salt()
+}
+
+// Unwrap returns the decorated algorithm.Digest. Implements algorithm.DigestUnwrapper.
+func (d *NullDigest) Unwrap() algorithm.Digest {
+	if d == nil {
+		return nil
+	}
+
+	return d.digest
 }
 
 // Value implements driver.Valuer.

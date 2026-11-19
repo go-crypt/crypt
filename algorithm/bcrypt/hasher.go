@@ -37,6 +37,8 @@ type Hasher struct {
 	iterations int
 }
 
+var _ algorithm.RehashChecker = (*Hasher)(nil)
+
 // WithOptions applies the provided functional options provided as an bcrypt.Opt to the bcrypt.Hasher.
 func (h *Hasher) WithOptions(opts ...Opt) (err error) {
 	for _, opt := range opts {
@@ -122,6 +124,38 @@ func (h *Hasher) Validate() (err error) {
 	}
 
 	return nil
+}
+
+// NeedsRehash returns false only if the provided algorithm.Digest is a bcrypt.Digest with the same variant and cost
+// this bcrypt.Hasher would produce. For the standard variant the 2a, 2b, and 2y versions are considered the same, and
+// any other version needs a rehash. It implements algorithm.RehashChecker.
+func (h *Hasher) NeedsRehash(digest algorithm.Digest) (needed bool) {
+	d, ok := algorithm.UnwrapDigest(digest).(*Digest)
+	if !ok || d == nil {
+		return true
+	}
+
+	c := &Digest{
+		variant:    h.variant,
+		iterations: h.iterations,
+	}
+
+	c.defaults()
+
+	if d.variant != c.variant || d.iterations != c.iterations {
+		return true
+	}
+
+	if d.variant != VariantStandard {
+		return false
+	}
+
+	switch d.version {
+	case "", AlgIdentifier, AlgIdentifierVerA, AlgIdentifierVerY:
+		return false
+	default:
+		return true
+	}
 }
 
 func (h *Hasher) validate() (err error) {
