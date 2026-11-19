@@ -88,3 +88,28 @@ type Decoder interface {
 
 // HashFunc is a function which returns a hash.Hash.
 type HashFunc func() hash.Hash
+
+// UnwrapDigestAs unwraps the Digest using UnwrapDigest and returns the innermost Digest as the concrete pointer type
+// PT. The boolean is false if the innermost Digest is not a PT or if it is a nil PT.
+func UnwrapDigestAs[T any, PT interface {
+	*T
+	Digest
+}](digest Digest) (unwrapped PT, ok bool) {
+	unwrapped, ok = UnwrapDigest(digest).(PT)
+
+	return unwrapped, ok && unwrapped != nil
+}
+
+// Opt describes the functional option pattern for a hasher of type H.
+type Opt[H any] func(hasher H) (err error)
+
+// ApplyOptions applies each of the provided functional options to the hasher in order, returning the first error.
+func ApplyOptions[H any](hasher H, opts ...Opt[H]) (err error) {
+	for _, opt := range opts {
+		if err = opt(hasher); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

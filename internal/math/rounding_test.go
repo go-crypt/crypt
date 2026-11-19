@@ -54,7 +54,7 @@ func TestRoundDownToNearestMultiple(t *testing.T) {
 	}
 }
 
-func TestUint32RoundDownToNearestMultiple(t *testing.T) {
+func TestRoundDownToNearestMultipleUint32(t *testing.T) {
 	testCases := []struct {
 		name     string
 		value    uint32
@@ -95,7 +95,7 @@ func TestUint32RoundDownToNearestMultiple(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			actual := Uint32RoundDownToNearestMultiple(tc.value, tc.multiple)
+			actual := RoundDownToNearestMultiple(tc.value, tc.multiple)
 
 			assert.Equal(t, tc.expected, actual)
 		})

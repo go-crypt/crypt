@@ -40,13 +40,7 @@ var _ algorithm.RehashChecker = (*Hasher)(nil)
 
 // WithOptions applies the provided functional options provided as a md5crypt.Opt to the md5crypt.Hasher.
 func (h *Hasher) WithOptions(opts ...Opt) (err error) {
-	for _, opt := range opts {
-		if err = opt(h); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return algorithm.ApplyOptions(h, opts...)
 }
 
 // Hash performs the hashing operation and returns either a algorithm.Digest or an error.
@@ -95,8 +89,8 @@ func (h *Hasher) Validate() (err error) {
 // length this md5crypt.Hasher would produce, and for the Sun variant the same iterations. It implements
 // algorithm.RehashChecker.
 func (h *Hasher) NeedsRehash(digest algorithm.Digest) (needed bool) {
-	d, ok := algorithm.UnwrapDigest(digest).(*Digest)
-	if !ok || d == nil {
+	d, ok := algorithm.UnwrapDigestAs[Digest](digest)
+	if !ok {
 		return true
 	}
 

@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-crypt/crypt/algorithm"
 	"github.com/go-crypt/crypt/internal/encoding"
+	"github.com/go-crypt/crypt/internal/validate"
 )
 
 // RegisterDecoder the decoder with the algorithm.DecoderRegister.
@@ -223,8 +224,8 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 }
 
 func validateCost(cost int) (err error) {
-	if cost < bcrypt.MinCost || cost > bcrypt.MaxCost {
-		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, "cost", bcrypt.MinCost, "", bcrypt.MaxCost, cost)
+	if err = validate.Range(algorithm.ErrEncodedHashInvalidOptionValue, "cost", cost, bcrypt.MinCost, bcrypt.MaxCost); err != nil {
+		return err
 	}
 
 	return nil

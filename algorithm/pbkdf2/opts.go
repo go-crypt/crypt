@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	"github.com/go-crypt/crypt/algorithm"
+	"github.com/go-crypt/crypt/internal/validate"
 )
 
 // Opt describes the functional option pattern for the pbkdf2.Hasher.
-type Opt func(h *Hasher) (err error)
+type Opt = algorithm.Opt[*Hasher]
 
 // WithVariant configures the pbkdf2.Variant of the resulting pbkdf2.Digest.
 // Default is pbkdf2.VariantSHA256.
@@ -50,8 +51,8 @@ func WithVariantName(identifier string) Opt {
 // Minimum is 100000, Maximum is 2147483647. Default is 29000.
 func WithIterations(iterations int) Opt {
 	return func(h *Hasher) (err error) {
-		if iterations < IterationsMin || iterations > IterationsMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "iterations", IterationsMin, "", IterationsMax, iterations))
+		if err = validate.Range(algorithm.ErrParameterInvalid, "iterations", iterations, IterationsMin, IterationsMax); err != nil {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, err)
 		}
 
 		h.iterations = iterations
@@ -73,8 +74,8 @@ func WithKeyLength(bytes int) Opt {
 
 		keySizeMin := h.variant.HashFunc()().Size()
 
-		if bytes < keySizeMin || bytes > KeyLengthMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "tag size", keySizeMin, "", KeyLengthMax, bytes))
+		if err = validate.Range(algorithm.ErrParameterInvalid, "tag size", bytes, keySizeMin, KeyLengthMax); err != nil {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, err)
 		}
 
 		h.bytesKey = bytes
@@ -87,8 +88,8 @@ func WithKeyLength(bytes int) Opt {
 // Minimum is 8, Maximum is 2147483647. Default is 16.
 func WithSaltLength(bytes int) Opt {
 	return func(h *Hasher) (err error) {
-		if bytes < SaltLengthMin || bytes > SaltLengthMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "salt length", SaltLengthMin, "", SaltLengthMax, bytes))
+		if err = validate.Range(algorithm.ErrParameterInvalid, "salt length", bytes, SaltLengthMin, SaltLengthMax); err != nil {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, err)
 		}
 
 		h.bytesSalt = bytes

@@ -101,5 +101,5 @@ func (d *Digest) defaults() {
 
 	pM := d.p * MemoryRoundingParallelismMultiplier
 
-	d.m = math.Uint32RoundDownToNearestMultiple(d.m, pM)
+	d.m = math.RoundDownToNearestMultiple(d.m, pM)
 }

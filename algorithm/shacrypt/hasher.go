@@ -56,13 +56,7 @@ func NewSHA512() (hasher *Hasher, err error) {
 
 // WithOptions defines the options for this scrypt.Hasher.
 func (h *Hasher) WithOptions(opts ...Opt) (err error) {
-	for _, opt := range opts {
-		if err = opt(h); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return algorithm.ApplyOptions(h, opts...)
 }
 
 // Hash performs the hashing operation and returns either a shacrypt.Digest as a algorithm.Digest or an error.
@@ -142,8 +136,8 @@ func (h *Hasher) Validate() (err error) {
 // NeedsRehash returns false only if the provided algorithm.Digest is a shacrypt.Digest with the same variant,
 // iterations, and salt length this shacrypt.Hasher would produce. It implements algorithm.RehashChecker.
 func (h *Hasher) NeedsRehash(digest algorithm.Digest) (needed bool) {
-	d, ok := algorithm.UnwrapDigest(digest).(*Digest)
-	if !ok || d == nil {
+	d, ok := algorithm.UnwrapDigestAs[Digest](digest)
+	if !ok {
 		return true
 	}
 

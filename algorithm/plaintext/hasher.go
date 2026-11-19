@@ -28,13 +28,7 @@ var _ algorithm.RehashChecker = (*Hasher)(nil)
 
 // WithOptions applies the provided functional options provided as an plaintext.Opt to the plaintext.Hasher.
 func (h *Hasher) WithOptions(opts ...Opt) (err error) {
-	for _, opt := range opts {
-		if err = opt(h); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return algorithm.ApplyOptions(h, opts...)
 }
 
 // Validate checks the hasher configuration to ensure it's valid. This should be used when the plaintext.Hasher is going
@@ -46,8 +40,8 @@ func (h *Hasher) Validate() (err error) {
 // NeedsRehash returns false only if the provided algorithm.Digest is a plaintext.Digest with the same variant this
 // plaintext.Hasher would produce. It implements algorithm.RehashChecker.
 func (h *Hasher) NeedsRehash(digest algorithm.Digest) (needed bool) {
-	d, ok := algorithm.UnwrapDigest(digest).(*Digest)
-	if !ok || d == nil {
+	d, ok := algorithm.UnwrapDigestAs[Digest](digest)
+	if !ok {
 		return true
 	}
 

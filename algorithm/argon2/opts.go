@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	"github.com/go-crypt/crypt/algorithm"
+	"github.com/go-crypt/crypt/internal/validate"
 )
 
 // Opt describes the functional option pattern for the argon2.Hasher.
-type Opt func(h *Hasher) (err error)
+type Opt = algorithm.Opt[*Hasher]
 
 // WithVariant is used to configure the argon2.Variant of the resulting argon2.Digest.
 // Default is argon2.VariantID.
@@ -81,8 +82,8 @@ func WithVariantD() Opt {
 // RFC9106 section 3.1 "Argon2 Inputs and Outputs" https://www.rfc-editor.org/rfc/rfc9106.html#name-argon2-inputs-and-outputs.
 func WithP(p int) Opt {
 	return func(h *Hasher) (err error) {
-		if p < ParallelismMin || p > ParallelismMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "parallelism", ParallelismMin, "", ParallelismMax, p))
+		if err = validate.Range(algorithm.ErrParameterInvalid, "parallelism", p, ParallelismMin, ParallelismMax); err != nil {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, err)
 		}
 
 		h.p = p
@@ -106,8 +107,8 @@ func WithParallelism(p int) Opt {
 // RFC9106 section 3.1 "Argon2 Inputs and Outputs" https://www.rfc-editor.org/rfc/rfc9106.html#name-argon2-inputs-and-outputs.
 func WithM(m uint32) Opt {
 	return func(h *Hasher) (err error) {
-		if m < MemoryMin || m > MemoryMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "memory", MemoryMin, "", MemoryMax, m))
+		if err = validate.Range(algorithm.ErrParameterInvalid, "memory", m, MemoryMin, MemoryMax); err != nil {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, err)
 		}
 
 		h.m = m
@@ -130,8 +131,8 @@ func WithMemoryInKiB(m uint32) Opt {
 // RFC9106 section 3.1 "Argon2 Inputs and Outputs" https://www.rfc-editor.org/rfc/rfc9106.html#name-argon2-inputs-and-outputs.
 func WithT(t int) Opt {
 	return func(h *Hasher) (err error) {
-		if t < IterationsMin || t > IterationsMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "t", IterationsMin, "", IterationsMax, t))
+		if err = validate.Range(algorithm.ErrParameterInvalid, "t", t, IterationsMin, IterationsMax); err != nil {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, err)
 		}
 
 		h.t = t
@@ -154,8 +155,8 @@ func WithIterations(t int) Opt {
 // RFC9106 section 3.1 "Argon2 Inputs and Outputs" https://www.rfc-editor.org/rfc/rfc9106.html#name-argon2-inputs-and-outputs.
 func WithK(k int) Opt {
 	return func(h *Hasher) (err error) {
-		if k < KeyLengthMin || k > KeyLengthMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "k", KeyLengthMin, "", KeyLengthMax, k))
+		if err = validate.Range(algorithm.ErrParameterInvalid, "k", k, KeyLengthMin, KeyLengthMax); err != nil {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, err)
 		}
 
 		h.k = k
@@ -184,8 +185,8 @@ func WithKeyLength(k int) Opt {
 // RFC9106 section 3.1 "Argon2 Inputs and Outputs" https://www.rfc-editor.org/rfc/rfc9106.html#name-argon2-inputs-and-outputs.
 func WithS(s int) Opt {
 	return func(h *Hasher) (err error) {
-		if s < SaltLengthMin || s > SaltLengthMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "s", SaltLengthMin, "", SaltLengthMax, s))
+		if err = validate.Range(algorithm.ErrParameterInvalid, "s", s, SaltLengthMin, SaltLengthMax); err != nil {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, err)
 		}
 
 		h.s = s

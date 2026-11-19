@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-crypt/crypt/algorithm"
 	"github.com/go-crypt/crypt/internal/random"
+	"github.com/go-crypt/crypt/internal/validate"
 )
 
 // New returns a *pbkdf2.Hasher with the additional opts applied if any.
@@ -62,13 +63,7 @@ var _ algorithm.RehashChecker = (*Hasher)(nil)
 
 // WithOptions applies the provided functional options provided as a pbkdf2.Opt to the pbkdf2.Hasher.
 func (h *Hasher) WithOptions(opts ...Opt) (err error) {
-	for _, opt := range opts {
-		if err = opt(h); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return algorithm.ApplyOptions(h, opts...)
 }
 
 // Hash performs the hashing operation and returns either a algorithm.Digest or an error.
@@ -147,8 +142,8 @@ func (h *Hasher) Validate() (err error) {
 // NeedsRehash returns false only if the provided algorithm.Digest is a pbkdf2.Digest with the same variant,
 // iterations, key length, and salt length this pbkdf2.Hasher would produce. It implements algorithm.RehashChecker.
 func (h *Hasher) NeedsRehash(digest algorithm.Digest) (needed bool) {
-	d, ok := algorithm.UnwrapDigest(digest).(*Digest)
-	if !ok || d == nil {
+	d, ok := algorithm.UnwrapDigestAs[Digest](digest)
+	if !ok {
 		return true
 	}
 
@@ -174,8 +169,8 @@ func (h *Hasher) validate() (err error) {
 
 	keyLengthMin := h.variant.HashFunc()().Size()
 
-	if h.bytesKey < keyLengthMin || h.bytesKey > KeyLengthMax {
-		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "key length", keyLengthMin, "", KeyLengthMax, h.bytesKey)
+	if err = validate.Range(algorithm.ErrParameterInvalid, "key length", h.bytesKey, keyLengthMin, KeyLengthMax); err != nil {
+		return err
 	}
 
 	return nil

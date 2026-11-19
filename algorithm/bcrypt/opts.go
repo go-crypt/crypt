@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	"github.com/go-crypt/crypt/algorithm"
+	"github.com/go-crypt/crypt/internal/validate"
 )
 
 // Opt describes the functional option pattern for the bcrypt.Hasher.
-type Opt func(h *Hasher) (err error)
+type Opt = algorithm.Opt[*Hasher]
 
 // WithVariant is used to configure the bcrypt.Variant of the resulting bcrypt.Digest.
 // Default is bcrypt.VariantStandard.
@@ -48,8 +49,8 @@ func WithVariantName(identifier string) Opt {
 // Minimum is 10, Maximum is 31. Default is 12.
 func WithIterations(iterations int) Opt {
 	return func(h *Hasher) (err error) {
-		if iterations < IterationsMin || iterations > IterationsMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "iterations", IterationsMin, "", IterationsMax, iterations))
+		if err = validate.Range(algorithm.ErrParameterInvalid, "iterations", iterations, IterationsMin, IterationsMax); err != nil {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, err)
 		}
 
 		h.iterations = iterations
