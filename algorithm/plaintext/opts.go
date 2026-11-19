@@ -7,7 +7,7 @@ import (
 )
 
 // Opt describes the functional option pattern for the plaintext.Hasher.
-type Opt func(h *Hasher) (err error)
+type Opt = algorithm.Opt[*Hasher]
 
 // WithVariant configures the plaintext.Variant of the resulting plaintext.Digest.
 // Default is plaintext.VariantPlainText.

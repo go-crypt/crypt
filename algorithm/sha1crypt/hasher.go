@@ -38,13 +38,7 @@ var _ algorithm.RehashChecker = (*Hasher)(nil)
 
 // WithOptions applies the provided functional options provided as a sha1crypt.Opt to the sha1crypt.Hasher.
 func (h *Hasher) WithOptions(opts ...Opt) (err error) {
-	for _, opt := range opts {
-		if err = opt(h); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return algorithm.ApplyOptions(h, opts...)
 }
 
 // Hash performs the hashing operation and returns either a algorithm.Digest or an error.
@@ -92,8 +86,8 @@ func (h *Hasher) Validate() (err error) {
 // NeedsRehash returns false only if the provided algorithm.Digest is a sha1crypt.Digest with the same iterations and
 // salt length this sha1crypt.Hasher would produce. It implements algorithm.RehashChecker.
 func (h *Hasher) NeedsRehash(digest algorithm.Digest) (needed bool) {
-	d, ok := algorithm.UnwrapDigest(digest).(*Digest)
-	if !ok || d == nil {
+	d, ok := algorithm.UnwrapDigestAs[Digest](digest)
+	if !ok {
 		return true
 	}
 

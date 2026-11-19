@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	"github.com/go-crypt/crypt/algorithm"
+	"github.com/go-crypt/crypt/internal/validate"
 )
 
 // Opt describes the functional option pattern for the scrypt.Hasher.
-type Opt func(h *Hasher) (err error)
+type Opt = algorithm.Opt[*Hasher]
 
 // WithVariant configures the scrypt.Variant of the resulting scrypt.Digest.
 // Default is scrypt.VariantScrypt.
@@ -50,8 +51,8 @@ func WithVariantName(identifier string) Opt {
 // Minimum is 1, Maximum is 137438953440. Default is 32.
 func WithK(k int) Opt {
 	return func(h *Hasher) (err error) {
-		if k < KeyLengthMin || k > KeyLengthMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "key length", KeyLengthMin, "", KeyLengthMax, k))
+		if err = validate.Range(algorithm.ErrParameterInvalid, "key length", k, KeyLengthMin, KeyLengthMax); err != nil {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, err)
 		}
 
 		h.k = k
@@ -69,8 +70,8 @@ func WithKeyLength(k int) Opt {
 // Minimum is 8, Maximum is 1024. Default is 16.
 func WithS(s int) Opt {
 	return func(h *Hasher) (err error) {
-		if s < SaltLengthMin || s > SaltLengthMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "salt length", SaltLengthMin, "", SaltLengthMax, s))
+		if err = validate.Range(algorithm.ErrParameterInvalid, "salt length", s, SaltLengthMin, SaltLengthMax); err != nil {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, err)
 		}
 
 		h.bytesSalt = s
@@ -88,8 +89,8 @@ func WithSaltLength(s int) Opt {
 // Minimum is 1, Maximum is 58. Default is 16.
 func WithLN(ln int) Opt {
 	return func(h *Hasher) (err error) {
-		if ln < IterationsMin || ln > IterationsMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "iterations", IterationsMin, "", IterationsMax, ln))
+		if err = validate.Range(algorithm.ErrParameterInvalid, "iterations", ln, IterationsMin, IterationsMax); err != nil {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, err)
 		}
 
 		h.ln = ln
@@ -102,8 +103,8 @@ func WithLN(ln int) Opt {
 // Minimum is 1, Maximum is math.MaxInt / 256. Default is 8.
 func WithR(r int) Opt {
 	return func(h *Hasher) (err error) {
-		if r < BlockSizeMin || r > BlockSizeMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "block size", BlockSizeMin, "", BlockSizeMax, r))
+		if err = validate.Range(algorithm.ErrParameterInvalid, "block size", r, BlockSizeMin, BlockSizeMax); err != nil {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, err)
 		}
 
 		h.r = r
@@ -121,8 +122,8 @@ func WithBlockSize(r int) Opt {
 // Minimum is 1, Maximum is 1073741823. Default is 1. The yescrypt variant only supports a value of 1.
 func WithP(p int) Opt {
 	return func(h *Hasher) (err error) {
-		if p < ParallelismMin || p > ParallelismMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "parallelism", ParallelismMin, "", ParallelismMax, p))
+		if err = validate.Range(algorithm.ErrParameterInvalid, "parallelism", p, ParallelismMin, ParallelismMax); err != nil {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, err)
 		}
 
 		h.p = p

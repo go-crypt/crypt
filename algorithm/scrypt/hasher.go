@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-crypt/crypt/algorithm"
 	"github.com/go-crypt/crypt/internal/random"
+	"github.com/go-crypt/crypt/internal/validate"
 )
 
 // scrypt RFC7914: https://www.rfc-editor.org/rfc/rfc7914.html.
@@ -46,13 +47,7 @@ var _ algorithm.RehashChecker = (*Hasher)(nil)
 
 // WithOptions defines the options for this scrypt.Hasher.
 func (h *Hasher) WithOptions(opts ...Opt) (err error) {
-	for _, opt := range opts {
-		if err = opt(h); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return algorithm.ApplyOptions(h, opts...)
 }
 
 // Hash performs the hashing operation and returns either a Digest or an error.
@@ -138,8 +133,8 @@ func (h *Hasher) Validate() (err error) {
 // NeedsRehash returns false only if the provided algorithm.Digest is a scrypt.Digest with the same variant, ln, r, p,
 // key length, and salt length this scrypt.Hasher would produce. It implements algorithm.RehashChecker.
 func (h *Hasher) NeedsRehash(digest algorithm.Digest) (needed bool) {
-	d, ok := algorithm.UnwrapDigest(digest).(*Digest)
-	if !ok || d == nil {
+	d, ok := algorithm.UnwrapDigestAs[Digest](digest)
+	if !ok {
 		return true
 	}
 
@@ -177,8 +172,8 @@ func (h *Hasher) validate() (err error) {
 	if h.r > 0 {
 		mp := KeyLengthMax / (128 * h.r)
 
-		if h.p < ParallelismMin || h.p > mp {
-			return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "p", ParallelismMin, "", mp, h.p)
+		if err = validate.Range(algorithm.ErrParameterInvalid, "p", h.p, ParallelismMin, mp); err != nil {
+			return err
 		}
 
 		nr := math.MaxInt / 128 / h.r

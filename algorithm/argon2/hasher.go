@@ -38,13 +38,7 @@ var _ algorithm.RehashChecker = (*Hasher)(nil)
 
 // WithOptions applies the provided functional options provided as an argon2.Opt to the argon2.Hasher.
 func (h *Hasher) WithOptions(opts ...Opt) (err error) {
-	for _, opt := range opts {
-		if err = opt(h); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return algorithm.ApplyOptions(h, opts...)
 }
 
 // Copy copies all parameters from this argon2.Hasher to another *argon2.Hasher.
@@ -179,8 +173,8 @@ func (h *Hasher) Validate() (err error) {
 // iterations, memory, parallelism, key length, and salt length this argon2.Hasher would produce. It implements
 // algorithm.RehashChecker.
 func (h *Hasher) NeedsRehash(digest algorithm.Digest) (needed bool) {
-	d, ok := algorithm.UnwrapDigest(digest).(*Digest)
-	if !ok || d == nil {
+	d, ok := algorithm.UnwrapDigestAs[Digest](digest)
+	if !ok {
 		return true
 	}
 
@@ -200,7 +194,7 @@ func (h *Hasher) NeedsRehash(digest algorithm.Digest) (needed bool) {
 		return true
 	}
 
-	if math.Uint32RoundDownToNearestMultiple(d.m, d.p*MemoryRoundingParallelismMultiplier) != c.m {
+	if math.RoundDownToNearestMultiple(d.m, d.p*MemoryRoundingParallelismMultiplier) != c.m {
 		return true
 	}
 

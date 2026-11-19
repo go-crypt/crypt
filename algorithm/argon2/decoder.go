@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-crypt/crypt/algorithm"
 	"github.com/go-crypt/crypt/internal/encoding"
+	"github.com/go-crypt/crypt/internal/validate"
 )
 
 // RegisterDecoder the decoder with the algorithm.DecoderRegister.
@@ -166,8 +167,8 @@ func decode(variant Variant, parts []string) (digest algorithm.Digest, err error
 		return nil, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, oT, IterationsMin, "", uint32(IterationsMax), decoded.t)
 	}
 
-	if decoded.p < ParallelismMin || decoded.p > ParallelismMax {
-		return nil, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, oP, ParallelismMin, "", uint32(ParallelismMax), decoded.p)
+	if err = validate.Range(algorithm.ErrEncodedHashInvalidOptionValue, oP, decoded.p, ParallelismMin, ParallelismMax); err != nil {
+		return nil, err
 	}
 
 	mMin := uint64(decoded.p) * MemoryMinParallelismMultiplier

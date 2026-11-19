@@ -6,6 +6,7 @@ import (
 	"math"
 
 	"github.com/go-crypt/crypt/algorithm"
+	"github.com/go-crypt/crypt/internal/validate"
 )
 
 // Digest is a scrypt.Digest which handles scrypt hashes.
@@ -78,16 +79,16 @@ func (d *Digest) n() (n int) {
 }
 
 func (d *Digest) validate() (err error) {
-	if d.ln < IterationsMin || d.ln > IterationsMax {
-		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, oLN, IterationsMin, "", IterationsMax, d.ln)
+	if err = validate.Range(algorithm.ErrEncodedHashInvalidOptionValue, oLN, d.ln, IterationsMin, IterationsMax); err != nil {
+		return err
 	}
 
-	if d.r < BlockSizeMin || d.r > BlockSizeMax {
-		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, oR, BlockSizeMin, "", BlockSizeMax, d.r)
+	if err = validate.Range(algorithm.ErrEncodedHashInvalidOptionValue, oR, d.r, BlockSizeMin, BlockSizeMax); err != nil {
+		return err
 	}
 
-	if d.p < ParallelismMin || d.p > ParallelismMax {
-		return fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrEncodedHashInvalidOptionValue, oP, ParallelismMin, "", ParallelismMax, d.p)
+	if err = validate.Range(algorithm.ErrEncodedHashInvalidOptionValue, oP, d.p, ParallelismMin, ParallelismMax); err != nil {
+		return err
 	}
 
 	rp := uint64(d.r) * uint64(d.p)

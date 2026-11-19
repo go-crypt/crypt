@@ -1,11 +1,11 @@
 package math
 
-// RoundDownToNearestMultiple returns the nearest multiple of value.
-func RoundDownToNearestMultiple(value, multiple int) int {
-	return (value / multiple) * multiple
+// Integer is a constraint which permits any integer type.
+type Integer interface {
+	~int | ~int8 | ~int16 | ~int32 | ~int64 | ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr
 }
 
-// Uint32RoundDownToNearestMultiple returns the nearest multiple of value (uint32 version).
-func Uint32RoundDownToNearestMultiple(value, multiple uint32) uint32 {
+// RoundDownToNearestMultiple returns value rounded down to the nearest multiple of multiple.
+func RoundDownToNearestMultiple[T Integer](value, multiple T) T {
 	return (value / multiple) * multiple
 }

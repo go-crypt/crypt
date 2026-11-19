@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	"github.com/go-crypt/crypt/algorithm"
+	"github.com/go-crypt/crypt/internal/validate"
 )
 
 // Opt describes the functional option pattern for the shacrypt.Hasher.
-type Opt func(h *Hasher) (err error)
+type Opt = algorithm.Opt[*Hasher]
 
 // WithVariant configures the shacrypt.Variant of the resulting shacrypt.Digest.
 // Default is shacrypt.VariantSHA512.
@@ -68,8 +69,8 @@ func WithSHA512() Opt {
 // Minimum 1000, Maximum 999999999. Default is 1000000.
 func WithIterations(iterations int) Opt {
 	return func(h *Hasher) (err error) {
-		if iterations < IterationsMin || iterations > IterationsMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "iterations", IterationsMin, "", IterationsMax, iterations))
+		if err = validate.Range(algorithm.ErrParameterInvalid, "iterations", iterations, IterationsMin, IterationsMax); err != nil {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, err)
 		}
 
 		h.iterations = iterations
@@ -87,8 +88,8 @@ func WithRounds(rounds int) Opt {
 // Minimum 1, Maximum 16. Default is 16.
 func WithSaltLength(bytes int) Opt {
 	return func(h *Hasher) (err error) {
-		if bytes < SaltLengthMin || bytes > SaltLengthMax {
-			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, fmt.Errorf(algorithm.ErrFmtInvalidIntParameter, algorithm.ErrParameterInvalid, "salt length", SaltLengthMin, "", SaltLengthMax, bytes))
+		if err = validate.Range(algorithm.ErrParameterInvalid, "salt length", bytes, SaltLengthMin, SaltLengthMax); err != nil {
+			return fmt.Errorf(algorithm.ErrFmtHasherValidation, AlgName, err)
 		}
 
 		h.bytesSalt = bytes
